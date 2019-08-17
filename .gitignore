@@ -102,3 +102,18 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Other editors
+*~
+.idea/
+.save
+
+# Binaries
+*.db
+*.sqlite3
+
+# Logs
+nohup.out
+
+# Sound files
+*.wav

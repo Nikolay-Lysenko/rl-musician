@@ -1,2 +1,3 @@
-# rl-musician
-Composition of music with reinforcement learning.
+# RL Musician
+
+Composition of music with reinforcement learning. Coming soon.
