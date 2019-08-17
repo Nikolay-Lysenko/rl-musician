@@ -29,13 +29,37 @@ def score_notewise_entropy(roll: np.ndarray) -> float:
     return np.mean(np.var(roll, axis=1))
 
 
-def compute_consonance_scores_between_note_and_roll(
+def shift_note_timeline(note_timeline: np.ndarray, shift: int) -> np.ndarray:
+    """
+    Shift note timeline.
+
+    Length of output timeline is the same as length of input timeline,
+    because non-fitting values are removed and gaps are padded with zeros.
+
+    :param note_timeline:
+        array of shape (1, n_time_steps) with cells containing
+        zeros if the note is not played and ones if it is played
+    :param shift:
+        signed value of shift in time steps, positive for shift to the right
+        and negative for shift to the left
+    :return:
+        shifted timeline
+    """
+    if shift == 0:
+        return note_timeline
+    elif shift > 0:
+        return np.hstack((np.zeros((1, shift)), note_timeline[:, :-shift]))
+    else:
+        return np.hstack((note_timeline[:, -shift:], np.zeros((1, -shift))))
+
+
+def compute_consonance_score_between_note_and_roll(
         note_timeline: np.ndarray,
         upper_roll: np.ndarray,
         interval_consonances: Dict[int, float]
 ) -> float:
     """
-    Compute scores for a note's timeline and a roll of higher notes.
+    Compute consonance score for a note's timeline and a roll of higher notes.
 
     It is a helper function for `score_consonances` function.
 
@@ -90,32 +114,16 @@ def score_consonances(
         played notes that are close enough (according to `distance_weights`)
     """
     score = 0
+    distances = list(distance_weights.keys())
+    signed_distances = set(distances + [-x for x in distances])
+    distance_weights = {k: distance_weights[abs(k)] for k in signed_distances}
     for note_position in range(1, roll.shape[0]):
         upper_roll = roll[:note_position, :]
         note_timeline = roll[note_position, :].reshape((1, -1))
         for distance, weight in distance_weights.items():
-            if distance == 0:
-                curr_score = compute_consonance_scores_between_note_and_roll(
-                    note_timeline, upper_roll, interval_consonances
-                )
-                score += weight * curr_score
-                continue
-
-            # Shift `distance` steps forward.
-            shifted_note_timeline = np.hstack(
-                (np.zeros((1, distance)), note_timeline[:, :-distance])
-            )
-            curr_score = compute_consonance_scores_between_note_and_roll(
-                shifted_note_timeline, upper_roll, interval_consonances
-            )
-            score += weight * curr_score
-
-            # Shift `distance` steps backward.
-            shifted_note_timeline = np.hstack(
-                (note_timeline[:, distance:], np.zeros((1, distance)))
-            )
-            curr_score = compute_consonance_scores_between_note_and_roll(
-                shifted_note_timeline, upper_roll, interval_consonances
+            shifted_timeline = shift_note_timeline(note_timeline, distance)
+            curr_score = compute_consonance_score_between_note_and_roll(
+                shifted_timeline, upper_roll, interval_consonances
             )
             score += weight * curr_score
     return score
