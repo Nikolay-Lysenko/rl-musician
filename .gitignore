@@ -115,5 +115,5 @@ venv.bak/
 # Logs
 nohup.out
 
-# Sound files
-*.wav
+# Project data
+rlmusician_data/
