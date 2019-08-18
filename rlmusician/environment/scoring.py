@@ -13,7 +13,7 @@ import numpy as np
 N_SEMITONES_PER_OCTAVE = 12
 
 
-def score_notewise_entropy(roll: np.ndarray) -> float:
+def score_palette_entropy(roll: np.ndarray) -> float:
     """
     Score composition based on entropy of usage of each note.
 
@@ -24,9 +24,25 @@ def score_notewise_entropy(roll: np.ndarray) -> float:
         time steps, and cells containing zeros and ones and indicating
         whether a note is played
     :return:
-        averaged over all notes variance of their usage
+        averaged over all notes variance of their usage in time
     """
     return np.mean(np.var(roll, axis=1))
+
+
+def score_chord_entropy(roll: np.ndarray) -> float:
+    """
+    Score composition based on entropy of notes played at each time step.
+
+    It is a proxy of how non-trivial music is.
+
+    :param roll:
+        piano roll with rows corresponding to notes, columns corresponding to
+        time steps, and cells containing zeros and ones and indicating
+        whether a note is played
+    :return:
+        averaged over all time steps variance of notes played there
+    """
+    return np.mean(np.var(roll, axis=0))
 
 
 def shift_note_timeline(note_timeline: np.ndarray, shift: int) -> np.ndarray:

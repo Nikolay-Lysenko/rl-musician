@@ -31,10 +31,10 @@ def main() -> None:
         env.action_space.n
     )
 
-    agent.fit(env, nb_steps=1e4)
+    agent.fit(env, nb_steps=1e5)
     weights_path = os.path.join(data_dir, 'agent_weights.h5f')
     agent.save_weights(weights_path, overwrite=True)
-    agent.test(env, nb_episodes=10, visualize=True)
+    agent.test(env, nb_episodes=1, visualize=True)
 
 
 if __name__ == '__main__':

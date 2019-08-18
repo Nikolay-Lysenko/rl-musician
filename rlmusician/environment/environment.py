@@ -13,12 +13,13 @@ import gym
 import numpy as np
 
 from rlmusician.environment.scoring import (
-    score_notewise_entropy, score_consonances
+    score_palette_entropy, score_chord_entropy, score_consonances
 )
 
 
 SCORING_FN_REGISTRY = {
-    'note-wise_entropy': score_notewise_entropy,
+    'palette_entropy': score_palette_entropy,
+    'chord_entropy': score_chord_entropy,
     'consonances': score_consonances
 }
 
@@ -32,6 +33,7 @@ class MusicCompositionEnv(gym.Env):
 
     def __init__(
             self, n_semitones: int, n_time_steps: int, observed_length: int,
+            max_episode_steps_per_roll_step: int,
             scoring_coefs: Dict[str, float],
             scoring_fn_params: Dict[str, Dict[str, Any]],
             data_dir: str
@@ -45,6 +47,8 @@ class MusicCompositionEnv(gym.Env):
             total duration of composition in time steps
         :param observed_length:
             number of piano roll's time steps available for observing
+        :param max_episode_steps_per_roll_step:
+            number of episode steps after which forced movement forward occurs
         :param scoring_coefs:
             mapping from scoring function names to their weights in final score
         :param scoring_fn_params:
@@ -52,16 +56,18 @@ class MusicCompositionEnv(gym.Env):
         :param data_dir:
             directory where rendered results are going to be saved
         """
-        self.scoring_coefs = scoring_coefs
-        self.scoring_fn_params = scoring_fn_params
         self.n_semitones = n_semitones
         self.n_time_steps = n_time_steps
         self.observed_length = observed_length
+        self.max_episode_steps_per_roll_step = max_episode_steps_per_roll_step
+        self.scoring_coefs = scoring_coefs
+        self.scoring_fn_params = scoring_fn_params
         self.data_dir = data_dir
 
         self.piano_roll = None
         self.n_piano_roll_steps_passed = None
         self.n_episode_steps_passed = None
+        self.n_episode_steps_passed_at_this_roll_step = None
 
         self.action_space = gym.spaces.Discrete(n_semitones + 1)
         self.observation_space = gym.spaces.Tuple([
@@ -110,9 +116,17 @@ class MusicCompositionEnv(gym.Env):
         # Act.
         if action == self.n_semitones:  # Reserved action for shift forward.
             self.n_piano_roll_steps_passed += 1
+            self.n_episode_steps_passed_at_this_roll_step = 0
         else:
             self.piano_roll[action, self.n_piano_roll_steps_passed] += 1
             self.piano_roll[action, self.n_piano_roll_steps_passed] %= 2
+            self.n_episode_steps_passed_at_this_roll_step += 1
+            if (
+                    self.n_episode_steps_passed_at_this_roll_step
+                    == self.max_episode_steps_per_roll_step
+            ):
+                self.n_piano_roll_steps_passed += 1
+                self.n_episode_steps_passed_at_this_roll_step = 0
         self.n_episode_steps_passed += 1
 
         # Provide feedback.
@@ -142,6 +156,7 @@ class MusicCompositionEnv(gym.Env):
         """
         self.n_episode_steps_passed = 0
         self.n_piano_roll_steps_passed = 0
+        self.n_episode_steps_passed_at_this_roll_step = 0
 
         piano_roll_shape = (self.n_semitones, self.n_time_steps)
         self.piano_roll = np.zeros(piano_roll_shape, dtype=np.int32)
