@@ -1,3 +1,4 @@
 -c constraints.txt
+gym==0.14.0
 numpy==1.17.0
 PyYAML==5.1.2
