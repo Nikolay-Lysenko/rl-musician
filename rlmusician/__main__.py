@@ -26,10 +26,7 @@ def main() -> None:
         os.mkdir(os.path.join(data_dir, 'piano_rolls'))
 
     env = MusicCompositionEnv(**settings['environment'])
-    agent = create_dqn_agent(
-        env.observation_space[0].shape,
-        env.action_space.n
-    )
+    agent = create_dqn_agent(env.observation_space.shape, env.action_space.n)
 
     agent.fit(env, nb_steps=1e5)
     weights_path = os.path.join(data_dir, 'agent_weights.h5f')

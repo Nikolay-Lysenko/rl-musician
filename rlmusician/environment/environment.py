@@ -70,20 +70,9 @@ class MusicCompositionEnv(gym.Env):
         self.n_episode_steps_passed_at_this_roll_step = None
 
         self.action_space = gym.spaces.Discrete(n_semitones + 1)
-        self.observation_space = gym.spaces.Tuple([
-            gym.spaces.Box(
-                low=0,
-                high=1,
-                shape=(n_semitones, observed_length),
-                dtype=np.int32
-            ),
-            gym.spaces.Box(
-                low=-1e10,
-                high=1e10,
-                shape=(1,),
-                dtype=np.float32
-            )
-        ])
+        self.observation_space = gym.spaces.Box(
+            low=0, high=1, shape=(n_semitones, observed_length), dtype=np.int32
+        )
 
     def __evaluate(self) -> float:
         """Evaluate current state of piano roll."""
@@ -96,9 +85,7 @@ class MusicCompositionEnv(gym.Env):
             )
         return score
 
-    def step(
-            self, action: int
-    ) -> Tuple[Tuple[np.ndarray, np.ndarray], float, bool, Dict]:
+    def step(self, action: int) -> Tuple[np.ndarray, float, bool, Dict]:
         """
         Run one step of the environment's dynamics.
 
@@ -135,19 +122,18 @@ class MusicCompositionEnv(gym.Env):
             self.n_piano_roll_steps_passed + 1
         )
         if steps_to_see[0] >= 0:
-            roll_to_see = self.piano_roll[:, steps_to_see[0]:steps_to_see[1]]
+            observation = self.piano_roll[:, steps_to_see[0]:steps_to_see[1]]
         else:
-            roll_to_see = np.hstack((
+            observation = np.hstack((
                 np.zeros((self.n_semitones, -steps_to_see[0]), dtype=np.int32),
                 self.piano_roll[:, 0:steps_to_see[1]]
             ))
-        observation = (roll_to_see, np.array([self.__evaluate()]))
         done = self.n_piano_roll_steps_passed == self.n_time_steps - 1
         reward = observation[1][0] if done else 0
         info = {}
         return observation, reward, done, info
 
-    def reset(self) -> Tuple[np.ndarray, np.ndarray]:
+    def reset(self) -> np.ndarray:
         """
         Reset the state of the environment and return an initial observation.
 
@@ -162,8 +148,7 @@ class MusicCompositionEnv(gym.Env):
         self.piano_roll = np.zeros(piano_roll_shape, dtype=np.int32)
 
         observed_roll_shape = (self.n_semitones, self.observed_length)
-        roll_to_see = np.zeros(observed_roll_shape, dtype=np.int32)
-        observation = (roll_to_see, np.array([self.__evaluate()]))
+        observation = np.zeros(observed_roll_shape, dtype=np.int32)
         return observation
 
     def render(self, mode='human') -> None:
