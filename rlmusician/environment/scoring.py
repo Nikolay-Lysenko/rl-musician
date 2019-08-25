@@ -9,6 +9,11 @@ from typing import Dict
 
 import numpy as np
 
+from rlmusician.utils import (
+    estimate_max_compressed_size_given_shape,
+    measure_compressed_size
+)
+
 
 N_SEMITONES_PER_OCTAVE = 12
 
@@ -43,6 +48,29 @@ def score_vertical_variance(roll: np.ndarray) -> float:
         averaged over all time steps variance of notes played there
     """
     return np.mean(np.var(roll, axis=0)).item()
+
+
+def score_repetitiveness(roll: np.ndarray, reference_size=None) -> float:
+    """
+    Score composition based on how it can be compressed.
+
+    It is a proxy of how non-trivial music is.
+
+    :param roll:
+        piano roll with rows corresponding to notes, columns corresponding to
+        time steps, and cells containing zeros and ones and indicating
+        whether a note is played
+    :param reference_size:
+        estimated maximum size of compressed array of the same shape as `roll`;
+        if it is not passed, it is computed from scratch
+    :return:
+        a number that reflects how many pieces occur multiple times per roll
+    """
+    size_of_compressed_roll = measure_compressed_size(roll)
+    if reference_size is None:
+        reference_size = estimate_max_compressed_size_given_shape(roll.shape)
+    score = size_of_compressed_roll / reference_size
+    return score
 
 
 def shift_note_timeline(note_timeline: np.ndarray, shift: int) -> np.ndarray:

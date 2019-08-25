@@ -6,22 +6,23 @@ environment:
   scoring_coefs:
     horizontal_variance: 2
     vertical_variance: 1
+    repetitiveness: 25
     consonances: 1
   scoring_fn_params:
     consonances:
       interval_consonances:
         0: 2
-        1: -1
-        2: -1
+        1: -3
+        2: -3
         3: 1
         4: 1
         5: 0
-        6: -2
+        6: -5
         7: 2
         8: 1
         9: 1
-        10: -1
-        11: -1
+        10: -3
+        11: -3
       distance_weights:
         0: 1
         1: 1
