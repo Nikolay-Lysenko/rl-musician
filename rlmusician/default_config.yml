@@ -1,12 +1,12 @@
 environment:
   n_semitones: 13
-  n_time_steps: 60
+  n_time_steps: 30
   observed_length: 4
-  max_episode_steps_per_roll_step: 4
+  max_episode_steps_per_roll_step: 5
   scoring_coefs:
-    palette_entropy: 1
-    chord_entropy: 2
-    consonances: 2
+    palette_entropy: 2
+    chord_entropy: 1
+    consonances: 1
   scoring_fn_params:
     consonances:
       interval_consonances:

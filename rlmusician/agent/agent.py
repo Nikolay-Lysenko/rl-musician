@@ -8,11 +8,9 @@ Author: Nikolay Lysenko
 from typing import Tuple
 
 from keras.models import Model
-from keras.layers import Conv2D, Dense, Flatten, Input, concatenate
-from keras.optimizers import Adam
-from rl.agents.dqn import DQNAgent
-from rl.policy import BoltzmannQPolicy
-from rl.memory import SequentialMemory
+from keras.layers import Conv2D, Dense, Flatten, Input
+from rl.agents.cem import CEMAgent
+from rl.memory import EpisodeParameterMemory
 
 
 def create_actor_network(
@@ -36,9 +34,9 @@ def create_actor_network(
     return model
 
 
-def create_dqn_agent(
+def create_cem_agent(
         observed_roll_shape: Tuple[int, int], n_actions: int
-) -> DQNAgent:
+) -> CEMAgent:
     """
     Create simple agent.
 
@@ -47,17 +45,16 @@ def create_dqn_agent(
     :param n_actions:
         number of actions available to the agent
     :return:
-        DQN agent
+        agent of Cross-Entropy Method (CEM)
     """
-    memory = SequentialMemory(limit=50000, window_length=1)
-    policy = BoltzmannQPolicy()
-    agent = DQNAgent(
+    agent = CEMAgent(
         model=create_actor_network(observed_roll_shape, n_actions),
         nb_actions=n_actions,
-        memory=memory,
-        policy=policy,
-        nb_steps_warmup=2000,
-        target_model_update=1e-2
+        memory=EpisodeParameterMemory(limit=50000, window_length=1),
+        batch_size=200,
+        nb_steps_warmup=50000,
+        train_interval=50,
+        elite_frac=0.2
     )
-    agent.compile(Adam(lr=1e-3), metrics=['mae'])
+    agent.compile()
     return agent

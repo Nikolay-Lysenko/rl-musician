@@ -10,7 +10,7 @@ from pkg_resources import resource_string
 
 import yaml
 
-from rlmusician.agent import create_dqn_agent
+from rlmusician.agent import create_cem_agent
 from rlmusician.environment import MusicCompositionEnv
 
 
@@ -26,9 +26,9 @@ def main() -> None:
         os.mkdir(os.path.join(data_dir, 'piano_rolls'))
 
     env = MusicCompositionEnv(**settings['environment'])
-    agent = create_dqn_agent(env.observation_space.shape, env.action_space.n)
+    agent = create_cem_agent(env.observation_space.shape, env.action_space.n)
 
-    agent.fit(env, nb_steps=1e5)
+    agent.fit(env, nb_steps=1e6)
     weights_path = os.path.join(data_dir, 'agent_weights.h5f')
     agent.save_weights(weights_path, overwrite=True)
     agent.test(env, nb_episodes=1, visualize=True)

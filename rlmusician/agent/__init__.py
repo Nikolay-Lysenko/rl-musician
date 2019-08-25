@@ -5,7 +5,7 @@ Author: Nikolay Lysenko
 """
 
 
-from .agent import create_dqn_agent
+from .agent import create_cem_agent
 
 
-__all__ = ['create_dqn_agent']
+__all__ = ['create_cem_agent']

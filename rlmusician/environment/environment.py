@@ -129,7 +129,7 @@ class MusicCompositionEnv(gym.Env):
                 self.piano_roll[:, 0:steps_to_see[1]]
             ))
         done = self.n_piano_roll_steps_passed == self.n_time_steps - 1
-        reward = observation[1][0] if done else 0
+        reward = self.__evaluate() if done else 0
         info = {}
         return observation, reward, done, info
 
