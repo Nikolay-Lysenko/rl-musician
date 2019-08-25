@@ -13,13 +13,13 @@ import gym
 import numpy as np
 
 from rlmusician.environment.scoring import (
-    score_palette_entropy, score_chord_entropy, score_consonances
+    score_horizontal_variance, score_vertical_variance, score_consonances
 )
 
 
 SCORING_FN_REGISTRY = {
-    'palette_entropy': score_palette_entropy,
-    'chord_entropy': score_chord_entropy,
+    'horizontal_variance': score_horizontal_variance,
+    'vertical_variance': score_vertical_variance,
     'consonances': score_consonances
 }
 
@@ -32,8 +32,11 @@ class MusicCompositionEnv(gym.Env):
     reward_range = (-np.inf, np.inf)
 
     def __init__(
-            self, n_semitones: int, n_time_steps: int, observed_length: int,
-            max_episode_steps_per_roll_step: int,
+            self,
+            n_semitones: int,
+            n_roll_steps: int,
+            n_observed_roll_steps: int,
+            max_n_stalled_episode_steps: int,
             scoring_coefs: Dict[str, float],
             scoring_fn_params: Dict[str, Dict[str, Any]],
             data_dir: str
@@ -42,13 +45,15 @@ class MusicCompositionEnv(gym.Env):
         Initialize instance.
 
         :param n_semitones:
-            number of consecutive semitones (piano keys) available to agent
-        :param n_time_steps:
-            total duration of composition in time steps
-        :param observed_length:
-            number of piano roll's time steps available for observing
-        :param max_episode_steps_per_roll_step:
+            number of consecutive semitones (piano keys) available to an agent
+        :param n_roll_steps:
+            total duration of composition in piano roll's time steps
+            (in other words, number of columns of piano roll)
+        :param n_observed_roll_steps:
+            number of previous piano roll's time steps available for observing
+        :param max_n_stalled_episode_steps:
             number of episode steps after which forced movement forward occurs
+            on piano roll
         :param scoring_coefs:
             mapping from scoring function names to their weights in final score
         :param scoring_fn_params:
@@ -57,9 +62,9 @@ class MusicCompositionEnv(gym.Env):
             directory where rendered results are going to be saved
         """
         self.n_semitones = n_semitones
-        self.n_time_steps = n_time_steps
-        self.observed_length = observed_length
-        self.max_episode_steps_per_roll_step = max_episode_steps_per_roll_step
+        self.n_roll_steps = n_roll_steps
+        self.n_observed_roll_steps = n_observed_roll_steps
+        self.max_n_stalled_episode_steps = max_n_stalled_episode_steps
         self.scoring_coefs = scoring_coefs
         self.scoring_fn_params = scoring_fn_params
         self.data_dir = data_dir
@@ -67,11 +72,16 @@ class MusicCompositionEnv(gym.Env):
         self.piano_roll = None
         self.n_piano_roll_steps_passed = None
         self.n_episode_steps_passed = None
-        self.n_episode_steps_passed_at_this_roll_step = None
+        self.n_stalled_episode_steps = None
 
-        self.action_space = gym.spaces.Discrete(n_semitones + 1)
+        self.action_space = gym.spaces.Discrete(
+            n_semitones + 1  # The last action stands for step forward on roll.
+        )
         self.observation_space = gym.spaces.Box(
-            low=0, high=1, shape=(n_semitones, observed_length), dtype=np.int32
+            low=0,
+            high=1,
+            shape=(n_semitones, n_observed_roll_steps),
+            dtype=np.int32
         )
 
     def __evaluate(self) -> float:
@@ -101,24 +111,21 @@ class MusicCompositionEnv(gym.Env):
                     (helpful for debugging and sometimes learning).
         """
         # Act.
-        if action == self.n_semitones:  # Reserved action for shift forward.
-            self.n_piano_roll_steps_passed += 1
-            self.n_episode_steps_passed_at_this_roll_step = 0
-        else:
+        if action != self.n_semitones:
             self.piano_roll[action, self.n_piano_roll_steps_passed] += 1
             self.piano_roll[action, self.n_piano_roll_steps_passed] %= 2
-            self.n_episode_steps_passed_at_this_roll_step += 1
-            if (
-                    self.n_episode_steps_passed_at_this_roll_step
-                    == self.max_episode_steps_per_roll_step
-            ):
-                self.n_piano_roll_steps_passed += 1
-                self.n_episode_steps_passed_at_this_roll_step = 0
+            self.n_stalled_episode_steps += 1
+        force_movement = (
+            self.n_stalled_episode_steps == self.max_n_stalled_episode_steps
+        )
+        if force_movement or action == self.n_semitones:
+            self.n_piano_roll_steps_passed += 1
+            self.n_stalled_episode_steps = 0
         self.n_episode_steps_passed += 1
 
         # Provide feedback.
         steps_to_see = (
-            self.n_piano_roll_steps_passed - self.observed_length + 1,
+            self.n_piano_roll_steps_passed - self.n_observed_roll_steps + 1,
             self.n_piano_roll_steps_passed + 1
         )
         if steps_to_see[0] >= 0:
@@ -128,7 +135,7 @@ class MusicCompositionEnv(gym.Env):
                 np.zeros((self.n_semitones, -steps_to_see[0]), dtype=np.int32),
                 self.piano_roll[:, 0:steps_to_see[1]]
             ))
-        done = self.n_piano_roll_steps_passed == self.n_time_steps - 1
+        done = self.n_piano_roll_steps_passed == self.n_roll_steps - 1
         reward = self.__evaluate() if done else 0
         info = {}
         return observation, reward, done, info
@@ -142,12 +149,12 @@ class MusicCompositionEnv(gym.Env):
         """
         self.n_episode_steps_passed = 0
         self.n_piano_roll_steps_passed = 0
-        self.n_episode_steps_passed_at_this_roll_step = 0
+        self.n_stalled_episode_steps = 0
 
-        piano_roll_shape = (self.n_semitones, self.n_time_steps)
+        piano_roll_shape = (self.n_semitones, self.n_roll_steps)
         self.piano_roll = np.zeros(piano_roll_shape, dtype=np.int32)
 
-        observed_roll_shape = (self.n_semitones, self.observed_length)
+        observed_roll_shape = (self.n_semitones, self.n_observed_roll_steps)
         observation = np.zeros(observed_roll_shape, dtype=np.int32)
         return observation
 
@@ -158,7 +165,7 @@ class MusicCompositionEnv(gym.Env):
         :return:
             None
         """
-        episode_end = self.n_piano_roll_steps_passed == self.n_time_steps - 1
+        episode_end = self.n_piano_roll_steps_passed == self.n_roll_steps - 1
         if not episode_end:
             return
         file_name = f"roll_{str(time()).replace('.', ',')}.tsv"

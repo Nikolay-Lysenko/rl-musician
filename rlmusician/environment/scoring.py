@@ -13,9 +13,9 @@ import numpy as np
 N_SEMITONES_PER_OCTAVE = 12
 
 
-def score_palette_entropy(roll: np.ndarray) -> float:
+def score_horizontal_variance(roll: np.ndarray) -> float:
     """
-    Score composition based on entropy of usage of each note.
+    Score composition based on variance of usage of each note.
 
     It is a proxy of how non-trivial music is.
 
@@ -26,12 +26,12 @@ def score_palette_entropy(roll: np.ndarray) -> float:
     :return:
         averaged over all notes variance of their usage in time
     """
-    return np.mean(np.var(roll, axis=1))
+    return np.mean(np.var(roll, axis=1)).item()
 
 
-def score_chord_entropy(roll: np.ndarray) -> float:
+def score_vertical_variance(roll: np.ndarray) -> float:
     """
-    Score composition based on entropy of notes played at each time step.
+    Score composition based on variance of notes played at each time step.
 
     It is a proxy of how non-trivial music is.
 
@@ -42,7 +42,7 @@ def score_chord_entropy(roll: np.ndarray) -> float:
     :return:
         averaged over all time steps variance of notes played there
     """
-    return np.mean(np.var(roll, axis=0))
+    return np.mean(np.var(roll, axis=0)).item()
 
 
 def shift_note_timeline(note_timeline: np.ndarray, shift: int) -> np.ndarray:
@@ -98,7 +98,7 @@ def compute_consonance_score_between_note_and_roll(
         for n_semitones in range(intervals.shape[0], 0, -1)
     ]
     scores = np.array(scores).reshape((-1, 1))
-    score = np.sum(scores * intervals)
+    score = np.sum(scores * intervals).item()
     return score
 
 

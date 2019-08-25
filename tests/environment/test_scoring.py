@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 
 from rlmusician.environment.scoring import (
-    score_palette_entropy, score_consonances
+    score_horizontal_variance, score_consonances
 )
 
 
@@ -34,9 +34,9 @@ from rlmusician.environment.scoring import (
         ),
     ]
 )
-def test_score_palette_entropy(roll: np.ndarray, expected: float) -> None:
-    """Test `score_palette_entropy` function."""
-    result = score_palette_entropy(roll)
+def test_score_horizontal_variance(roll: np.ndarray, expected: float) -> None:
+    """Test `score_horizontal_variance` function."""
+    result = score_horizontal_variance(roll)
     assert result == expected
 
 
