@@ -10,10 +10,8 @@ from typing import Tuple
 from keras.models import Model
 from keras.layers import Conv2D, Dense, Flatten, Input, Reshape
 
-from rlmusician.agent.crossentropy import CrossEntropyAgent
 
-
-def create_actor_network(
+def create_actor_model(
         observed_roll_shape: Tuple[int, int], n_actions: int
 ) -> Model:
     """
@@ -34,21 +32,3 @@ def create_actor_network(
     model = Model(inputs=roll_input, outputs=output)
     model.compile(optimizer='sgd', loss='mse')  # Arbitrary unused values.
     return model
-
-
-def create_cem_agent(
-        observed_roll_shape: Tuple[int, int], n_actions: int
-) -> CrossEntropyAgent:
-    """
-    Create simple agent.
-
-    :param observed_roll_shape:
-        shape of observed part of piano roll
-    :param n_actions:
-        number of actions available to the agent
-    :return:
-        agent of Cross-Entropy Method (CEM)
-    """
-    model = create_actor_network(observed_roll_shape, n_actions)
-    agent = CrossEntropyAgent(model)
-    return agent

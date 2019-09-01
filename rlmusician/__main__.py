@@ -10,11 +10,9 @@ from pkg_resources import resource_string
 
 import yaml
 
-from rlmusician.agent import create_cem_agent
+from rlmusician.agent import create_actor_model, CrossEntropyAgent
 from rlmusician.environment import MusicCompositionEnv
-from rlmusician.utils import (
-    add_reference_size_for_repetitiveness
-)
+from rlmusician.utils import add_reference_size_for_repetitiveness
 
 
 def main() -> None:
@@ -32,7 +30,10 @@ def main() -> None:
     settings = add_reference_size_for_repetitiveness(settings)
 
     env = MusicCompositionEnv(**settings['environment'])
-    agent = create_cem_agent(env.observation_space.shape, env.action_space.n)
+    observation_shape = env.observation_space.shape
+    n_actions = env.action_space.n
+    model = create_actor_model(observation_shape, n_actions)
+    agent = CrossEntropyAgent(model)
 
     agent.fit(env, n_populations=10)
     weights_path = os.path.join(data_dir, 'agent_weights.h5f')
