@@ -14,6 +14,7 @@ import numpy as np
 def measure_compressed_size(arr: np.ndarray) -> int:
     """
     Measure size (in bytes) of compressed array.
+
     :param arr:
         array
     :return:

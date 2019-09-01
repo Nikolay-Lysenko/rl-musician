@@ -12,7 +12,9 @@ import yaml
 
 from rlmusician.agent import create_cem_agent
 from rlmusician.environment import MusicCompositionEnv
-from rlmusician.utils import add_reference_size_for_repetitiveness
+from rlmusician.utils import (
+    add_reference_size_for_repetitiveness
+)
 
 
 def main() -> None:
@@ -32,10 +34,10 @@ def main() -> None:
     env = MusicCompositionEnv(**settings['environment'])
     agent = create_cem_agent(env.observation_space.shape, env.action_space.n)
 
-    agent.fit(env, nb_steps=1e6)
+    agent.fit(env, n_populations=10)
     weights_path = os.path.join(data_dir, 'agent_weights.h5f')
-    agent.save_weights(weights_path, overwrite=True)
-    agent.test(env, nb_episodes=1, visualize=True)
+    agent.model.save_weights(weights_path, overwrite=True)
+    agent.test(env, n_episodes=3)
 
 
 if __name__ == '__main__':
