@@ -1,6 +1,6 @@
 -c constraints.txt
 gym==0.14.0
-keras-rl==0.4.2
-numpy==1.17.0
+Keras==2.2.5
+numpy==1.17.1
 PyYAML==5.1.2
 tensorflow==1.14.0

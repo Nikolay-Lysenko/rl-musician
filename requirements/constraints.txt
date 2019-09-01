@@ -1,4 +1,4 @@
-absl-py==0.7.1
+absl-py==0.8.0
 astor==0.8.0
 atomicwrites==1.3.0
 attrs==19.1.0
@@ -15,20 +15,19 @@ gym==0.14.0
 h5py==2.9.0
 idna==2.8
 importlib-metadata==0.19
-Keras==2.2.4
+Keras==2.2.5
 Keras-Applications==1.0.8
 Keras-Preprocessing==1.1.0
-keras-rl==0.4.2
 Markdown==3.1.1
 more-itertools==7.2.0
-numpy==1.17.0
+numpy==1.17.1
 packaging==19.1
 pluggy==0.12.0
 protobuf==3.9.1
 py==1.8.0
 pyglet==1.3.2
 pyparsing==2.4.2
-pytest==5.1.0
+pytest==5.1.2
 pytest-cov==2.7.1
 PyYAML==5.1.2
 requests==2.22.0
@@ -42,4 +41,4 @@ urllib3==1.25.3
 wcwidth==0.1.7
 Werkzeug==0.15.5
 wrapt==1.11.2
-zipp==0.5.2
+zipp==0.6.0
