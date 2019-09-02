@@ -83,14 +83,14 @@ class CrossEntropyAgent:
     def __init__(
             self,
             model: Model,
-            n_candidates_to_keep: int = 1000,
+            n_candidates_to_keep: int = 100,
             n_episodes_per_candidate: int = 10,
             aggregation_fn: str = 'mean',
             population_size: int = 100,
-            elite_fraction: float = 0.05,
+            elite_fraction: float = 0.1,
             n_warmup_candidates: int = 100,
-            initial_mean: Optional[np.ndarray] = None,
-            initial_std: Optional[np.ndarray] = None
+            initial_weights_mean: Optional[np.ndarray] = None,
+            weights_std: Optional[np.ndarray] = None
     ):
         """
         Initialize instance.
@@ -112,19 +112,20 @@ class CrossEntropyAgent:
             share of best candidate weights that are used for training update
         :param n_warmup_candidates:
             number of random candidate weights to evaluate before training
-        :param initial_mean:
+        :param initial_weights_mean:
             mean of multivariate Gaussian distribution
             from which each weight of every warmup candidate is drawn
-        :param initial_std:
-            standard deviation of multivariate Gaussian distribution
-            from which each weight of every warmup candidate is drawn
+        :param weights_std:
+            standard deviation of multivariate Gaussian distributions
+            from which each weight of every (not only warmup) candidate
+            is drawn
         """
         self.model = model
         self.shapes = [w.shape for w in model.get_weights()]
         self.sizes = [w.size for w in model.get_weights()]
         self.n_weights = sum(self.sizes)
-        self.mean = initial_mean or np.zeros(self.n_weights)
-        self.std = initial_std or np.ones(self.n_weights)
+        self.weights_mean = initial_weights_mean or np.zeros(self.n_weights)
+        self.weights_std = weights_std or np.ones(self.n_weights)
 
         self.memory = CrossEntropyAgentMemory(n_candidates_to_keep)
         self.n_episodes_per_candidate = n_episodes_per_candidate
@@ -171,7 +172,8 @@ class CrossEntropyAgent:
 
     def __evaluate_random_candidate(self, env: gym.Env) -> None:
         # Create candidate from current distribution and evaluate it.
-        flat_weights = self.std * np.random.randn(self.n_weights) + self.mean
+        epsilons = np.random.randn(self.n_weights)
+        flat_weights = self.weights_std * epsilons + self.weights_mean
         self.__set_weights(flat_weights)
         rewards = [
             self.__run_episode(env)
@@ -202,8 +204,7 @@ class CrossEntropyAgent:
             top_entries = sorted_entries[:-self.n_top_candidates]
             top_flat_weights = [x['flat_weights'] for x in top_entries]
             top_flat_weights = np.vstack(top_flat_weights)
-            self.mean = np.mean(top_flat_weights, axis=0)
-            self.std = np.std(top_flat_weights, axis=0)
+            self.weights_mean = np.mean(top_flat_weights, axis=0)
 
             top_scores = [x['score'] for x in top_entries]
             avg_top_score = np.mean(top_scores)
