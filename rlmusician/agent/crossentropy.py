@@ -16,7 +16,7 @@ Author: Nikolay Lysenko
 import random
 from functools import reduce
 from operator import mul
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import gym
 import numpy as np
@@ -70,7 +70,6 @@ class CrossEntropyAgentMemory:
             raise RuntimeError(
                 f"There are only {total_n_entries} entries in memory, "
                 f"but {n_entries} entries are requested. "
-                "Try to increase `n_warmup_candidates`."
             )
         indices = random.sample(range(total_n_entries), n_entries)
         sampled_entries = [self.data[x] for x in indices]
@@ -83,63 +82,66 @@ class CrossEntropyAgent:
     def __init__(
             self,
             model: Model,
-            n_candidates_to_keep: int = 100,
-            n_episodes_per_candidate: int = 10,
-            aggregation_fn: str = 'mean',
             population_size: int = 100,
             elite_fraction: float = 0.1,
-            n_warmup_candidates: int = 100,
+            n_episodes_per_candidate: int = 10,
+            aggregation_fn: str = 'mean',
+            n_candidates_to_keep: Optional[int] = None,
             initial_weights_mean: Optional[np.ndarray] = None,
-            weights_std: Optional[np.ndarray] = None
+            weights_std: float = 1,
+            n_warmup_candidates: int = 0
     ):
         """
         Initialize instance.
 
         :param model:
             actor model; its weights are ignored, only its architecture is used
-        :param n_candidates_to_keep:
-            number of last candidate weights of actor model to keep in memory
+        :param population_size:
+            number of candidate weights to draw and evaluate at each training
+            step
+        :param elite_fraction:
+            share of best candidate weights that are used for training update
         :param n_episodes_per_candidate:
             number of episodes to play with each candidate weights
         :param aggregation_fn:
             name of function to aggregate rewards from multiple episodes into
             a single score of candidate weights ('min', 'mean', and 'max' are
             supported)
-        :param population_size:
-            number of candidate weights to draw and evaluate at each training
-            step
-        :param elite_fraction:
-            share of best candidate weights that are used for training update
+        :param n_candidates_to_keep:
+            number of last candidate weights of actor model to keep in memory
+        :param initial_weights_mean:
+            mean of multivariate Gaussian distribution from which weights
+            are drawn initially
+        :param weights_std:
+            standard deviation of all multivariate Gaussian distributions
+            from which weights of candidates are drawn
         :param n_warmup_candidates:
             number of random candidate weights to evaluate before training
-        :param initial_weights_mean:
-            mean of multivariate Gaussian distribution
-            from which each weight of every warmup candidate is drawn
-        :param weights_std:
-            standard deviation of multivariate Gaussian distributions
-            from which each weight of every (not only warmup) candidate
-            is drawn
         """
         self.model = model
         self.shapes = [w.shape for w in model.get_weights()]
         self.sizes = [w.size for w in model.get_weights()]
         self.n_weights = sum(self.sizes)
         self.weights_mean = initial_weights_mean or np.zeros(self.n_weights)
-        self.weights_std = weights_std or np.ones(self.n_weights)
+        self.weights_std = weights_std * np.ones(self.n_weights)
 
+        n_candidates_to_keep = n_candidates_to_keep or population_size
         self.memory = CrossEntropyAgentMemory(n_candidates_to_keep)
         self.n_episodes_per_candidate = n_episodes_per_candidate
-        self.__set_aggregation_fn(aggregation_fn)
+        self.aggregation_fn = self.__get_aggregation_fn(aggregation_fn)
         self.population_size = population_size
         self.elite_fraction = elite_fraction
         self.n_top_candidates = round(elite_fraction * population_size)
 
         self.n_warmup_candidates = n_warmup_candidates
 
-    def __set_aggregation_fn(self, aggregation_fn_name: str) -> None:
-        # Set function that aggregates rewards of candidate actor models.
+    def __get_aggregation_fn(
+            self, aggregation_fn_name: str
+    ) -> Callable[[List[float]], float]:
+        # Get function that aggregates rewards of candidate actor models.
         name_to_fn = {'min': min, 'mean': np.mean, 'max': max}
-        self.aggregation_fn = name_to_fn[aggregation_fn_name]
+        aggregation_fn = name_to_fn[aggregation_fn_name]
+        return aggregation_fn
 
     def __set_weights(self, flat_weights: np.ndarray) -> None:
         # Set weights of actor model.
