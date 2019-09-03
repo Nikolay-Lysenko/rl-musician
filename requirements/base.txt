@@ -3,4 +3,5 @@ gym==0.14.0
 Keras==2.2.5
 numpy==1.17.1
 PyYAML==5.1.2
+sinethesizer==0.2.6
 tensorflow==1.14.0
