@@ -203,7 +203,7 @@ class CrossEntropyAgent:
                 self.__evaluate_random_candidate(env)
             entries = self.memory.sample(self.population_size)
             sorted_entries = sorted(entries, key=lambda x: x['score'])
-            top_entries = sorted_entries[:-self.n_top_candidates]
+            top_entries = sorted_entries[-self.n_top_candidates:]
             top_flat_weights = [x['flat_weights'] for x in top_entries]
             top_flat_weights = np.vstack(top_flat_weights)
             self.weights_mean = np.mean(top_flat_weights, axis=0)
