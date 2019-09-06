@@ -21,11 +21,9 @@ def main() -> None:
     config = resource_string(__name__, 'default_config.yml')
     settings = yaml.safe_load(config)
 
-    package_dir = os.path.join(os.path.dirname(__file__), '..')
-    data_dir = os.path.join(package_dir, settings['environment']['data_dir'])
+    data_dir = settings['environment']['rendering']['data_dir']
     if not os.path.isdir(data_dir):
         os.mkdir(data_dir)
-        os.mkdir(os.path.join(data_dir, 'piano_rolls'))
 
     settings = add_reference_size_for_repetitiveness(settings)
 
@@ -35,7 +33,7 @@ def main() -> None:
     model = create_actor_model(observation_shape, n_actions)
     agent = CrossEntropyAgent(model)
 
-    agent.fit(env, n_populations=10)
+    agent.fit(env, n_populations=10)  # TODO: Read from `argparse`.
     weights_path = os.path.join(data_dir, 'agent_weights.h5f')
     agent.model.save_weights(weights_path, overwrite=True)
     agent.test(env, n_episodes=3)

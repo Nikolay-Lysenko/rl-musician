@@ -5,12 +5,13 @@ Author: Nikolay Lysenko
 """
 
 
+import datetime
 import os
-from time import time
 from typing import Any, Dict, Tuple
 
 import gym
 import numpy as np
+from sinethesizer.io.piano_roll_to_tsv import write_roll_to_tsv_file
 
 from rlmusician.environment.scoring import (
     score_horizontal_variance,
@@ -18,6 +19,7 @@ from rlmusician.environment.scoring import (
     score_repetitiveness,
     score_consonances
 )
+from rlmusician.utils import create_wav_from_events
 
 
 SCORING_FN_REGISTRY = {
@@ -43,7 +45,7 @@ class MusicCompositionEnv(gym.Env):
             max_n_stalled_episode_steps: int,
             scoring_coefs: Dict[str, float],
             scoring_fn_params: Dict[str, Dict[str, Any]],
-            data_dir: str
+            rendering: Dict[str, Any]
     ):
         """
         Initialize instance.
@@ -62,8 +64,8 @@ class MusicCompositionEnv(gym.Env):
             mapping from scoring function names to their weights in final score
         :param scoring_fn_params:
             mapping from scoring function names to their parameters
-        :param data_dir:
-            directory where rendered results are going to be saved
+        :param rendering:
+            settings of environment rendering
         """
         self.n_semitones = n_semitones
         self.n_roll_steps = n_roll_steps
@@ -71,7 +73,7 @@ class MusicCompositionEnv(gym.Env):
         self.max_n_stalled_episode_steps = max_n_stalled_episode_steps
         self.scoring_coefs = scoring_coefs
         self.scoring_fn_params = scoring_fn_params
-        self.data_dir = data_dir
+        self.rendering_params = rendering
 
         self.piano_roll = None
         self.n_piano_roll_steps_passed = None
@@ -172,6 +174,18 @@ class MusicCompositionEnv(gym.Env):
         episode_end = self.n_piano_roll_steps_passed == self.n_roll_steps - 1
         if not episode_end:
             return
-        file_name = f"roll_{str(time()).replace('.', ',')}.tsv"
-        file_path = os.path.join(self.data_dir, 'piano_rolls', file_name)
-        np.savetxt(file_path, self.piano_roll, fmt='%i', delimiter='\t')
+
+        data_dir = self.rendering_params['data_dir']
+        now = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S,%f")
+        dir_path = os.path.join(data_dir, f"result_{now}")
+        os.mkdir(dir_path)
+
+        roll_path = os.path.join(dir_path, 'piano_roll.tsv')
+        np.savetxt(roll_path, self.piano_roll, fmt='%i', delimiter='\t')
+
+        events_path = os.path.join(dir_path, 'sinethesizer_events.tsv')
+        events_params = self.rendering_params['sinethesizer']
+        write_roll_to_tsv_file(self.piano_roll, events_path, **events_params)
+
+        wav_path = os.path.join(dir_path, 'music.wav')
+        create_wav_from_events(events_path, wav_path)

@@ -28,4 +28,10 @@ environment:
         1: 1
         2: 0.5
         3: 0.25
-  data_dir: rlmusician_data
+  rendering:
+    data_dir: rlmusician_data
+    sinethesizer:
+      timbre: fm_sine
+      lowest_note: C4
+      step_in_seconds: 0.5
+      volume: 0.1

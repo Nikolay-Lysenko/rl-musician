@@ -5,9 +5,9 @@ Author: Nikolay Lysenko
 """
 
 
-from .io import write_to_sinethesizer_format
-from .misc import (
+from .utils import (
     add_reference_size_for_repetitiveness,
+    create_wav_from_events,
     estimate_max_compressed_size_given_shape,
     measure_compressed_size
 )
@@ -15,7 +15,7 @@ from .misc import (
 
 __all__ = [
     'add_reference_size_for_repetitiveness',
+    'create_wav_from_events',
     'estimate_max_compressed_size_given_shape',
-    'measure_compressed_size',
-    'write_to_sinethesizer_format'
+    'measure_compressed_size'
 ]

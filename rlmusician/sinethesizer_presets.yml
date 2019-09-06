@@ -1,0 +1,9 @@
+---
+- name: fm_sine
+  fundamental_waveform: sine
+  fundamental_volume_envelope:
+    name: relative_adsr
+  fundamental_effects:
+    - name: vibrato
+      frequency: 100
+      width: 0.25

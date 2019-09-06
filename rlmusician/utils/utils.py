@@ -5,10 +5,14 @@ Author: Nikolay Lysenko
 """
 
 
+import os
 import tempfile
 from typing import Any, Dict, Tuple
 
 import numpy as np
+from sinethesizer.io import (
+    convert_tsv_to_timeline, create_timbres_registry, write_timeline_to_wav
+)
 
 
 def measure_compressed_size(arr: np.ndarray) -> int:
@@ -70,3 +74,26 @@ def add_reference_size_for_repetitiveness(
         dct['reference_size'] = reference_size
         settings['environment']['scoring_fn_params']['repetitiveness'] = dct
     return settings
+
+
+def create_wav_from_events(events_path: str, output_path: str) -> None:
+    """
+    Create WAV file.
+
+    :param events_path:
+        path to TSV file with track represented as `sinethesizer` events
+    :param output_path:
+        path where resulting WAV file is going to be saved
+    :return:
+        None
+    """
+    package_dir = os.path.join(os.path.dirname(__file__), '..')
+    presets_path = os.path.join(package_dir, 'sinethesizer_presets.yml')
+    settings = {
+        'frame_rate': 44100,
+        'trailing_silence': 2,
+        'max_channel_delay': 0.02,
+        'timbres_registry': create_timbres_registry(presets_path)
+    }
+    timeline = convert_tsv_to_timeline(events_path, settings)
+    write_timeline_to_wav(output_path, timeline, settings['frame_rate'])
