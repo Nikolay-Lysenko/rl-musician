@@ -5,8 +5,8 @@ Author: Nikolay Lysenko
 """
 
 
-import os
 import tempfile
+from pkg_resources import resource_filename
 from typing import Any, Dict, Tuple
 
 import numpy as np
@@ -87,8 +87,7 @@ def create_wav_from_events(events_path: str, output_path: str) -> None:
     :return:
         None
     """
-    package_dir = os.path.join(os.path.dirname(__file__), '..')
-    presets_path = os.path.join(package_dir, 'sinethesizer_presets.yml')
+    presets_path = resource_filename(__name__, 'sinethesizer_presets.yml')
     settings = {
         'frame_rate': 44100,
         'trailing_silence': 2,
