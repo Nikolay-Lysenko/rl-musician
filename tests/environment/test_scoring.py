@@ -5,7 +5,7 @@ Author: Nikolay Lysenko
 """
 
 
-from typing import Dict
+from typing import Dict, Optional
 
 import numpy as np
 import pytest
@@ -22,17 +22,21 @@ from rlmusician.environment.scoring import (
     "roll, expected",
     [
         (
+            # `roll`
             np.array([
                 [0, 0],
                 [1, 1]
             ]),
+            # `expected`
             0
         ),
         (
+            # `roll`
             np.array([
                 [1, 0],
                 [0, 1]
             ]),
+            # `expected`
             0.25
         ),
     ]
@@ -47,17 +51,21 @@ def test_score_horizontal_variance(roll: np.ndarray, expected: float) -> None:
     "roll, expected",
     [
         (
+            # `roll`
             np.array([
                 [1, 0],
                 [1, 0]
             ]),
+            # `expected`
             0
         ),
         (
+            # `roll`
             np.array([
                 [1, 0],
                 [0, 1]
             ]),
+            # `expected`
             0.25
         ),
     ]
@@ -69,7 +77,7 @@ def test_score_vertical_variance(roll: np.ndarray, expected: float) -> None:
 
 
 @pytest.mark.parametrize(
-    "variative_roll, repetitive_roll",
+    "variative_roll, repetitive_roll, reference_size",
     [
         (
             # `variative_roll`
@@ -83,7 +91,9 @@ def test_score_vertical_variance(roll: np.ndarray, expected: float) -> None:
                 [1, 1, 1],
                 [1, 1, 1],
                 [1, 1, 1]
-            ])
+            ]),
+            # `reference_size`
+            None
         ),
         (
             # `variative_roll`
@@ -97,16 +107,35 @@ def test_score_vertical_variance(roll: np.ndarray, expected: float) -> None:
                 [1, 0, 1, 0, 1, 0],
                 [0, 1, 0, 1, 0, 1],
                 [1, 1, 1, 1, 1, 1]
-            ])
+            ]),
+            # `reference_size`
+            None
+        ),
+        (
+            # `variative_roll`
+            np.array([
+                [1, 0, 1, 0, 0, 1],
+                [0, 1, 1, 0, 1, 0],
+                [1, 1, 0, 0, 0, 0]
+            ]),
+            # `repetitive_roll`
+            np.array([
+                [1, 0, 1, 0, 1, 0],
+                [0, 1, 0, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1]
+            ]),
+            # `reference_size`
+            100
         )
     ]
 )
 def test_score_repetitiveness(
-        variative_roll: np.ndarray, repetitive_roll: np.ndarray
+        variative_roll: np.ndarray, repetitive_roll: np.ndarray,
+        reference_size: Optional[int]
 ) -> None:
     """Test `score_repetitiveness` function."""
-    higher_score = score_repetitiveness(variative_roll)
-    lower_score = score_repetitiveness(repetitive_roll)
+    higher_score = score_repetitiveness(variative_roll, reference_size)
+    lower_score = score_repetitiveness(repetitive_roll, reference_size)
     assert higher_score > lower_score
 
 
