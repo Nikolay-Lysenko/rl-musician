@@ -28,10 +28,17 @@ environment:
         1: 1
         2: 0.5
         3: 0.25
-  rendering:
-    data_dir: rlmusician_data
+  rendering_params:
+    dir: rlmusician_data
     sinethesizer:
       timbre: fm_sine
       lowest_note: C4
       step_in_seconds: 0.5
       volume: 0.1
+agent:
+  population_size: 100
+  elite_fraction: 0.1
+  n_episodes_per_candidate: 10
+  aggregation_fn: mean
+  weights_std: 1.0
+  n_warmup_candidates: 0

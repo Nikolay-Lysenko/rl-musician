@@ -5,8 +5,10 @@ Author: Nikolay Lysenko
 """
 
 
+import argparse
+import datetime
 import os
-from pkg_resources import resource_string
+from pkg_resources import resource_filename
 
 import yaml
 
@@ -15,28 +17,55 @@ from rlmusician.environment import MusicCompositionEnv
 from rlmusician.utils import add_reference_size_for_repetitiveness
 
 
+def parse_cli_args() -> argparse.Namespace:
+    """
+    Parse arguments passed via Command Line Interface (CLI).
+
+    :return:
+        namespace with arguments
+    """
+    parser = argparse.ArgumentParser(description='Music composition with RL')
+    parser.add_argument(
+        '-c', '--config_path', type=str, default=None,
+        help='path to configuration file'
+    )
+    parser.add_argument(
+        '-p', '--populations', type=int, default=10,
+        help='number of populations for agent training'
+    )
+    parser.add_argument(
+        '-e', '--episodes', type=int, default=3,
+        help='number of episodes for testing agent after its training'
+    )
+    cli_args = parser.parse_args()
+    return cli_args
+
+
 def main() -> None:
     """Run all."""
-    # TODO: Read user-defined path to config and data directory.
-    config = resource_string(__name__, 'default_config.yml')
-    settings = yaml.safe_load(config)
+    cli_args = parse_cli_args()
 
-    data_dir = settings['environment']['rendering']['data_dir']
-    if not os.path.isdir(data_dir):
-        os.mkdir(data_dir)
-
+    default_config_path = resource_filename(__name__, 'default_config.yml')
+    config_path = cli_args.config_path or default_config_path
+    with open(config_path) as config_file:
+        settings = yaml.safe_load(config_file)
     settings = add_reference_size_for_repetitiveness(settings)
+
+    results_dir = settings['environment']['rendering_params']['dir']
+    if not os.path.isdir(results_dir):
+        os.mkdir(results_dir)
 
     env = MusicCompositionEnv(**settings['environment'])
     observation_shape = env.observation_space.shape
     n_actions = env.action_space.n
     model = create_actor_model(observation_shape, n_actions)
-    agent = CrossEntropyAgent(model)
+    agent = CrossEntropyAgent(model, **settings['agent'])
 
-    agent.fit(env, n_populations=10)  # TODO: Read from `argparse`.
-    weights_path = os.path.join(data_dir, 'agent_weights.h5f')
-    agent.model.save_weights(weights_path, overwrite=True)
-    agent.test(env, n_episodes=3)
+    agent.fit(env, n_populations=cli_args.populations)
+    now = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S,%f")
+    weights_path = os.path.join(results_dir, f'agent_weights_{now}.h5f')
+    agent.model.save_weights(weights_path)
+    agent.test(env, n_episodes=cli_args.episodes)
 
 
 if __name__ == '__main__':

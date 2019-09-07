@@ -45,7 +45,7 @@ class MusicCompositionEnv(gym.Env):
             max_n_stalled_episode_steps: int,
             scoring_coefs: Dict[str, float],
             scoring_fn_params: Dict[str, Dict[str, Any]],
-            rendering: Dict[str, Any]
+            rendering_params: Dict[str, Any]
     ):
         """
         Initialize instance.
@@ -64,7 +64,7 @@ class MusicCompositionEnv(gym.Env):
             mapping from scoring function names to their weights in final score
         :param scoring_fn_params:
             mapping from scoring function names to their parameters
-        :param rendering:
+        :param rendering_params:
             settings of environment rendering
         """
         self.n_semitones = n_semitones
@@ -73,7 +73,7 @@ class MusicCompositionEnv(gym.Env):
         self.max_n_stalled_episode_steps = max_n_stalled_episode_steps
         self.scoring_coefs = scoring_coefs
         self.scoring_fn_params = scoring_fn_params
-        self.rendering_params = rendering
+        self.rendering_params = rendering_params
 
         self.piano_roll = None
         self.n_piano_roll_steps_passed = None
@@ -175,17 +175,17 @@ class MusicCompositionEnv(gym.Env):
         if not episode_end:
             return
 
-        data_dir = self.rendering_params['data_dir']
+        top_level_dir = self.rendering_params['dir']
         now = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S,%f")
-        dir_path = os.path.join(data_dir, f"result_{now}")
-        os.mkdir(dir_path)
+        nested_dir = os.path.join(top_level_dir, f"result_{now}")
+        os.mkdir(nested_dir)
 
-        roll_path = os.path.join(dir_path, 'piano_roll.tsv')
+        roll_path = os.path.join(nested_dir, 'piano_roll.tsv')
         np.savetxt(roll_path, self.piano_roll, fmt='%i', delimiter='\t')
 
-        events_path = os.path.join(dir_path, 'sinethesizer_events.tsv')
+        events_path = os.path.join(nested_dir, 'sinethesizer_events.tsv')
         events_params = self.rendering_params['sinethesizer']
         write_roll_to_tsv_file(self.piano_roll, events_path, **events_params)
 
-        wav_path = os.path.join(dir_path, 'music.wav')
+        wav_path = os.path.join(nested_dir, 'music.wav')
         create_wav_from_events(events_path, wav_path)
