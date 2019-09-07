@@ -167,7 +167,7 @@ class PianoRollEnv(gym.Env):
         observation = np.zeros(observed_roll_shape, dtype=np.int32)
         return observation
 
-    def render(self, mode='human') -> None:
+    def render(self, mode='human') -> None:  # pragma: no cover
         """
         Save final piano roll to TSV file.
 
