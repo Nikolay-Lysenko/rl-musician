@@ -1,6 +1,9 @@
 """
 Create environment with Gym API.
 
+References:
+    https://en.wikipedia.org/wiki/Piano_roll#In_digital_audio_workstations
+
 Author: Nikolay Lysenko
 """
 
@@ -30,7 +33,7 @@ SCORING_FN_REGISTRY = {
 }
 
 
-class MusicCompositionEnv(gym.Env):
+class PianoRollEnv(gym.Env):
     """
     An environment where agent composes piano roll.
     """

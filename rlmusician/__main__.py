@@ -13,7 +13,7 @@ from pkg_resources import resource_filename
 import yaml
 
 from rlmusician.agent import create_actor_model, CrossEntropyAgent
-from rlmusician.environment import MusicCompositionEnv
+from rlmusician.environment import PianoRollEnv
 from rlmusician.utils import add_reference_size_for_repetitiveness
 
 
@@ -55,7 +55,7 @@ def main() -> None:
     if not os.path.isdir(results_dir):
         os.mkdir(results_dir)
 
-    env = MusicCompositionEnv(**settings['environment'])
+    env = PianoRollEnv(**settings['environment'])
     observation_shape = env.observation_space.shape
     n_actions = env.action_space.n
     model = create_actor_model(observation_shape, n_actions)

@@ -6,6 +6,6 @@ Author: Nikolay Lysenko
 
 
 from . import environment, scoring
-from .environment import MusicCompositionEnv
+from .environment import PianoRollEnv
 
-__all__ = ['MusicCompositionEnv', 'environment', 'scoring']
+__all__ = ['PianoRollEnv', 'environment', 'scoring']
