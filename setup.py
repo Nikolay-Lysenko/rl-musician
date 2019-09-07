@@ -17,7 +17,7 @@ with open(os.path.join(current_dir, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='rl-musician',
-    version='0.0.1',
+    version='0.1.0',
     description=description,
     long_description=long_description,
     long_description_content_type='text/markdown',

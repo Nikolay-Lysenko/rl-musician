@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/Nikolay-Lysenko/sinethesizer.svg?branch=master)](https://travis-ci.org/Nikolay-Lysenko/rl-musician)
-[![codecov](https://codecov.io/gh/Nikolay-Lysenko/sinethesizer/branch/master/graph/badge.svg)](https://codecov.io/gh/Nikolay-Lysenko/rl-musician)
+[![Build Status](https://travis-ci.org/Nikolay-Lysenko/rl-musician.svg?branch=master)](https://travis-ci.org/Nikolay-Lysenko/rl-musician)
+[![codecov](https://codecov.io/gh/Nikolay-Lysenko/rl-musician/branch/master/graph/badge.svg)](https://codecov.io/gh/Nikolay-Lysenko/rl-musician)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a43618b5f9454d01186c/maintainability)](https://codeclimate.com/github/Nikolay-Lysenko/rl-musician/maintainability)
-[![PyPI version](https://badge.fury.io/py/sinethesizer.svg)](https://badge.fury.io/py/rlmusician)
+[![PyPI version](https://badge.fury.io/py/rl-musician.svg)](https://badge.fury.io/py/rlmusician)
 
 # RL-Musician
 
