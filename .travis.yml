@@ -1,0 +1,29 @@
+language: python
+dist: xenial   # Required for Python >= 3.7.
+
+python:
+  - "3.6"
+  - "3.7"
+
+install:
+  - pip install -r requirements/test.txt
+  - pip install .
+  - export PYTHONPATH="."  # No data is collected by `coverage` without this.
+
+branches:
+  only:
+  - master
+  - develop
+
+script:
+  - pytest --cov=rlmusician --cov-config .coveragerc
+
+after_success:
+  - codecov
+
+notifications:
+  email:
+    recipients:
+      - nikolay.lysenko.1992@gmail.com
+    on_success: never
+    on_failure: always
