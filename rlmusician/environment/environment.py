@@ -1,6 +1,11 @@
 """
 Create environment with Gym API.
 
+In this environment, an agent sequentially composes piano roll.
+A piano roll is a `numpy` 2D-array with rows corresponding to notes,
+columns corresponding to time steps, and cells containing zeros and ones
+and indicating whether a note is played.
+
 References:
     https://en.wikipedia.org/wiki/Piano_roll#In_digital_audio_workstations
 
@@ -35,7 +40,7 @@ SCORING_FN_REGISTRY = {
 
 class PianoRollEnv(gym.Env):
     """
-    An environment where agent composes piano roll.
+    An environment where agent sequentially composes piano roll.
     """
 
     reward_range = (-np.inf, np.inf)

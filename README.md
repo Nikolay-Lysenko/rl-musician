@@ -19,7 +19,7 @@ Currently, the implementation of environment supports only equal temperament, bu
 
 To install a stable version, run:
 ```bash
-pip install rlmusician
+pip install rl-musician
 ```
 
 ## Usage

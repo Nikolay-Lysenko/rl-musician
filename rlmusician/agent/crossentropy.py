@@ -105,8 +105,8 @@ class CrossEntropyAgent:
             number of episodes to play with each candidate weights
         :param aggregation_fn:
             name of function to aggregate rewards from multiple episodes into
-            a single score of candidate weights ('min', 'mean', and 'max' are
-            supported)
+            a single score of candidate weights ('min', 'mean', 'median',
+            and 'max' are supported)
         :param n_candidates_to_keep:
             number of last candidate weights of actor model to keep in memory
         :param initial_weights_mean:
@@ -135,12 +135,16 @@ class CrossEntropyAgent:
 
         self.n_warmup_candidates = n_warmup_candidates
 
-    def __get_aggregation_fn(
-            self, aggregation_fn_name: str
-    ) -> Callable[[List[float]], float]:
+    @staticmethod
+    def __get_aggregation_fn(fn_name: str) -> Callable[[List[float]], float]:
         # Get function that aggregates rewards of candidate actor models.
-        name_to_fn = {'min': min, 'mean': np.mean, 'max': max}
-        aggregation_fn = name_to_fn[aggregation_fn_name]
+        name_to_fn = {
+            'min': min,
+            'mean': np.mean,
+            'median': np.median,
+            'max': max
+        }
+        aggregation_fn = name_to_fn[fn_name]
         return aggregation_fn
 
     def __set_weights(self, flat_weights: np.ndarray) -> None:

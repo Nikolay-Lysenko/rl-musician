@@ -116,7 +116,7 @@ def compute_consonance_score_between_note_and_roll(
     :param interval_consonances:
         mapping from interval in semitones to its score of consonance;
         keys must be all integers from 0 to 11, necessary number of octaves
-        is subtracted for intervals bigger than octave
+        is subtracted for intervals higher than octave or equal to it
     :return:
         consonance score for the note and roll of all upper notes
     """
@@ -147,7 +147,7 @@ def score_consonances(
     :param interval_consonances:
         mapping from interval in semitones to its score of consonance;
         keys must be all integers from 0 to 11, necessary number of octaves
-        is subtracted for intervals bigger than octave
+        is subtracted for intervals greater than octave or equal to it
     :param distance_weights:
         mapping from distance in time steps between played notes and
         relative weights for averaging consonance scores;

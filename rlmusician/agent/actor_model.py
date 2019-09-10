@@ -1,5 +1,5 @@
 """
-Define some versions of agents.
+Define actor model (i.e., model that maps observations to actions).
 
 Author: Nikolay Lysenko
 """
@@ -15,7 +15,7 @@ def create_actor_model(
         observed_roll_shape: Tuple[int, int], n_actions: int
 ) -> Model:
     """
-    Create simple actor network for `MusicCompositionEnv`.
+    Create simple actor network for `PianoRollEnv`.
 
     :param observed_roll_shape:
         shape of observed part of piano roll
