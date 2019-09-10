@@ -15,9 +15,6 @@ gym==0.14.0
 h5py==2.9.0
 idna==2.8
 importlib-metadata==0.19
-Keras==2.2.5
-Keras-Applications==1.0.8
-Keras-Preprocessing==1.1.0
 Markdown==3.1.1
 more-itertools==7.2.0
 numpy==1.17.1

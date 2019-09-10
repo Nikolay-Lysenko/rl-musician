@@ -20,7 +20,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 import gym
 import numpy as np
-from keras.models import Model
+from tensorflow.keras.models import Model
 
 
 class CrossEntropyAgentMemory:
