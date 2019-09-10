@@ -126,6 +126,22 @@ def test_score_vertical_variance(roll: np.ndarray, expected: float) -> None:
             ]),
             # `reference_size`
             100
+        ),
+        (
+            # `variative_roll`
+            np.array([
+                [1, 0, 1, 0, 1, 0],
+                [0, 1, 0, 0, 0, 1],
+                [1, 1, 1, 1, 1, 1]
+            ]),
+            # `repetitive_roll`
+            np.array([
+                [1, 0, 1, 0, 1, 0],
+                [0, 1, 0, 1, 0, 1],
+                [1, 1, 1, 1, 1, 1]
+            ]),
+            # `reference_size`
+            None
         )
     ]
 )
