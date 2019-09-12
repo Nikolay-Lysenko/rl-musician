@@ -29,7 +29,7 @@ setup(
     packages=find_packages(),
     package_data={
         'rlmusician': ['default_config.yml'],
-        'rlmusician.utils': ['sinethesizer_presets.yml']
+        'rlmusician.io': ['sinethesizer_presets.yml']
     },
     python_requires='>=3.6',
     install_requires=[
