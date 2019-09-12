@@ -14,7 +14,6 @@ import yaml
 
 from rlmusician.agent import create_actor_model, CrossEntropyAgent
 from rlmusician.environment import PianoRollEnv
-from rlmusician.utils import add_reference_size_for_repetitiveness
 
 
 def parse_cli_args() -> argparse.Namespace:
@@ -49,7 +48,6 @@ def main() -> None:
     config_path = cli_args.config_path or default_config_path
     with open(config_path) as config_file:
         settings = yaml.safe_load(config_file)
-    settings = add_reference_size_for_repetitiveness(settings)
 
     results_dir = settings['environment']['rendering_params']['dir']
     if not os.path.isdir(results_dir):

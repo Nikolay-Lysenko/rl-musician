@@ -24,16 +24,14 @@ from sinethesizer.io.piano_roll_to_tsv import write_roll_to_tsv_file
 from rlmusician.environment.scoring import (
     score_horizontal_variance,
     score_vertical_variance,
-    score_repetitiveness,
     score_consonances
 )
-from rlmusician.utils import create_wav_from_events
+from rlmusician.io import create_wav_from_events
 
 
 SCORING_FN_REGISTRY = {
     'horizontal_variance': score_horizontal_variance,
     'vertical_variance': score_vertical_variance,
-    'repetitiveness': score_repetitiveness,
     'consonances': score_consonances
 }
 

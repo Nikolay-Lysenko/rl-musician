@@ -1,5 +1,5 @@
 """
-Test `rlmusician.utils` package.
+Test `rlmusician.io` package.
 
 Author: Nikolay Lysenko
 """

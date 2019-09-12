@@ -4,9 +4,8 @@ environment:
   n_observed_roll_steps: 4
   max_n_stalled_episode_steps: 5
   scoring_coefs:
-    horizontal_variance: 2
-    vertical_variance: 1
-    repetitiveness: 25
+    horizontal_variance: 1000
+    vertical_variance: 30
     consonances: 1
   scoring_fn_params:
     consonances:
