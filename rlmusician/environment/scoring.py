@@ -1,6 +1,13 @@
 """
 Score a musical composition represented as a piano roll.
 
+Here, a piano roll is a `numpy` 2D-array with rows corresponding to notes,
+columns corresponding to time steps, and cells containing zeros and ones
+and indicating whether a note is played.
+
+References:
+    https://en.wikipedia.org/wiki/Piano_roll#In_digital_audio_workstations
+
 Author: Nikolay Lysenko
 """
 
@@ -8,6 +15,8 @@ Author: Nikolay Lysenko
 from typing import Dict
 
 import numpy as np
+
+from rlmusician.utils import shift_horizontally, shift_vertically
 
 
 N_SEMITONES_PER_OCTAVE = 12
@@ -17,12 +26,10 @@ def score_horizontal_variance(roll: np.ndarray) -> float:
     """
     Score composition based on variance of usage of each note.
 
-    It is a proxy of how non-trivial music is.
+    It is a proxy of how non-trivial melody and harmony are.
 
     :param roll:
-        piano roll with rows corresponding to notes, columns corresponding to
-        time steps, and cells containing zeros and ones and indicating
-        whether a note is played
+        piano roll
     :return:
         averaged over all notes variance of their usage in time
     """
@@ -33,40 +40,14 @@ def score_vertical_variance(roll: np.ndarray) -> float:
     """
     Score composition based on variance of notes played at each time step.
 
-    It is a proxy of how non-trivial music is.
+    It is a proxy of how non-trivial harmony is.
 
     :param roll:
-        piano roll with rows corresponding to notes, columns corresponding to
-        time steps, and cells containing zeros and ones and indicating
-        whether a note is played
+        piano roll
     :return:
         averaged over all time steps variance of notes played there
     """
     return np.mean(np.var(roll, axis=0)).item()
-
-
-def shift_note_timeline(note_timeline: np.ndarray, shift: int) -> np.ndarray:
-    """
-    Shift note timeline.
-
-    Length of output timeline is the same as length of input timeline,
-    because non-fitting values are removed and gaps are padded with zeros.
-
-    :param note_timeline:
-        array of shape (1, n_time_steps) with cells containing
-        zeros if the note is not played and ones if it is played
-    :param shift:
-        signed value of shift in time steps, positive for shift to the right
-        and negative for shift to the left
-    :return:
-        shifted timeline
-    """
-    if shift == 0:
-        return note_timeline
-    elif shift > 0:
-        return np.hstack((np.zeros((1, shift)), note_timeline[:, :-shift]))
-    else:
-        return np.hstack((note_timeline[:, -shift:], np.zeros((1, -shift))))
 
 
 def compute_consonance_score_between_note_and_roll(
@@ -113,9 +94,7 @@ def score_consonances(
     It is a proxy of how pleasant to ear music is.
 
     :param roll:
-        piano roll with rows corresponding to notes, columns corresponding to
-        time steps, and cells containing zeros and ones and indicating
-        whether a note is played
+        piano roll
     :param interval_consonances:
         mapping from interval in semitones to its score of consonance;
         keys must be all integers from 0 to 11, necessary number of octaves
@@ -137,9 +116,45 @@ def score_consonances(
         upper_roll = roll[:note_position, :]
         note_timeline = roll[note_position, :].reshape((1, -1))
         for distance, weight in distance_weights.items():
-            shifted_timeline = shift_note_timeline(note_timeline, distance)
+            shifted_timeline = shift_horizontally(note_timeline, distance)
             curr_score = compute_consonance_score_between_note_and_roll(
                 shifted_timeline, upper_roll, interval_consonances
             )
             score += weight * curr_score
+    return score
+
+
+def score_conjunct_motion(
+        roll: np.ndarray,
+        max_n_semitones: int = 2,
+        max_n_time_steps: int = 1
+) -> float:
+    """
+    Score composition based on presence of small changes in pitch over time.
+
+    :param roll:
+        piano roll
+    :param max_n_semitones:
+        maximum number of semitones to consider change in pitch as small
+    :param max_n_time_steps:
+        maximum number of time steps for finding previous notes of close pitch
+    :return:
+        number of small changes in pitch
+    """
+    lagged_rolls = [
+        shift_horizontally(roll, i).reshape(roll.shape + (1,))
+        for i in range(1, max_n_time_steps + 1)
+    ]
+    lagged_roll = np.concatenate(lagged_rolls, axis=2)
+    rolling_max_roll = lagged_roll.max(axis=2)
+    altered_rolls = [
+        shift_vertically(rolling_max_roll, i).reshape(roll.shape + (1,))
+        for i in range(-max_n_semitones, max_n_semitones + 1)
+        if i != 0
+    ]
+    altered_roll = np.concatenate(altered_rolls, axis=2)
+    close_notes_roll = altered_roll.max(axis=2)
+    starting_notes_roll = np.clip(roll - shift_horizontally(roll, 1), 0, None)
+    matches = np.minimum(starting_notes_roll, close_notes_roll)
+    score = np.sum(matches).item()
     return score

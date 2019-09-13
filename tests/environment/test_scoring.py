@@ -13,7 +13,8 @@ import pytest
 from rlmusician.environment.scoring import (
     score_horizontal_variance,
     score_vertical_variance,
-    score_consonances
+    score_consonances,
+    score_conjunct_motion
 )
 
 
@@ -123,6 +124,21 @@ def test_score_vertical_variance(roll: np.ndarray, expected: float) -> None:
             # `expected`
             0
         ),
+        (
+            # `roll`
+            np.array([
+                [0, 1, 0, 1, 0],
+                [0, 1, 1, 0, 0],
+                [1, 0, 0, 1, 0],
+                [0, 1, 0, 0, 1]
+            ]),
+            # `interval_consonances`
+            {1: -1, 2: -0.5, 3: 0},
+            # `distance_weights`
+            {0: 1, 1: 1, 2: 0.5, 3: 0.25},
+            # `expected`
+            -11.75
+        ),
     ]
 )
 def test_score_consonances(
@@ -131,4 +147,110 @@ def test_score_consonances(
 ) -> None:
     """Test `score_consonances` function."""
     result = score_consonances(roll, interval_consonances, distance_weights)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "roll, max_n_semitones, max_n_time_steps, expected",
+    [
+        (
+            # `roll`
+            np.array([
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ]),
+            # `max_n_semitones`
+            1,
+            # `max_n_time_steps`
+            1,
+            # `expected`
+            3
+        ),
+        (
+            # `roll`
+            np.array([
+                [1, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+                [0, 0, 0, 0],
+                [0, 1, 0, 1],
+            ]),
+            # `max_n_semitones`
+            1,
+            # `max_n_time_steps`
+            1,
+            # `expected`
+            1
+        ),
+        (
+            # `roll`
+            np.array([
+                [1, 0, 0, 0],
+                [0, 0, 0, 1],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ]),
+            # `max_n_semitones`
+            1,
+            # `max_n_time_steps`
+            1,
+            # `expected`
+            2
+        ),
+        (
+            # `roll`
+            np.array([
+                [1, 0, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ]),
+            # `max_n_semitones`
+            1,
+            # `max_n_time_steps`
+            2,
+            # `expected`
+            2
+        ),
+        (
+            # `roll`
+            np.array([
+                [1, 0, 0, 0],
+                [0, 0, 0, 1],
+                [0, 1, 0, 0],
+                [0, 0, 1, 1],
+            ]),
+            # `max_n_semitones`
+            2,
+            # `max_n_time_steps`
+            1,
+            # `expected`
+            3
+        ),
+        (
+            # `roll`
+            np.array([
+                [1, 1, 1, 1],
+                [0, 1, 0, 1],
+                [0, 0, 1, 0],
+                [0, 1, 0, 1],
+            ]),
+            # `max_n_semitones`
+            3,
+            # `max_n_time_steps`
+            3,
+            # `expected`
+            5
+        ),
+    ]
+)
+def test_score_conjunct_motion(
+        roll: np.ndarray, max_n_semitones: int, max_n_time_steps: int,
+        expected: int
+) -> None:
+    """Test `score_conjunct_motion` function."""
+    result = score_conjunct_motion(roll, max_n_semitones, max_n_time_steps)
     assert result == expected

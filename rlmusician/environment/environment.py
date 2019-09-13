@@ -24,7 +24,8 @@ from sinethesizer.io.piano_roll_to_tsv import write_roll_to_tsv_file
 from rlmusician.environment.scoring import (
     score_horizontal_variance,
     score_vertical_variance,
-    score_consonances
+    score_consonances,
+    score_conjunct_motion
 )
 from rlmusician.utils import create_wav_from_events
 
@@ -32,7 +33,8 @@ from rlmusician.utils import create_wav_from_events
 SCORING_FN_REGISTRY = {
     'horizontal_variance': score_horizontal_variance,
     'vertical_variance': score_vertical_variance,
-    'consonances': score_consonances
+    'consonances': score_consonances,
+    'conjunct_motion': score_conjunct_motion
 }
 
 
