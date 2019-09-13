@@ -44,7 +44,9 @@ def main() -> None:
     """Run all."""
     cli_args = parse_cli_args()
 
-    default_config_path = resource_filename(__name__, 'default_config.yml')
+    default_config_path = resource_filename(
+        __name__, 'configs/default_config.yml'
+    )
     config_path = cli_args.config_path or default_config_path
     with open(config_path) as config_file:
         settings = yaml.safe_load(config_file)

@@ -26,7 +26,7 @@ from rlmusician.environment.scoring import (
     score_vertical_variance,
     score_consonances
 )
-from rlmusician.io import create_wav_from_events
+from rlmusician.utils import create_wav_from_events
 
 
 SCORING_FN_REGISTRY = {

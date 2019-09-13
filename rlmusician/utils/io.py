@@ -23,7 +23,10 @@ def create_wav_from_events(events_path: str, output_path: str) -> None:
     :return:
         None
     """
-    presets_path = resource_filename(__name__, 'sinethesizer_presets.yml')
+    presets_path = resource_filename(
+        'rlmusician',
+        'configs/sinethesizer_presets.yml'
+    )
     settings = {
         'frame_rate': 44100,
         'trailing_silence': 2,

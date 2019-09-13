@@ -28,13 +28,13 @@ setup(
     keywords='ai_music algorithmic_composition reinforcement_learning',
     packages=find_packages(),
     package_data={
-        'rlmusician': ['default_config.yml'],
-        'rlmusician.io': ['sinethesizer_presets.yml']
+        'rlmusician': [
+            'configs/default_config.yml',
+            'configs/sinethesizer_presets.yml'
+        ]
     },
     python_requires='>=3.6',
-    install_requires=[
-        'gym', 'numpy', 'PyYAML', 'sinethesizer', 'tensorflow'
-    ],
+    install_requires=['gym', 'numpy', 'PyYAML', 'sinethesizer', 'tensorflow'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

@@ -1,5 +1,5 @@
 """
-Test `rlmusician.io.io` module.
+Test `rlmusician.utils.io` module.
 
 Author: Nikolay Lysenko
 """
@@ -9,7 +9,7 @@ from typing import List
 
 import pytest
 
-from rlmusician.io import create_wav_from_events
+from rlmusician.utils import create_wav_from_events
 
 
 @pytest.mark.parametrize(

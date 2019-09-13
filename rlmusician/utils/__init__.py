@@ -1,5 +1,5 @@
 """
-Read from some formats and write to some formats.
+Do auxiliary tasks.
 
 Author: Nikolay Lysenko
 """
