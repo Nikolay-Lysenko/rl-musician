@@ -32,7 +32,7 @@ python -m rlmusician \
     -e [how_many_pieces_to_produce]
 ```
 
-All three arguments are optional. [Default config](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/rlmusician/default_config.yml) is used if `-c` argument is not passed; `-p` and `-e` options have reasonable defaults too.
+All three arguments are optional. [Default config](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/rlmusician/configs/default_config.yml) is used if `-c` argument is not passed; `-p` and `-e` options have reasonable defaults too.
 
 Created pieces are stored in a directory specified in the config. For each piece, there is a nested directory that contains:
 * Piano roll in TSV format;
