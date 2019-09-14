@@ -13,6 +13,7 @@ import pytest
 from rlmusician.environment.scoring import (
     score_horizontal_variance,
     score_vertical_variance,
+    score_absence_of_long_sounds,
     score_consonances,
     score_conjunct_motion
 )
@@ -73,6 +74,55 @@ def test_score_horizontal_variance(roll: np.ndarray, expected: float) -> None:
 def test_score_vertical_variance(roll: np.ndarray, expected: float) -> None:
     """Test `score_vertical_variance` function."""
     result = score_vertical_variance(roll)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "roll, max_n_time_steps, expected",
+    [
+        (
+            # `roll`,
+            np.array([
+                [1, 1, 1, 1],
+                [0, 1, 0, 1],
+                [0, 0, 0, 0],
+            ]),
+            # `max_n_time_steps`
+            3,
+            # expected`
+            -1
+        ),
+        (
+            # `roll`,
+            np.array([
+                [1, 1, 1, 1],
+                [0, 1, 0, 1],
+                [1, 1, 0, 0],
+            ]),
+            # `max_n_time_steps`
+            2,
+            # expected`
+            -2
+        ),
+        (
+            # `roll`,
+            np.array([
+                [1, 1, 1, 1],
+                [0, 1, 0, 1],
+                [1, 1, 0, 0],
+            ]),
+            # `max_n_time_steps`
+            1,
+            # expected`
+            -4
+        ),
+    ]
+)
+def test_score_absence_of_long_sounds(
+        roll: np.ndarray, max_n_time_steps: int, expected: int
+) -> None:
+    """Test `score_absence_of_long_sounds` function."""
+    result = score_absence_of_long_sounds(roll, max_n_time_steps)
     assert result == expected
 
 

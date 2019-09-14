@@ -16,7 +16,9 @@ from typing import Callable, Dict
 
 import numpy as np
 
-from rlmusician.utils import shift_horizontally, shift_vertically
+from rlmusician.utils import (
+    apply_rolling_aggregation, shift_horizontally, shift_vertically
+)
 
 
 N_SEMITONES_PER_OCTAVE = 12
@@ -48,6 +50,30 @@ def score_vertical_variance(roll: np.ndarray) -> float:
         averaged over all time steps variance of notes played there
     """
     return np.mean(np.var(roll, axis=0)).item()
+
+
+def score_absence_of_long_sounds(
+        roll: np.ndarray, max_n_time_steps: int = 4
+) -> float:
+    """
+    Score composition based on absence of too long sounds.
+
+    It is a proxy of how non-trivial melody and harmony are.
+
+    :param roll:
+        piano roll
+    :param max_n_time_steps:
+        maximum duration of note in time steps, all that is longer is penalized
+    :return:
+        number of cells where sound event exceeds maximum allowed duration
+        (with negative sign)
+    """
+    rolling_min_roll = apply_rolling_aggregation(
+        roll, max_n_time_steps, fn_name='min'
+    )
+    ends_of_long_notes = np.minimum(roll, rolling_min_roll)
+    score = -np.sum(ends_of_long_notes).item()
+    return score
 
 
 def compute_consonance_score_between_note_and_roll(
@@ -141,12 +167,9 @@ def score_conjunct_motion(
     :return:
         number of small changes in pitch
     """
-    lagged_rolls = [
-        shift_horizontally(roll, i).reshape(roll.shape + (1,))
-        for i in range(1, max_n_time_steps + 1)
-    ]
-    lagged_roll = np.concatenate(lagged_rolls, axis=2)
-    rolling_max_roll = lagged_roll.max(axis=2)
+    rolling_max_roll = apply_rolling_aggregation(
+        roll, max_n_time_steps, fn_name='max'
+    )
     altered_rolls = [
         shift_vertically(rolling_max_roll, i).reshape(roll.shape + (1,))
         for i in range(-max_n_semitones, max_n_semitones + 1)
@@ -170,6 +193,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
     registry = {
         'horizontal_variance': score_horizontal_variance,
         'vertical_variance': score_vertical_variance,
+        'absence_of_long_sounds': score_absence_of_long_sounds,
         'consonances': score_consonances,
         'conjunct_motion': score_conjunct_motion
     }
