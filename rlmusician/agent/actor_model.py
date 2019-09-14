@@ -7,8 +7,8 @@ Author: Nikolay Lysenko
 
 from typing import Tuple
 
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Conv2D, Dense, Flatten, Input, Reshape
+from keras.models import Model
+from keras.layers import Conv2D, Dense, Flatten, Input, Reshape
 
 
 def create_actor_model(

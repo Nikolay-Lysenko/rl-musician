@@ -1,5 +1,6 @@
 -c constraints.txt
 gym==0.14.0
+Keras==2.2.5
 numpy==1.17.1
 PyYAML==5.1.2
 sinethesizer==0.2.8
