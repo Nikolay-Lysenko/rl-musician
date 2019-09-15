@@ -4,9 +4,11 @@ environment:
   n_observed_roll_steps: 4
   max_n_stalled_episode_steps: 5
   scoring_coefs:
-    horizontal_variance: 1000
-    vertical_variance: 30
+    horizontal_variance: 10
+    vertical_variance: 5
+    absence_of_long_sounds: 1
     consonances: 1
+    conjunct_motion: 1
   scoring_fn_params:
     consonances:
       interval_consonances:
@@ -24,16 +26,13 @@ environment:
         11: -3
       distance_weights:
         0: 1
-        1: 1
-        2: 0.5
-        3: 0.25
   rendering_params:
     dir: rlmusician_data
     sinethesizer:
       timbre: fm_sine
       lowest_note: C4
-      step_in_seconds: 0.5
-      volume: 0.1
+      step_in_seconds: 0.75
+      volume: 0.2
 agent:
   population_size: 100
   elite_fraction: 0.1
