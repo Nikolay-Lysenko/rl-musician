@@ -86,6 +86,7 @@ class CrossEntropyAgent:
             elite_fraction: float = 0.1,
             n_episodes_per_candidate: int = 10,
             aggregation_fn: str = 'mean',
+            smoothing_coef: float = 0.25,
             n_candidates_to_keep: Optional[int] = None,
             initial_weights_mean: Optional[np.ndarray] = None,
             weights_std: float = 1,
@@ -107,6 +108,8 @@ class CrossEntropyAgent:
             name of function to aggregate rewards from multiple episodes into
             a single score of candidate weights ('min', 'mean', 'median',
             and 'max' are supported)
+        :param smoothing_coef:
+            coefficient of smoothing for updates of weights mean
         :param n_candidates_to_keep:
             number of last candidate weights of actor model to keep in memory
         :param initial_weights_mean:
@@ -124,6 +127,7 @@ class CrossEntropyAgent:
         self.n_weights = sum(self.sizes)
         self.weights_mean = initial_weights_mean or np.zeros(self.n_weights)
         self.weights_std = weights_std * np.ones(self.n_weights)
+        self.smoothing_coef = smoothing_coef
 
         n_candidates_to_keep = n_candidates_to_keep or population_size
         self.memory = CrossEntropyAgentMemory(n_candidates_to_keep)
@@ -210,7 +214,10 @@ class CrossEntropyAgent:
             top_entries = sorted_entries[-self.n_top_candidates:]
             top_flat_weights = [x['flat_weights'] for x in top_entries]
             top_flat_weights = np.vstack(top_flat_weights)
-            self.weights_mean = np.mean(top_flat_weights, axis=0)
+            self.weights_mean = (
+                self.smoothing_coef * self.weights_mean
+                + (1 - self.smoothing_coef) * np.mean(top_flat_weights, axis=0)
+            )
 
             top_scores = [x['score'] for x in top_entries]
             avg_top_score = np.mean(top_scores)

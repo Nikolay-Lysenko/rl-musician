@@ -38,5 +38,6 @@ agent:
   elite_fraction: 0.1
   n_episodes_per_candidate: 10
   aggregation_fn: mean
+  smoothing_coef: 0.25
   weights_std: 1.0
   n_warmup_candidates: 0
