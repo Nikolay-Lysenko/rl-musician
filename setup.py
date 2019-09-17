@@ -35,7 +35,13 @@ setup(
     },
     python_requires='>=3.6',
     install_requires=[
-        'gym', 'keras', 'numpy', 'PyYAML', 'sinethesizer', 'tensorflow'
+        'gym',
+        'keras',
+        'numpy',
+        'pypianoroll',
+        'PyYAML',
+        'sinethesizer',
+        'tensorflow'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

@@ -7,9 +7,51 @@ Author: Nikolay Lysenko
 
 from pkg_resources import resource_filename
 
+import numpy as np
+import pypianoroll
+
 from sinethesizer.io import (
     convert_tsv_to_timeline, create_timbres_registry, write_timeline_to_wav
 )
+
+
+def create_midi_from_piano_roll(
+        roll: np.ndarray, midi_path: str, midi_instrument: int,
+        lowest_note: str
+) -> None:
+    """
+    Create MIDI file from array with piano roll.
+
+    :param roll:
+        piano roll
+    :param midi_path:
+        path where resulting MIDI file is going to be saved
+    :param midi_instrument:
+        number of instrument according to General MIDI specification
+    :param lowest_note:
+        note that corresponds to the lowest row of piano roll
+    :return:
+        None
+    """
+    notes_order = {
+        'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6,
+        'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
+    }
+    n_semitones_per_octave = 12
+    n_rows_below = (
+        n_semitones_per_octave * int(lowest_note[-1])
+        + notes_order[lowest_note[:-1]]
+    )
+    n_pypianoroll_pitches = 128
+    n_rows_above = n_pypianoroll_pitches - n_rows_below - roll.shape[0]
+    resized_roll = np.hstack((
+        np.zeros((roll.shape[1], n_rows_below)),
+        roll.T,
+        np.zeros((roll.shape[1], n_rows_above))
+    ))
+    track = pypianoroll.Track(resized_roll, midi_instrument)
+    multitrack = pypianoroll.Multitrack(tracks=[track])
+    pypianoroll.write(multitrack, midi_path)
 
 
 def create_wav_from_events(events_path: str, output_path: str) -> None:

@@ -22,7 +22,9 @@ import numpy as np
 from sinethesizer.io.piano_roll_to_tsv import write_roll_to_tsv_file
 
 from rlmusician.environment.scoring import get_scoring_functions_registry
-from rlmusician.utils import create_wav_from_events
+from rlmusician.utils import (
+    create_midi_from_piano_roll, create_wav_from_events
+)
 
 
 class PianoRollEnv(gym.Env):
@@ -179,9 +181,18 @@ class PianoRollEnv(gym.Env):
         roll_path = os.path.join(nested_dir, 'piano_roll.tsv')
         np.savetxt(roll_path, self.piano_roll, fmt='%i', delimiter='\t')
 
+        midi_instrument = self.rendering_params['midi_instrument']
+        lowest_note = self.rendering_params['lowest_note']
+        midi_path = os.path.join(nested_dir, 'music.midi')
+        create_midi_from_piano_roll(
+            self.piano_roll, midi_path, midi_instrument, lowest_note
+        )
+
         events_path = os.path.join(nested_dir, 'sinethesizer_events.tsv')
         events_params = self.rendering_params['sinethesizer']
-        write_roll_to_tsv_file(self.piano_roll, events_path, **events_params)
+        write_roll_to_tsv_file(
+            self.piano_roll, events_path, lowest_note, **events_params
+        )
 
         wav_path = os.path.join(nested_dir, 'music.wav')
         create_wav_from_events(events_path, wav_path)

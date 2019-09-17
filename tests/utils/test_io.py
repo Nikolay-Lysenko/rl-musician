@@ -7,9 +7,32 @@ Author: Nikolay Lysenko
 
 from typing import List
 
+import numpy as np
 import pytest
 
-from rlmusician.utils import create_wav_from_events
+from rlmusician.utils import (
+    create_midi_from_piano_roll, create_wav_from_events
+)
+
+
+@pytest.mark.parametrize(
+    "roll, lowest_note",
+    [
+        (
+            np.array([
+                [1, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 1, 1, 1, 0],
+            ]),
+            'F#4'
+        )
+    ]
+)
+def test_create_midi_from_piano_roll(
+        path_to_tmp_file: str, roll: np.ndarray, lowest_note: str
+) -> None:
+    """Test `create_midi_from_piano_roll` function."""
+    create_midi_from_piano_roll(roll, path_to_tmp_file, 0, lowest_note)
 
 
 @pytest.mark.parametrize(

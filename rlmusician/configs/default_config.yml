@@ -28,9 +28,10 @@ environment:
         0: 1
   rendering_params:
     dir: rlmusician_data
+    lowest_note: C4
+    midi_instrument: 0
     sinethesizer:
       timbre: fm_sine
-      lowest_note: C4
       step_in_seconds: 0.75
       volume: 0.2
 agent:

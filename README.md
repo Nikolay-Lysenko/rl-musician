@@ -36,5 +36,6 @@ All three arguments are optional. [Default config](https://github.com/Nikolay-Ly
 
 Created pieces are stored in a directory specified in the config. For each piece, there is a nested directory that contains:
 * Piano roll in TSV format;
+* MIDI file;
 * Events file in [sinethesizer](https://github.com/Nikolay-Lysenko/sinethesizer) TSV format;
 * WAV file.
