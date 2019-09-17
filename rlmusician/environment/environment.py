@@ -181,17 +181,28 @@ class PianoRollEnv(gym.Env):
         roll_path = os.path.join(nested_dir, 'piano_roll.tsv')
         np.savetxt(roll_path, self.piano_roll, fmt='%i', delimiter='\t')
 
-        midi_instrument = self.rendering_params['midi_instrument']
         lowest_note = self.rendering_params['lowest_note']
-        midi_path = os.path.join(nested_dir, 'music.midi')
+        step_in_seconds = self.rendering_params['step_in_seconds']
+
+        midi_path = os.path.join(nested_dir, 'music.mid')
+        midi_params = self.rendering_params['midi']
+        n_seconds_per_minute = 60
         create_midi_from_piano_roll(
-            self.piano_roll, midi_path, midi_instrument, lowest_note
+            self.piano_roll,
+            midi_path,
+            lowest_note,
+            n_seconds_per_minute / step_in_seconds,
+            **midi_params
         )
 
         events_path = os.path.join(nested_dir, 'sinethesizer_events.tsv')
         events_params = self.rendering_params['sinethesizer']
+        events_params['step_in_seconds'] = step_in_seconds
         write_roll_to_tsv_file(
-            self.piano_roll, events_path, lowest_note, **events_params
+            self.piano_roll,
+            events_path,
+            lowest_note,
+            **events_params
         )
 
         wav_path = os.path.join(nested_dir, 'music.wav')

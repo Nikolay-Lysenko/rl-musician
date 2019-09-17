@@ -6,4 +6,4 @@
   fundamental_effects:
     - name: vibrato
       frequency: 100
-      width: 0.125
+      width: 0.01

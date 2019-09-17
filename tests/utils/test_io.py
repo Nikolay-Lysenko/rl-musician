@@ -32,7 +32,10 @@ def test_create_midi_from_piano_roll(
         path_to_tmp_file: str, roll: np.ndarray, lowest_note: str
 ) -> None:
     """Test `create_midi_from_piano_roll` function."""
-    create_midi_from_piano_roll(roll, path_to_tmp_file, 0, lowest_note)
+    create_midi_from_piano_roll(
+        roll, path_to_tmp_file, lowest_note,
+        tempo=120, instrument=0, velocity=100
+    )
 
 
 @pytest.mark.parametrize(

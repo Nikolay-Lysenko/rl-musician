@@ -16,8 +16,8 @@ from sinethesizer.io import (
 
 
 def create_midi_from_piano_roll(
-        roll: np.ndarray, midi_path: str, midi_instrument: int,
-        lowest_note: str
+        roll: np.ndarray, midi_path: str, lowest_note: str, tempo: int,
+        instrument: int, velocity: float
 ) -> None:
     """
     Create MIDI file from array with piano roll.
@@ -26,10 +26,14 @@ def create_midi_from_piano_roll(
         piano roll
     :param midi_path:
         path where resulting MIDI file is going to be saved
-    :param midi_instrument:
-        number of instrument according to General MIDI specification
     :param lowest_note:
         note that corresponds to the lowest row of piano roll
+    :param tempo:
+        number of piano roll's time steps per minute
+    :param instrument:
+        ID (number) of instrument according to General MIDI specification
+    :param velocity:
+        one common velocity for all notes
     :return:
         None
     """
@@ -49,8 +53,13 @@ def create_midi_from_piano_roll(
         roll.T,
         np.zeros((roll.shape[1], n_rows_above))
     ))
-    track = pypianoroll.Track(resized_roll, midi_instrument)
-    multitrack = pypianoroll.Multitrack(tracks=[track])
+
+    track = pypianoroll.Track(velocity * resized_roll, instrument)
+    multitrack = pypianoroll.Multitrack(
+        tracks=[track],
+        tempo=tempo,
+        beat_resolution=1
+    )
     pypianoroll.write(multitrack, midi_path)
 
 
