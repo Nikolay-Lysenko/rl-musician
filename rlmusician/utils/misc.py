@@ -25,10 +25,12 @@ def shift_horizontally(arr: np.ndarray, shift: int) -> np.ndarray:
     """
     if shift == 0:
         return arr
-    elif shift > 0:
-        return np.hstack((np.zeros((arr.shape[0], shift)), arr[:, :-shift]))
+    result = np.zeros_like(arr)
+    if shift > 0:
+        result[:, shift:] = arr[:, :-shift]
     else:
-        return np.hstack((arr[:, -shift:], np.zeros((arr.shape[0], -shift))))
+        result[:, :shift] = arr[:, -shift:]
+    return result
 
 
 def shift_vertically(arr: np.ndarray, shift: int) -> np.ndarray:
@@ -46,7 +48,14 @@ def shift_vertically(arr: np.ndarray, shift: int) -> np.ndarray:
     :return:
         shifted array
     """
-    return shift_horizontally(arr.T, shift).T
+    if shift == 0:
+        return arr
+    result = np.zeros_like(arr)
+    if shift > 0:
+        result[shift:, :] = arr[:-shift, :]
+    else:
+        result[:shift, :] = arr[-shift:, :]
+    return result
 
 
 def apply_rolling_aggregation(
