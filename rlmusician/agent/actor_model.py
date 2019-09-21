@@ -11,7 +11,7 @@ from typing import Tuple
 
 def mute_tensorflow() -> None:
     """
-    Mute numerous warnings from `tensorflow` that clutter up `stdout`.
+    Mute numerous warnings from `tensorflow`, because they clutter up `stdout`.
 
     :return:
         None
@@ -24,7 +24,7 @@ def mute_tensorflow() -> None:
 
 def import_keras_silently() -> None:
     """
-    Prevent printing `Using TensorFlow backend` every time a process starts.
+    Prevent printing 'Using TensorFlow backend' every time a process starts.
 
     :return:
         None

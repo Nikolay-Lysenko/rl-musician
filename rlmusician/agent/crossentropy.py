@@ -13,6 +13,7 @@ Author: Nikolay Lysenko
 """
 
 
+import os
 from copy import deepcopy
 from typing import Any, Dict, Callable, List, Optional
 
@@ -80,6 +81,8 @@ def evaluate_random_candidate(
     :return:
         record with sampled weights and their score
     """
+    # Reseed `np` in order to surely have independent results among processes.
+    np.random.seed(int.from_bytes(os.urandom(4), byteorder='little'))
     epsilons = np.random.randn(agent.n_weights)
     flat_weights = agent.weights_std * epsilons + agent.weights_mean
     actor_model = agent.create_model(flat_weights)
