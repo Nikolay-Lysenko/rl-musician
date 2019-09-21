@@ -44,9 +44,8 @@ def main() -> None:
     """Run all."""
     cli_args = parse_cli_args()
 
-    default_config_path = resource_filename(
-        __name__, 'configs/default_config.yml'
-    )
+    default_config_path = 'configs/default_config.yml'
+    default_config_path = resource_filename(__name__, default_config_path)
     config_path = cli_args.config_path or default_config_path
     with open(config_path) as config_file:
         settings = yaml.safe_load(config_file)
@@ -58,8 +57,15 @@ def main() -> None:
     env = PianoRollEnv(**settings['environment'])
     observation_shape = env.observation_space.shape
     n_actions = env.action_space.n
-    model = create_actor_model(observation_shape, n_actions)
-    agent = CrossEntropyAgent(model, **settings['agent'])
+    model_params = {
+        'observation_shape': observation_shape,
+        'n_actions': n_actions
+    }
+    agent = CrossEntropyAgent(
+        create_actor_model,
+        model_params,
+        **settings['agent']
+    )
 
     agent.fit(env, n_populations=cli_args.populations)
     now = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S,%f")

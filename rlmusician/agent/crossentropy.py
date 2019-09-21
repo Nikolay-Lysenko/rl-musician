@@ -13,67 +13,83 @@ Author: Nikolay Lysenko
 """
 
 
-import random
-from functools import reduce
-from operator import mul
-from typing import Any, Callable, Dict, List, Optional
+from copy import deepcopy
+from typing import Any, Dict, Callable, List, Optional
 
 import gym
 import numpy as np
-from keras.models import Model
+
+from rlmusician.utils import map_in_parallel
 
 
-class CrossEntropyAgentMemory:
-    """Memory for Cross-Entropy Agent."""
+def compute_model_properties(
+        model_fn: Callable[..., 'keras.models.Model'],
+        model_params: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    Compute properties of model created by given function with given arguments.
 
-    def __init__(self, size: int):
-        """
-        Initialize instance.
+    :param model_fn:
+        function that returns model
+    :param model_params:
+        parameters that should be passed to the function that creates
+        actor model
+    :return:
+        properties of model
+    """
+    model = model_fn(**model_params)
+    shapes = [w.shape for w in model.get_weights()]
+    sizes = [w.size for w in model.get_weights()]
+    n_weights = sum(sizes)
+    properties = {'shapes': shapes, 'sizes': sizes, 'n_weights': n_weights}
+    return properties
 
-        :param size:
-            maximum number of candidate actor models to keep
-        """
-        self.size: int = size
-        self.position: int = 0
-        self.data: List[Optional[Dict[str, Any]]] = [None for _ in range(size)]
-        self.best: Dict[str, Any] = {'flat_weights': None, 'score': -np.inf}
 
-    def add(self, flat_weights: np.ndarray, score: float) -> None:
-        """
-        Add candidate actor model and its score to the memory.
+def run_episode(actor_model: 'keras.models.Model', env: gym.Env) -> float:
+    """
+    Run an episode with given actor model.
 
-        :param flat_weights:
-            actor model represented as its flattened weights
-        :param score:
-            score for the candidate actor model; the higher, the better
-        :return:
-            None
-        """
-        entry = {'flat_weights': flat_weights, 'score': score}
-        self.data[self.position % self.size] = entry
-        self.position += 1
-        if score > self.best['score']:
-            self.best = entry
+    :param actor_model:
+        model that maps observations to probabilities of actions
+    :param env:
+        environment
+    return:
+        reward for an episode
+    """
+    observation = env.reset()
+    reward = None
+    done = False
+    while not done:
+        observation = observation.reshape((1,) + observation.shape)
+        probabilities = actor_model.predict(observation)[0]
+        action = np.random.choice(len(probabilities), p=probabilities)
+        observation, reward, done, info = env.step(action)
+    return reward
 
-    def sample(self, n_entries: int) -> List[Dict[str, Any]]:
-        """
-        Extract some random candidates and their scores from memory.
 
-        :param n_entries:
-            number of candidates to extract
-        :return:
-            random candidates and their scores
-        """
-        is_memory_full = self.data[self.size - 1] is not None
-        total_n_entries = self.size if is_memory_full else self.position
-        if n_entries > total_n_entries:
-            raise RuntimeError(
-                f"There are only {total_n_entries} entries in memory, "
-                f"but {n_entries} entries are requested. "
-            )
-        indices = random.sample(range(total_n_entries), n_entries)
-        sampled_entries = [self.data[x] for x in indices]
-        return sampled_entries
+def evaluate_random_candidate(
+        agent: 'CrossEntropyAgent', env: gym.Env
+) -> Dict[str, Any]:
+    """
+    Create candidate weights from current distribution and evaluate them.
+
+    :param agent:
+        agent
+    :param env:
+        environment
+    :return:
+        record with sampled weights and their score
+    """
+    epsilons = np.random.randn(agent.n_weights)
+    flat_weights = agent.weights_std * epsilons + agent.weights_mean
+    actor_model = agent.create_model(flat_weights)
+    rewards = [
+        run_episode(actor_model, env)
+        for _ in range(agent.n_episodes_per_candidate)
+    ]
+    score = agent.aggregation_fn(rewards)
+    entry = {'flat_weights': flat_weights, 'score': score}
+    return entry
 
 
 class CrossEntropyAgent:
@@ -81,22 +97,25 @@ class CrossEntropyAgent:
 
     def __init__(
             self,
-            model: Model,
+            model_fn: Callable[..., 'keras.models.Model'],
+            model_params: Dict[str, Any],
             population_size: int = 100,
             elite_fraction: float = 0.1,
             n_episodes_per_candidate: int = 10,
             aggregation_fn: str = 'mean',
             smoothing_coef: float = 0.25,
-            n_candidates_to_keep: Optional[int] = None,
             initial_weights_mean: Optional[np.ndarray] = None,
             weights_std: float = 1,
-            n_warmup_candidates: int = 0
+            n_processes: Optional[int] = None
     ):
         """
         Initialize instance.
 
-        :param model:
-            actor model; its weights are ignored, only its architecture is used
+        :param model_fn:
+            function that returns actor model (weights can be arbitrary)
+        :param model_params:
+            parameters that should be passed to the function that creates
+            actor model
         :param population_size:
             number of candidate weights to draw and evaluate at each training
             step
@@ -110,34 +129,40 @@ class CrossEntropyAgent:
             and 'max' are supported)
         :param smoothing_coef:
             coefficient of smoothing for updates of weights mean
-        :param n_candidates_to_keep:
-            number of last candidate weights of actor model to keep in memory
         :param initial_weights_mean:
             mean of multivariate Gaussian distribution from which weights
             are drawn initially
         :param weights_std:
             standard deviation of all multivariate Gaussian distributions
             from which weights of candidates are drawn
-        :param n_warmup_candidates:
-            number of random candidate weights to evaluate before training
+        :param n_processes:
+            number of processes for parallel candidate evaluation;
+            by default, it is set to `os.cpu_count`
         """
-        self.model = model
-        self.shapes = [w.shape for w in model.get_weights()]
-        self.sizes = [w.size for w in model.get_weights()]
-        self.n_weights = sum(self.sizes)
+        self.model_fn = model_fn
+        self.model_params = model_params
+
+        # `keras` must not be imported in the main process.
+        args = [(model_fn, model_params)]
+        model_properties = map_in_parallel(compute_model_properties, args, 1)
+        model_properties = model_properties[0]
+        self.shapes = model_properties['shapes']
+        self.sizes = model_properties['sizes']
+        self.n_weights = model_properties['n_weights']
+
         self.weights_mean = initial_weights_mean or np.zeros(self.n_weights)
         self.weights_std = weights_std * np.ones(self.n_weights)
-        self.smoothing_coef = smoothing_coef
 
-        n_candidates_to_keep = n_candidates_to_keep or population_size
-        self.memory = CrossEntropyAgentMemory(n_candidates_to_keep)
+        self.smoothing_coef = smoothing_coef
         self.n_episodes_per_candidate = n_episodes_per_candidate
         self.aggregation_fn = self.__get_aggregation_fn(aggregation_fn)
         self.population_size = population_size
         self.elite_fraction = elite_fraction
         self.n_top_candidates = round(elite_fraction * population_size)
+        self.n_processes = n_processes
 
-        self.n_warmup_candidates = n_warmup_candidates
+        self.model = None
+        self.best = {'flat_weights': None, 'score': -np.inf}
 
     @staticmethod
     def __get_aggregation_fn(fn_name: str) -> Callable[[List[float]], float]:
@@ -151,46 +176,25 @@ class CrossEntropyAgent:
         aggregation_fn = name_to_fn[fn_name]
         return aggregation_fn
 
-    def __set_weights(self, flat_weights: np.ndarray) -> None:
-        # Set weights of actor model.
+    def create_model(self, flat_weights: np.ndarray) -> 'keras.models.Model':
+        """
+        Create new model with given weights.
+
+        :param flat_weights:
+            1D array of new weights
+        :return:
+            new model
+        """
+        model = self.model_fn(**self.model_params)
         weights = []
         position = 0
-        for layer_shape in self.shapes:
-            layer_size = reduce(mul, layer_shape)
+        for layer_shape, layer_size in zip(self.shapes, self.sizes):
             arr = flat_weights[position:(position + layer_size)]
             arr = arr.reshape(layer_shape)
             weights.append(arr)
             position += layer_size
-        self.model.set_weights(weights)
-
-    def __choose_action(self, observation: np.ndarray) -> int:
-        # Choose an action stochastically.
-        observation = observation.reshape((1,) + observation.shape)
-        probabilities = self.model.predict(observation)[0]
-        action = np.random.choice(len(probabilities), p=probabilities)
-        return action
-
-    def __run_episode(self, env: gym.Env) -> float:
-        # Run episode with current actor model.
-        observation = env.reset()
-        reward = None
-        done = False
-        while not done:
-            action = self.__choose_action(observation)
-            observation, reward, done, info = env.step(action)
-        return reward
-
-    def __evaluate_random_candidate(self, env: gym.Env) -> None:
-        # Create candidate from current distribution and evaluate it.
-        epsilons = np.random.randn(self.n_weights)
-        flat_weights = self.weights_std * epsilons + self.weights_mean
-        self.__set_weights(flat_weights)
-        rewards = [
-            self.__run_episode(env)
-            for _ in range(self.n_episodes_per_candidate)
-        ]
-        score = self.aggregation_fn(rewards)
-        self.memory.add(flat_weights, score)
+        model.set_weights(weights)
+        return model
 
     def fit(self, env: gym.Env, n_populations: int) -> None:
         """
@@ -204,12 +208,11 @@ class CrossEntropyAgent:
         :return:
             None
         """
-        for _ in range(self.n_warmup_candidates):
-            self.__evaluate_random_candidate(env)
         for i_population in range(n_populations):
-            for _ in range(self.population_size):
-                self.__evaluate_random_candidate(env)
-            entries = self.memory.sample(self.population_size)
+            args = [(self, deepcopy(env)) for _ in range(self.population_size)]
+            entries = map_in_parallel(
+                evaluate_random_candidate, args, self.n_processes
+            )
             sorted_entries = sorted(entries, key=lambda x: x['score'])
             top_entries = sorted_entries[-self.n_top_candidates:]
             top_flat_weights = [x['flat_weights'] for x in top_entries]
@@ -219,15 +222,18 @@ class CrossEntropyAgent:
                 + (1 - self.smoothing_coef) * np.mean(top_flat_weights, axis=0)
             )
 
+            best_new_entry = top_entries[-1]
+            if best_new_entry['score'] > self.best['score']:
+                self.best = best_new_entry
             top_scores = [x['score'] for x in top_entries]
             avg_top_score = np.mean(top_scores)
             print(
                 f"Population {i_population}: "
                 f"mean score over top candidates is {avg_top_score}, "
-                f"global best score is {self.memory.best['score']}."
+                f"global best score is {self.best['score']}."
             )
-        best_flat_weights = self.memory.best['flat_weights']
-        self.__set_weights(best_flat_weights)
+        best_flat_weights = self.best['flat_weights']
+        self.model = self.create_model(best_flat_weights)
 
     def test(self, env: gym.Env, n_episodes: int) -> None:
         """
@@ -241,6 +247,6 @@ class CrossEntropyAgent:
             None
         """
         for i_episode in range(n_episodes):
-            reward = self.__run_episode(env)
+            reward = run_episode(self.model, env)
             env.render()
             print(f"Episode {i_episode}: reward is {reward}.")
