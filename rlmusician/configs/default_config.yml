@@ -1,6 +1,6 @@
 environment:
   n_semitones: 13
-  n_roll_steps: 30
+  n_roll_steps: 31
   n_observed_roll_steps: 4
   max_n_stalled_episode_steps: 5
   scoring_coefs:
@@ -43,4 +43,3 @@ agent:
   aggregation_fn: mean
   smoothing_coef: 0.25
   weights_std: 2.0
-  n_warmup_candidates: 0
