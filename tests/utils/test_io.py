@@ -44,8 +44,8 @@ def test_create_midi_from_piano_roll(
         (
             [
                 "timbre\tstart_time\tduration\tfrequency\tvolume\tlocation\teffects",
-                "fm_sine\t1\t1\tA0\t1\t0\t",
-                'fm_sine\t2\t1\t1\t1\t0\t[{"name": "tremolo", "frequency": 1}]'
+                "default_timbre\t1\t1\tA0\t1\t0\t",
+                'default_timbre\t2\t1\t1\t1\t0\t[{"name": "tremolo", "frequency": 1}]'
             ]
         )
     ]
