@@ -8,7 +8,9 @@ Author: Nikolay Lysenko
 import numpy as np
 import pytest
 
-from rlmusician.utils import apply_rolling_aggregation
+from rlmusician.utils import (
+    apply_rolling_aggregation, shift_vertically
+)
 
 
 @pytest.mark.parametrize(
@@ -63,3 +65,64 @@ def test_apply_rolling_aggregation(
     """Test `apply_rolling_aggregation` function."""
     result = apply_rolling_aggregation(arr, max_lag, fn_name, lags_only)
     np.testing.assert_allclose(result, expected)
+
+
+@pytest.mark.parametrize(
+    "arr, shift, expected",
+    [
+        (
+            # `arr`
+            np.array([
+                [1, 0, 1],
+                [0, 1, 0],
+                [0, 0, 1],
+            ]),
+            # `shift`
+            0,
+            # `expected`
+            np.array([
+                [1, 0, 1],
+                [0, 1, 0],
+                [0, 0, 1],
+            ])
+        ),
+        (
+            # `arr`
+            np.array([
+                [1, 0, 1],
+                [0, 1, 0],
+                [0, 0, 1],
+            ]),
+            # `shift`
+            1,
+            # `expected`
+            np.array([
+                [0, 1, 0],
+                [0, 0, 1],
+                [0, 0, 0],
+            ])
+        ),
+        (
+            # `arr`
+            np.array([
+                [1, 0, 1],
+                [0, 1, 0],
+                [0, 0, 1],
+            ]),
+            # `shift`
+            -2,
+            # `expected`
+            np.array([
+                [0, 0, 0],
+                [0, 0, 0],
+                [1, 0, 1],
+            ])
+        ),
+    ]
+)
+def test_shift_vertically(
+        arr: np.ndarray, shift: int, expected: np.ndarray
+) -> None:
+    """Test `shift_vertically` function."""
+    result = shift_vertically(arr, shift)
+    np.testing.assert_equal(result, expected)
