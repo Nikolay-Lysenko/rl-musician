@@ -34,12 +34,12 @@ environment:
       instrument: 0
       velocity: 100
     sinethesizer:
-      timbre: fm_sine
+      timbre: default_timbre
       volume: 0.2
 agent:
   population_size: 100
   elite_fraction: 0.1
   n_episodes_per_candidate: 10
   aggregation_fn: mean
-  smoothing_coef: 0.25
-  weights_std: 2.0
+  smoothing_coef: 0.5
+  weights_std: 3.0

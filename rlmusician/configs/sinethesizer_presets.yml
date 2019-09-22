@@ -1,9 +1,37 @@
 ---
-- name: fm_sine
+- name: default_timbre
   fundamental_waveform: sine
   fundamental_volume_envelope:
     name: relative_adsr
-  fundamental_effects:
-    - name: vibrato
-      frequency: 100
-      width: 0.01
+    attack_share: 0.15
+    decay_share: 0.15
+    sustain_level: 0.6
+    release_share: 0.2
+  overtones_specs:
+  - waveform: sine
+    frequency_ratio: 2
+    volume_share: 0.2
+    volume_envelope:
+      name: relative_adsr
+      attack_share: 0.15
+      decay_share: 0.15
+      sustain_level: 0.6
+      release_share: 0.3
+  - waveform: sine
+    frequency_ratio: 3
+    volume_share: 0.1
+    volume_envelope:
+      name: relative_adsr
+      attack_share: 0.15
+      decay_share: 0.15
+      sustain_level: 0.6
+      release_share: 0.4
+  - waveform: sine
+    frequency_ratio: 4
+    volume_share: 0.05
+    volume_envelope:
+      name: relative_adsr
+      attack_share: 0.15
+      decay_share: 0.15
+      sustain_level: 0.6
+      release_share: 0.5
