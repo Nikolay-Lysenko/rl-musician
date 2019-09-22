@@ -89,9 +89,9 @@ def shift_vertically(arr: np.ndarray, shift: int) -> np.ndarray:
         return arr
     result = np.zeros_like(arr)
     if shift > 0:
-        result[:shift, :] = arr[-shift:, :]
+        result[:-shift, :] = arr[shift:, :]
     else:
-        result[shift:, :] = arr[:-shift, :]
+        result[-shift:, :] = arr[:shift, :]
     return result
 
 
