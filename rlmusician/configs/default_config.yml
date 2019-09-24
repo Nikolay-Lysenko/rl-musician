@@ -7,6 +7,7 @@ environment:
     horizontal_variance: 10
     vertical_variance: 5
     absence_of_long_sounds: 1
+    noncyclicity: 10
     consonances: 1
     conjunct_motion: 1
   scoring_fn_params:

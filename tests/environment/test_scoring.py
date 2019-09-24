@@ -14,6 +14,7 @@ from rlmusician.environment.scoring import (
     score_horizontal_variance,
     score_vertical_variance,
     score_absence_of_long_sounds,
+    score_noncyclicity,
     score_consonances,
     score_conjunct_motion
 )
@@ -123,6 +124,60 @@ def test_score_absence_of_long_sounds(
 ) -> None:
     """Test `score_absence_of_long_sounds` function."""
     result = score_absence_of_long_sounds(roll, max_n_time_steps)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "roll, max_n_time_steps, max_share, expected",
+    [
+        (
+            # `roll`
+            np.array([
+                [1, 0, 1, 0, 1, 0],
+                [0, 1, 0, 1, 0, 1],
+            ]),
+            # `max_n_time_steps`
+            1,
+            # `max_share`
+            0.5,
+            # `expected`
+            1
+        ),
+        (
+            # `roll`
+            np.array([
+                [1, 0, 1, 0, 1, 0],
+                [0, 1, 0, 1, 0, 1],
+            ]),
+            # `max_n_time_steps`
+            2,
+            # `max_share`
+            0.5,
+            # `expected`
+            1 / 3
+        ),
+        (
+            # `roll`
+            np.array([
+                [1, 0, 1, 0, 1, 0],
+                [0, 1, 0, 1, 0, 1],
+                [0, 1, 1, 0, 0, 1],
+            ]),
+            # `max_n_time_steps`
+            3,
+            # `max_share`
+            1,
+            # `expected`
+            5 / 18
+        ),
+    ]
+)
+def test_score_noncyclicity(
+        roll: np.ndarray, max_n_time_steps: int, max_share: float,
+        expected: float
+) -> None:
+    """Test `score_noncyclicity` function."""
+    result = score_noncyclicity(roll, max_n_time_steps, max_share)
     assert result == expected
 
 

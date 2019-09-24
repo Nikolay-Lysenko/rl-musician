@@ -76,6 +76,38 @@ def score_absence_of_long_sounds(
     return score
 
 
+def score_noncyclicity(
+        roll: np.ndarray, max_n_time_steps: int = 4, max_share: float = 0.2
+) -> float:
+    """
+    Score composition based on absence of cyclically repeated parts.
+
+    It is a proxy of how non-trivial composition is.
+
+    :param roll:
+        piano roll
+    :param max_n_time_steps:
+        maximum duration of a fragment to be tested on cyclical repetitiveness
+    :param max_share:
+        upper limit on share of filled non-cyclically cells;
+        values that are higher, are clipped
+    :return:
+        score from 0 to 1 that indicates how many cells are filled
+        non-cyclically
+    """
+    upper_limit = max_share * roll.shape[0] * roll.shape[1]
+    scores = []
+    for shift in range(1, max_n_time_steps + 1):
+        shifted_roll = shift_horizontally(roll, shift)
+        diff = np.clip(roll - shifted_roll, a_min=0, a_max=None)
+        print(diff)
+        score = min(np.sum(diff) / upper_limit, 1)
+        print(score)
+        scores.append(score)
+    score = min(scores)
+    return score
+
+
 def compute_consonance_score_between_note_and_roll(
         note_timeline: np.ndarray,
         upper_roll: np.ndarray,
@@ -194,6 +226,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         'horizontal_variance': score_horizontal_variance,
         'vertical_variance': score_vertical_variance,
         'absence_of_long_sounds': score_absence_of_long_sounds,
+        'noncyclicity': score_noncyclicity,
         'consonances': score_consonances,
         'conjunct_motion': score_conjunct_motion
     }
