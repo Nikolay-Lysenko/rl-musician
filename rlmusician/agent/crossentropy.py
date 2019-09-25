@@ -33,8 +33,7 @@ def compute_model_properties(
     :param model_fn:
         function that returns model
     :param model_params:
-        parameters that should be passed to the function that creates
-        actor model
+        parameters that should be passed to the function that creates model
     :return:
         properties of model
     """
@@ -140,7 +139,7 @@ class CrossEntropyAgent:
             from which weights of candidates are drawn
         :param n_processes:
             number of processes for parallel candidate evaluation;
-            by default, it is set to `os.cpu_count`
+            by default, it is set to number of cores
         """
         self.model_fn = model_fn
         self.model_params = model_params

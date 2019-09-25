@@ -100,9 +100,7 @@ def score_noncyclicity(
     for shift in range(1, max_n_time_steps + 1):
         shifted_roll = shift_horizontally(roll, shift)
         diff = np.clip(roll - shifted_roll, a_min=0, a_max=None)
-        print(diff)
         score = min(np.sum(diff) / upper_limit, 1)
-        print(score)
         scores.append(score)
     score = min(scores)
     return score

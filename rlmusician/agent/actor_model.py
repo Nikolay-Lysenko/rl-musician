@@ -5,7 +5,6 @@ Author: Nikolay Lysenko
 """
 
 
-import warnings
 from typing import Tuple
 
 
@@ -51,6 +50,7 @@ def create_actor_model(
         actor network that maps observation to action
     """
     # Here, all `keras`-related stuff is imported by child processes only.
+    import warnings
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
         import_keras_silently()
