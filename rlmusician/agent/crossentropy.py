@@ -7,7 +7,7 @@ is a sort of genetic algorithm applied to parameters of actor model
 
 References:
     1) de Boer, Kroese, Mannor, and Rubinstein. A tutorial on the
-    cross-entropy method. Annals of Operations Research, 2004.
+    cross-entropy method. Annals of Operations Research, 2005.
 
 Author: Nikolay Lysenko
 """

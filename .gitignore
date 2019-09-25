@@ -115,5 +115,12 @@ venv.bak/
 # Logs
 nohup.out
 
+# TeX
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.out
+
 # Project data
 rlmusician_data/
