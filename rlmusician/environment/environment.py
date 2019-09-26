@@ -116,8 +116,7 @@ class PianoRollEnv(gym.Env):
         """
         # Act.
         if action != self.n_semitones:
-            self.piano_roll[action, self.n_piano_roll_steps_passed] += 1
-            self.piano_roll[action, self.n_piano_roll_steps_passed] %= 2
+            self.piano_roll[action, self.n_piano_roll_steps_passed] = 1
             self.n_stalled_episode_steps += 1
         force_movement = (
             self.n_stalled_episode_steps == self.max_n_stalled_episode_steps
