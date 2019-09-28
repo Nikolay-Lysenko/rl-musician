@@ -1,13 +1,13 @@
 environment:
   n_semitones: 13
   n_roll_steps: 31
-  n_observed_roll_steps: 4
+  n_observed_roll_steps: 6
   max_n_stalled_episode_steps: 5
   scoring_coefs:
     horizontal_variance: 10
     vertical_variance: 5
     absence_of_long_sounds: 1
-    noncyclicity: 10
+    noncyclicity: 250
     consonances: 1
     conjunct_motion: 1
   scoring_fn_params:
@@ -38,9 +38,9 @@ environment:
       timbre: default_timbre
       volume: 0.2
 agent:
-  population_size: 100
+  population_size: 128
   elite_fraction: 0.1
   n_episodes_per_candidate: 10
   aggregation_fn: mean
-  smoothing_coef: 0.5
-  weights_std: 3.0
+  smoothing_coef: 0.25
+  weights_std: 2.0

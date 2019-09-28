@@ -60,7 +60,7 @@ def create_actor_model(
 
     roll_input = Input(shape=observation_shape, name='piano_roll')
     reshaped_input = Reshape(observation_shape + (1,))(roll_input)
-    roll_hidden = Conv2D(3, (4, 4), activation='relu')(reshaped_input)
+    roll_hidden = Conv2D(4, (6, 6), activation='relu')(reshaped_input)
     roll_embedded = Flatten()(roll_hidden)
     output = Dense(n_actions, activation='softmax')(roll_embedded)
     model = Model(inputs=roll_input, outputs=output)
