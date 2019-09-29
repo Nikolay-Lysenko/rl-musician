@@ -1,0 +1,95 @@
+\documentclass{article}
+
+\usepackage{arxiv}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+
+
+\title{RL-Musician: A Tool for Music Composition with Deep Reinforcement Learning}
+
+\date{September 30, 2019}
+
+\author{
+  Nikolay~Lysenko\\
+  \texttt{nikolay.lysenko.1992@gmail.com} \\
+}
+
+\renewcommand{\headeright}{A draft}
+\renewcommand{\undertitle}{A draft}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The notion of creativity is wider than generating something inspired by reference pieces of art. It also includes generation of something that meets criteria of being an art regardless of similar pieces existence. However, supervised machine learning is limited by the former scope, because it requires a dataset. Reinforcement learning can be used instead if the goal is to reveal more aspects of creativity. In this paper, a cross-entropy agent is trained to compose musical pieces by interacting with a piano roll environment. The environment scores submitted pieces based on some hand-written evaluational rules derived from music theory.
+\end{abstract}
+
+\keywords{algorithmc composition \and music generation \and reinforcement learning}
+
+
+\section{Introduction}
+\label{sec:introduction}
+
+Algorithmic music composition is automatic generation of outputs representing musical pieces and written in some formal notation. To name a few of common notations, there are sheet music, tablature, and MIDI standard. It is not required from output representation to unambiguously define sound waveform. For example, sheet music leaves exact loudness of played notes to discretion of performer and may include only imprecise hints like pianissimo (very quiet). Anyway, there are parameters of sounds that must be determined by their representation. Usually, such parameters are pitch, start time, and duration.
+
+%Human decisions are replaced with randomness or pseudorandomness and an algorithm must turn random inputs into representation of a musical piece.
+
+Plenty of various approaches for composing music automatically exist. In particular, there are approaches based on machine learning. Both supervised learning and reinforcement learning are applicable here. Moreover, some researchers combine them \cite{jaques2016generating}.
+
+In this paper, a pure reinforcement learning approach to music generation is studied. The reasons for not involving supervised learning at all are as follows:
+\begin{itemize}
+	\item Finding new ways of music creation is a more challenging task than imitation of famous pieces. If no known pieces are used, chances are that the harder problem is considered and it is not replaced with the simpler problem of imitation.
+	\item There are tuning systems other than equal temperament (for instance, in microtonal music). For some of them it may be impossible to collect dataset large enough to allow training models in a supervised fashion. However, developers of a tuning system should know some underlying principles and so (at least, in theory) it is possible to create evaluational rules and train an agent based on them.
+\end{itemize}
+
+Results reported at this draft version are far from using above advantages at full scale. The current study is rather a proof-of-concept for composition of music with reinforcement learning solely.
+
+
+\section{Background and Related Work}
+\label{sec:literature}
+
+\subsection{Algorithmic Composition}
+\label{subsec:composition}
+
+Along with other options, algorithmic composition can be framed as sampling from a model that returns probabilities of next sound events (say, played notes) given current state. Sampling can be done greedily or with more sophisticated techniques like beam search. Although finding optimal sampling procedure from a given model is an important task, let us focus on creation of such models.
+
+First of all, to create a model, its type and structure must be defined. Then it must be trained and so loss function, optimizer, and dataset must be introduced. In music generation, neural networks are often used as models, because they are universal approximators that can be trained with gradient descent. What is also common, training problem is usually set up as maximum likelihood estimation, i.e., the loss is cross-entropy between predicted distribution and distribution concentrated at target. Other details vary from paper to paper.
+
+\subsection{Cross-Entropy Method}
+\label{subsec:crossentropy}
+
+
+\section{Methodology}
+\label{sec:approach}
+
+
+\section{Experimental Results}
+\label{sec:results}
+
+A software implementation of the above methodology in Python programming language is available on GitHub\footnote{\url{https://github.com/Nikolay-Lysenko/rl-musician}}. The code has built-in documentation, is covered with unit tests, and is released as a package on PyPI\footnote{\url{https://pypi.org/project/rl-musician/0.1.1/}}.
+
+%The implementation is non-demanding and transparent.
+
+The implementation relies on some open-source tools \cite{brockman2016openai,chollet2015keras,oliphant2006guide,raffel2014intuitive,dong2018pypianoroll}.
+
+
+\section{Further Improvements}
+\label{sec:improvements}
+% start from supervisedly pre-trained weigths;
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+
+\bibliographystyle{unsrt}  
+\bibliography{references}
+
+\end{document}

@@ -121,6 +121,8 @@ nohup.out
 *.blg
 *.dvi
 *.out
+*.pdf
+*.gz
 
 # Project data
 rlmusician_data/
