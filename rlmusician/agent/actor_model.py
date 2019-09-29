@@ -1,5 +1,5 @@
 """
-Define actor model (i.e., model that maps observation to action).
+Define actor model (i.e., model that maps observation to action probabilities).
 
 Author: Nikolay Lysenko
 """

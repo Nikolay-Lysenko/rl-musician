@@ -3,7 +3,7 @@ Provide an agent that is trained with so called cross-entropy method.
 
 In context of Monte-Carlo reinforcement learning, cross-entropy method
 is a sort of genetic algorithm applied to parameters of actor model
-(i.e., a model that maps observations to actions).
+(i.e., a model that maps observation to probabilities of actions).
 
 References:
     1) de Boer, Kroese, Mannor, and Rubinstein. A tutorial on the
@@ -50,7 +50,7 @@ def run_episode(actor_model: 'keras.models.Model', env: gym.Env) -> float:
     Run an episode with given actor model.
 
     :param actor_model:
-        model that maps observations to probabilities of actions
+        model that maps observation to probabilities of actions
     :param env:
         environment
     return:
