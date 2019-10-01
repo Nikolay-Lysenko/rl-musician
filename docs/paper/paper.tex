@@ -39,17 +39,15 @@ The notion of creativity is wider than generating something inspired by referenc
 
 Algorithmic music composition is automatic generation of outputs representing musical pieces and written in some formal notation. To name a few of common notations, there are sheet music, tablature, and MIDI standard. It is not required from output representation to unambiguously define sound waveform. For example, sheet music leaves exact loudness of played notes to discretion of a performer and may include only imprecise hints like pianissimo (very quiet). Anyway, there are parameters of sounds that must be determined by their representation. Usually, such parameters are pitch, start time, and duration.
 
-%Human decisions are replaced with randomness or pseudorandomness and an algorithm must turn random inputs into representation of a musical piece.
+Currently, there are no perfect tools for algorithmic composition. Plenty of various approaches for composing music automatically exist, but none of them produce well-structured and novel pieces that can not be distinguished from works of a talented human composer. Thus, there is an open research problem. Several recent breakthroughs in it are accomplished with machine learning and both supervised learning \cite{johnson2017generating} and reinforcement learning \cite{smith2012reinforcement} are applicable. Moreover, some researchers combine them \cite{jaques2016generating}.
 
-Currently, there are no perfect tools for algorithmic composition. Plenty of various approaches for composing music automatically exist, but none of them produce well-structured and novel pieces that can not be distinguished from works of a talented human composer. Thus, there is an open research problem. Some recent breakthroughs in it are accomplished with machine learning and both supervised learning \cite{johnson2017generating} and reinforcement learning \cite{smith2012reinforcement} are applicable. Moreover, some researchers combine them \cite{jaques2016generating}.
+In this paper, a new approach to music composition is suggested. Although it is quite straightforward, to the best of the author's knowledge it is not described anywhere, so the first contribution is its rigorous definition. The second contribution\footnote{As of now, it is in progress.} is proper setup and tuning of the parameters. It is often the case that accurately tuned simple methods outperform complex methods \cite{dacrema2019are} and, in addition, they are more transparent and less demanding.
 
-In this paper, a new approach to music composition is suggested. There is an environment with 2D table representing piano roll which means that rows of the table correspond to consecutive notes and columns of the table correspond to time steps. An agent observes current time step and some previous time steps. An action of the agent can be either playing a note at the current time step or moving to the next time step. When the last time step of the piano roll is reached, episode is ended and the agent receives reward based on evaluation of created composition. Trainable parameters of the agent are weights of a neural network used as a so called actor model, i.e., a model that maps observation to probabilities of actions. These parameters are trained with cross-entropy method.
+Brief outline of the approach is as follows. There is an environment with 2D table representing piano roll which means that rows of the table correspond to consecutive notes and columns of the table correspond to time steps. An agent observes current time step and some previous time steps. An action of the agent can be either playing a note at the current time step or moving to the next time step. When the last time step of the piano roll is reached, episode is ended and the agent receives reward based on evaluation of created composition. Trainable parameters of the agent are weights of a neural network used as a so called actor model, i.e., a model that maps observation to probabilities of actions. These parameters are trained with cross-entropy method.
 
-Obviously, the approach belongs to reinforcement learning, because there is an environment, but a dataset is absent. Nevertheless, there are strong connections with supervised deep learning. From generation of new pieces point of view, actor model returns probabilities of next notes given current state. This is similar to sampling new sequences from a model trained with maximum likelihood method on a dataset of existing sequences.
+Obviously, the approach belongs to reinforcement learning, because there is an environment, but a dataset is absent. Nevertheless, there are strong connections with supervised deep learning. From generation of new pieces point of view, actor model returns probabilities of next notes given current state. This is similar to sampling new sequences from a next-step prediction model trained with maximum likelihood method on a dataset of existing sequences.
 
-More details on the methodology are provided in Section \ref{sec:methodology}, but here it is appropriate to discuss its advantages.
-
-The reasons for not involving supervised training at all are as follows:
+More details on the methodology are provided in Section \ref{sec:methodology}, but here it is appropriate to discuss its advantages. The reasons for not involving supervised training at all are as follows:
 \begin{itemize}
 	\item Finding new ways of music creation is a more challenging task than imitation of famous pieces. If no known pieces are used, chances are that the harder problem is considered and it is not replaced with the simpler problem of imitation.
 	\item There are tuning systems other than equal temperament (for instance, in microtonal music). For some of them it may be impossible to collect dataset large enough to allow training models in a supervised fashion. However, developers of a tuning system should know some underlying principles and so (at least, in theory) it is possible to create evaluational rules and train an agent based on them.
@@ -57,7 +55,7 @@ The reasons for not involving supervised training at all are as follows:
 
 Further, sequential generation of composition by neural network implies that any well-studied architectures from sequence generation tasks can be plugged in and tested. The only difference is that now these neural networks can not be trained with variations of gradient descent, but can be trained with cross-entropy method or other methods (genetic algorithms, ant colony algorithms, evolutionary strategies \cite{salimans2017evolution}).
 
-Actually, results reported at this draft version are far from using above advantages at full scale. The current study is rather a proof-of-concept, but this proof-of-concept is easily extendable and ideas on how it can be improved are listed in Section \ref{sec:improvements}. Also it is worth mentioning that the suggested approach is quite straightforward, but to the best of the author's knowledge it is not described anywhere.
+Actually, results reported at this draft version are far from using above advantages at full scale. The current study is rather a proof-of-concept, but this proof-of-concept is easily extendable and ideas on how it can be improved are listed in Section \ref{sec:improvements}.
 
 
 \section{Background and Related Work}
@@ -66,9 +64,11 @@ Actually, results reported at this draft version are far from using above advant
 \subsection{Algorithmic Composition}
 \label{subsec:composition}
 
-Along with other options, algorithmic composition can be framed as sampling from a model that returns probabilities of next sound events (say, played notes) given current state. Sampling can be done greedily or with more sophisticated techniques like beam search. Although finding optimal sampling procedure from a given model is an important task, let us focus on creation of such models.
+In algorithmic composition domain, numerous links between reinforcement learning and deep learning are established.
 
-First of all, to create a model, its type and structure must be defined. Then it must be trained and so loss function, optimizer, and dataset must be introduced. In music generation, neural networks are often used as models, because they are universal approximators that can be trained with gradient descent. What is also common, training problem is usually set up as maximum likelihood estimation, i.e., the loss is cross-entropy between predicted distribution and distribution concentrated at target. Other details vary from paper to paper.
+%Reinforcement learning can be used for
+
+Since algorithmic composition can be framed as training of a generative model, it sounds natural to try one of the most salient examples of generative models -- generative adversarial networks (GAN) \cite{goodfellow2014gan}. However, widespread notations for music assume sequences of discrete values but classical GAN work well only with continuous data, because gradient of discrete-valued functions is uninformative. Techniques originating from RL can be used to overcome this obstacle \cite{yu2016seqgan,hjelm2017boundary}. Namely, generator is trained with policy gradient method \cite{williams1992simple}. Such methodology is applied to various tasks including music composition \cite{limaguimaraes2017objective}. 
 
 \subsection{Cross-Entropy Method}
 \label{subsec:crossentropy}
@@ -84,15 +84,14 @@ First of all, to create a model, its type and structure must be defined. Then it
 
 A software implementation of the above methodology in Python programming language is available on GitHub\footnote{\url{https://github.com/Nikolay-Lysenko/rl-musician}}. The code has built-in documentation, is covered with unit tests, and is released as a package on PyPI\footnote{\url{https://pypi.org/project/rl-musician/0.1.1/}}.
 
-%The implementation is non-demanding and transparent.
-
 The implementation relies on some open-source tools \cite{brockman2016openai,chollet2015keras,oliphant2006guide,raffel2014intuitive,dong2018pypianoroll}.
 
 
 \section{Further Improvements}
 \label{sec:improvements}
-% better evaluational rules;
+% better evaluational rules (tonality);
 % randomized initial observations;
+% LSTM as actor model;
 % evolutionary strategies instead of cross-entropy;
 % start from supervisedly pre-trained weigths;
 
