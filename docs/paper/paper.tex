@@ -10,6 +10,8 @@
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
+\usepackage{algorithm}      % environment for algorithms
+\usepackage{algorithmic}    % pseudocode
 
 
 \title{RL-Musician: A Tool for Music Composition with Deep Reinforcement Learning}
@@ -43,7 +45,7 @@ Currently, there are no perfect tools for algorithmic composition. Plenty of var
 
 In this paper, a new approach to music composition is suggested. Although it is quite straightforward, to the best of the author's knowledge it is not described anywhere, so the first contribution is its rigorous definition. The second contribution\footnote{As of now, it is in progress.} is proper setup and tuning of the parameters. It is often the case that accurately tuned simple methods outperform complex methods \cite{dacrema2019are} and, in addition, they are more transparent and less demanding.
 
-Brief outline of the approach is as follows. There is an environment with 2D table representing piano roll which means that rows of the table correspond to consecutive notes and columns of the table correspond to time steps. An agent observes current time step and some previous time steps. An action of the agent can be either playing a note at the current time step or moving to the next time step. When the last time step of the piano roll is reached, episode is ended and the agent receives reward based on evaluation of created composition. Trainable parameters of the agent are weights of a neural network used as a so called actor model, i.e., a model that maps observation to probabilities of actions. These parameters are trained with cross-entropy method (alternatively, they can be trained with genetic algorithms, ant colony algorithms, or evolutionary strategies \cite{salimans2017evolution}).
+Brief outline of the approach is as follows. There is an environment with 2D table representing piano roll which means that rows of the table correspond to consecutive notes and columns of the table correspond to time steps. An agent observes current time step and some previous time steps. An action of the agent can be either playing a note at the current time step or moving to the next time step. When the last time step of the piano roll is reached, episode is ended and the agent receives reward based on evaluation of created composition. Trainable parameters of the agent are weights of a neural network used as a so called actor model, i.e., a model that maps observation to probabilities of actions. These parameters are trained with cross-entropy method \cite{rubinstein1997optimization} (alternatively, they can be trained with genetic algorithms, ant colony algorithms, or evolutionary strategies \cite{salimans2017evolution}).
 
 Obviously, the approach belongs to reinforcement learning, because there is an environment, but a dataset is absent. Nevertheless, there are strong connections with supervised deep learning. From generation of new pieces point of view, actor model returns probabilities of next notes given current state. This is similar to sampling new sequences from a next-step prediction model trained with maximum likelihood method on a dataset of existing sequences.
 
@@ -79,10 +81,40 @@ Nevertheless, not all methods for automated music generation use deep learning. 
 
 Initially, cross-entropy method was developed for estimation of rare events probability \cite{rubinstein1997optimization}. However, it was found that it is also appropriate for solving optimization problems. More detailed discussion of cross-entropy method can be found in \cite{boer2005tutorial}.
 
+\begin{algorithm}
+	\caption{Cross-entropy method for optimization} \label{alg:crossentropy}
+	\textbf{Input:} $X$ -- set of elements, $f: X \to \mathbb{R}$ -- target function, $u(\cdot, w)$ -- probabilistic distribution over $X$ parametrized by vector $w$. \\
+	\textbf{Output:} $\hat{w}$ -- approximate solution to the problem $\max_w \mathbb{E}_{x \sim u(\cdot, w)} f(x)$. \\
+	\textbf{Hyperparameters:} $w_0$ -- initial value of $w$; $N$ -- number of iterations, $n$ -- number of vectors to draw at each iteration, $\sigma$ -- standard deviation for vectors generation, $m$ -- number of trials for each vector; $\rho$ -- fraction of best vectors to use for update; $\alpha$ -- smoothing coefficient of updates.
+	\begin{algorithmic}[1]
+		\FORALL{$i \in \{1, \dots, N\}$}
+		    \FORALL{$j \in \{1, \dots, n\}$}
+		        \STATE{draw $w_{ij} \sim \mathcal{N}(\cdot \vert w_{i-1}, \sigma)$}
+		        \STATE{$r_j \gets \sum_{k = 1}^{m} f(x_k)$ where $x_k \sim u(\cdot, w_{ij})$}
+		    \ENDFOR
+		    \STATE{$r_{\mathrm{threshold}} \gets$ $[\rho n]$-th highest value of $\{r_j: j \in \{1, \dots, n\}\}$}
+		    \STATE{$J \gets \{j: r_j \ge r_{\mathrm{threshold}}\}$}
+		    \STATE{$w_i \gets \alpha w_{i-1} + (1 - \alpha)(\sum_{j \in J} w_{ij}) / [\rho n]$}
+		\ENDFOR
+	    \STATE{$\hat{w} \gets w_N$}
+	\end{algorithmic}
+\end{algorithm}
+
+Algorithm \ref{alg:crossentropy} defines a variant of cross-entropy method for optimization. Sometimes, hyperparameter $m$ is omitted and intermediate results are not aggregated over multiple trials. In case of $u(\cdot, w)$ that acts like a deterministic function of $w$, $m$ is redundant, but, in general case, terminal result can be improved by setting $m > 1$.
+
 
 \section{Methodology}
 \label{sec:methodology}
-% dataset -> rules; backpropagation -> cross-entropy; learning rate -> weights std.
+
+\subsection{Setup}
+\label{subsec:setup}
+
+For this study, piano roll is chosen as music representation format, but there are some subtleties.
+
+Here, each row of a table does not correspond to a particular note or pitch. Relative axis is used instead of absolute axis. All that is important is that each row is one semitone higher than the row right below it. Thus, a musical piece is given only up to transposition and user-defined value for a pivot note is required to define absolute pitches.
+
+\subsection{Evaluational Rules}
+\label{subsec:setup}
 
 
 \section{Experimental Results}
