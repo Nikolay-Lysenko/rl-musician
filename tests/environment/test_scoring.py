@@ -16,7 +16,8 @@ from rlmusician.environment.scoring import (
     score_absence_of_long_sounds,
     score_noncyclicity,
     score_consonances,
-    score_conjunct_motion
+    score_conjunct_motion,
+    score_tonality
 )
 
 
@@ -358,4 +359,63 @@ def test_score_conjunct_motion(
 ) -> None:
     """Test `score_conjunct_motion` function."""
     result = score_conjunct_motion(roll, max_n_semitones, max_n_time_steps)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "roll, scale, tonic_position, expected",
+    [
+        (
+            # `roll`
+            np.array([
+                [0, 0, 0],
+                [0, 0, 1],
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 0],
+                [0, 1, 0],
+                [1, 0, 1],
+                [0, 0, 0],
+                [1, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+            ]),
+            # `scale`
+            'major',
+            # `tonic_position`
+            4,
+            # `expected`
+            -3
+        ),
+        (
+            # `roll`
+            np.array([
+                [0, 0, 0],
+                [0, 0, 1],
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 0],
+                [0, 1, 0],
+                [1, 0, 1],
+                [0, 0, 0],
+                [1, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+            ]),
+            # `scale`
+            'minor',
+            # `tonic_position`
+            0,
+            # `expected`
+            -2
+        )
+    ]
+)
+def test_score_tonality(
+        roll: np.ndarray, scale: str, tonic_position: int, expected: float
+) -> None:
+    """Test `score_tonality` function."""
+    result = score_tonality(roll, scale, tonic_position)
     assert result == expected

@@ -4,12 +4,11 @@ environment:
   n_observed_roll_steps: 6
   max_n_stalled_episode_steps: 5
   scoring_coefs:
-    horizontal_variance: 10
-    vertical_variance: 5
     absence_of_long_sounds: 1
     noncyclicity: 250
     consonances: 1
     conjunct_motion: 1
+    tonality: 1
   scoring_fn_params:
     consonances:
       interval_consonances:

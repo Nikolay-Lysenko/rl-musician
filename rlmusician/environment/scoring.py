@@ -213,6 +213,36 @@ def score_conjunct_motion(
     return score
 
 
+def score_tonality(
+        roll: np.ndarray,
+        scale: str = 'major',
+        tonic_position: int = 4
+) -> float:
+    """
+    Score composition based on absence of notes not from specified scale.
+
+    :param roll:
+        piano roll
+    :param scale:
+        name of scale
+    :param tonic_position:
+        number of the row (from bottom) that corresponds to the tonic
+    :return:
+        number of played notes not from the specified scale
+        (with negative sign)
+    """
+    scale_to_wrong_notes = {
+        'major': [0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
+        'minor': [0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1]
+    }
+    mask = np.array(scale_to_wrong_notes[scale][::-1]).reshape((-1, 1))
+    mask = np.tile(mask, (np.ceil(roll.shape[0] / mask.shape[0]), 1))
+    mask = mask[-roll.shape[0]:, :]
+    mask = np.roll(mask, -tonic_position)
+    score = -np.sum(mask * roll).item()
+    return score
+
+
 def get_scoring_functions_registry() -> Dict[str, Callable]:
     """
     Get mapping from names of scoring functions to scoring functions.
@@ -226,6 +256,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         'absence_of_long_sounds': score_absence_of_long_sounds,
         'noncyclicity': score_noncyclicity,
         'consonances': score_consonances,
-        'conjunct_motion': score_conjunct_motion
+        'conjunct_motion': score_conjunct_motion,
+        'tonality': score_tonality
     }
     return registry
