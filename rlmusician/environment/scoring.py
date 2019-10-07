@@ -236,7 +236,7 @@ def score_tonality(
         'minor': [0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1]
     }
     mask = np.array(scale_to_wrong_notes[scale][::-1]).reshape((-1, 1))
-    mask = np.tile(mask, (np.ceil(roll.shape[0] / mask.shape[0]), 1))
+    mask = np.tile(mask, (int(np.ceil(roll.shape[0] / mask.shape[0])), 1))
     mask = mask[-roll.shape[0]:, :]
     mask = np.roll(mask, -tonic_position)
     score = -np.sum(mask * roll).item()
