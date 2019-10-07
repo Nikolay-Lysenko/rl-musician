@@ -28,6 +28,7 @@ class TestPianoRollEnv:
                     max_n_stalled_episode_steps=2,
                     scoring_coefs={'horizontal_variance': 1},
                     scoring_fn_params={},
+                    padding_mean=0.1,
                     rendering_params={}
                 ),
                 # `actions`
@@ -59,6 +60,7 @@ class TestPianoRollEnv:
                     max_n_stalled_episode_steps=2,
                     scoring_coefs={'horizontal_variance': 1},
                     scoring_fn_params={},
+                    padding_mean=0,
                     rendering_params={}
                 ),
                 # `expected`

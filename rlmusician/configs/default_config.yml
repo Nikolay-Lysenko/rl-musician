@@ -27,6 +27,7 @@ environment:
         11: -3
       distance_weights:
         0: 1
+  padding_mean: 0.1
   rendering_params:
     dir: rlmusician_data
     lowest_note: C4

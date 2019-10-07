@@ -42,6 +42,7 @@ class PianoRollEnv(gym.Env):
             max_n_stalled_episode_steps: int,
             scoring_coefs: Dict[str, float],
             scoring_fn_params: Dict[str, Dict[str, Any]],
+            padding_mean: float,
             rendering_params: Dict[str, Any]
     ):
         """
@@ -61,6 +62,9 @@ class PianoRollEnv(gym.Env):
             mapping from scoring function names to their weights in final score
         :param scoring_fn_params:
             mapping from scoring function names to their parameters
+        :param padding_mean:
+            mean of binomial distribution for observation padding at
+            early piano roll's time steps
         :param rendering_params:
             settings of environment rendering
         """
@@ -70,6 +74,7 @@ class PianoRollEnv(gym.Env):
         self.max_n_stalled_episode_steps = max_n_stalled_episode_steps
         self.scoring_coefs = scoring_coefs
         self.scoring_fn_params = scoring_fn_params
+        self.padding_mean = padding_mean
         self.rendering_params = rendering_params
 
         self.piano_roll = None
@@ -134,10 +139,10 @@ class PianoRollEnv(gym.Env):
         if steps_to_see[0] >= 0:
             observation = self.piano_roll[:, steps_to_see[0]:steps_to_see[1]]
         else:
-            observation = np.hstack((
-                np.zeros((self.n_semitones, -steps_to_see[0]), dtype=np.int32),
-                self.piano_roll[:, 0:steps_to_see[1]]
-            ))
+            padding_size = (self.n_semitones, -steps_to_see[0])
+            padding = np.random.binomial(1, self.padding_mean, padding_size)
+            valid_roll_part = self.piano_roll[:, 0:steps_to_see[1]]
+            observation = np.hstack((padding, valid_roll_part))
         done = self.n_piano_roll_steps_passed == self.n_roll_steps - 1
         reward = self.__evaluate() if done else 0
         info = {}
