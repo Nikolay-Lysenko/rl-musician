@@ -26,15 +26,15 @@ class TestPianoRollEnv:
                     n_roll_steps=5,
                     n_observed_roll_steps=3,
                     max_n_stalled_episode_steps=2,
-                    scoring_coefs={'horizontal_variance': 1},
+                    scoring_coefs={'tonality': 1},
                     scoring_fn_params={},
                     padding_mean=0.1,
                     rendering_params={}
                 ),
                 # `actions`
-                [2] + [1 for _ in range(7)],
+                [2] + [0 for _ in range(7)],
                 # `expected`
-                0.064
+                -1
             )
         ]
     )
@@ -46,7 +46,7 @@ class TestPianoRollEnv:
         for action in actions:
             observation, reward, done, info = env.step(action)
         assert done
-        assert round(reward, 8) == expected
+        assert reward == expected
 
     @pytest.mark.parametrize(
         "env, expected",
@@ -58,7 +58,7 @@ class TestPianoRollEnv:
                     n_roll_steps=5,
                     n_observed_roll_steps=3,
                     max_n_stalled_episode_steps=2,
-                    scoring_coefs={'horizontal_variance': 1},
+                    scoring_coefs={'tonality': 1},
                     scoring_fn_params={},
                     padding_mean=0,
                     rendering_params={}

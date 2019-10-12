@@ -24,41 +24,13 @@ from rlmusician.utils import (
 N_SEMITONES_PER_OCTAVE = 12
 
 
-def score_horizontal_variance(roll: np.ndarray) -> float:
-    """
-    Score composition based on variance of usage of each note.
-
-    It is a proxy of how non-trivial melody and harmony are.
-
-    :param roll:
-        piano roll
-    :return:
-        averaged over all notes variance of their usage in time
-    """
-    return np.mean(np.var(roll, axis=1)).item()
-
-
-def score_vertical_variance(roll: np.ndarray) -> float:
-    """
-    Score composition based on variance of notes played at each time step.
-
-    It is a proxy of how non-trivial harmony is.
-
-    :param roll:
-        piano roll
-    :return:
-        averaged over all time steps variance of notes played there
-    """
-    return np.mean(np.var(roll, axis=0)).item()
-
-
-def score_absence_of_long_sounds(
+def score_absence_of_constant_notes(
         roll: np.ndarray, max_n_time_steps: int = 4
 ) -> float:
     """
-    Score composition based on absence of too long sounds.
+    Score composition based on absence of notes played for too long time.
 
-    It is a proxy of how non-trivial melody and harmony are.
+    It is a proxy of how non-trivial composition is.
 
     :param roll:
         piano roll
@@ -76,33 +48,36 @@ def score_absence_of_long_sounds(
     return score
 
 
-def score_noncyclicity(
-        roll: np.ndarray, max_n_time_steps: int = 4, max_share: float = 0.2
+def score_conjunct_motion(
+        roll: np.ndarray,
+        max_n_semitones: int = 2,
+        max_n_time_steps: int = 1
 ) -> float:
     """
-    Score composition based on absence of cyclically repeated parts.
-
-    It is a proxy of how non-trivial composition is.
+    Score composition based on presence of small changes in pitch over time.
 
     :param roll:
         piano roll
+    :param max_n_semitones:
+        maximum number of semitones to consider change in pitch as small
     :param max_n_time_steps:
-        maximum duration of a fragment to be tested on cyclical repetitiveness
-    :param max_share:
-        upper limit on share of filled non-cyclically cells;
-        values that are higher, are clipped
+        maximum number of time steps for finding previous notes of close pitch
     :return:
-        score from 0 to 1 that indicates how many cells are filled
-        non-cyclically
+        number of small changes in pitch
     """
-    upper_limit = max_share * roll.shape[0] * roll.shape[1]
-    scores = []
-    for shift in range(1, max_n_time_steps + 1):
-        shifted_roll = shift_horizontally(roll, shift)
-        diff = np.clip(roll - shifted_roll, a_min=0, a_max=None)
-        score = min(np.sum(diff) / upper_limit, 1)
-        scores.append(score)
-    score = min(scores)
+    rolling_max_roll = apply_rolling_aggregation(
+        roll, max_n_time_steps, fn_name='max'
+    )
+    altered_rolls = [
+        shift_vertically(rolling_max_roll, i).reshape(roll.shape + (1,))
+        for i in range(-max_n_semitones, max_n_semitones + 1)
+        if i != 0
+    ]
+    altered_roll = np.concatenate(altered_rolls, axis=2)
+    close_notes_roll = altered_roll.max(axis=2)
+    starting_notes_roll = np.clip(roll - shift_horizontally(roll, 1), 0, None)
+    matches = np.minimum(starting_notes_roll, close_notes_roll)
+    score = np.sum(matches).item()
     return score
 
 
@@ -180,36 +155,33 @@ def score_consonances(
     return score
 
 
-def score_conjunct_motion(
-        roll: np.ndarray,
-        max_n_semitones: int = 2,
-        max_n_time_steps: int = 1
+def score_noncyclicity(
+        roll: np.ndarray, max_n_time_steps: int = 4, max_share: float = 0.2
 ) -> float:
     """
-    Score composition based on presence of small changes in pitch over time.
+    Score composition based on absence of cyclically repeated parts.
+
+    It is a proxy of how non-trivial composition is.
 
     :param roll:
         piano roll
-    :param max_n_semitones:
-        maximum number of semitones to consider change in pitch as small
     :param max_n_time_steps:
-        maximum number of time steps for finding previous notes of close pitch
+        maximum duration of a fragment to be tested on cyclical repetitiveness
+    :param max_share:
+        upper limit on share of filled non-cyclically cells;
+        values that are higher, are clipped
     :return:
-        number of small changes in pitch
+        score from 0 to 1 that indicates how many cells are filled
+        non-cyclically
     """
-    rolling_max_roll = apply_rolling_aggregation(
-        roll, max_n_time_steps, fn_name='max'
-    )
-    altered_rolls = [
-        shift_vertically(rolling_max_roll, i).reshape(roll.shape + (1,))
-        for i in range(-max_n_semitones, max_n_semitones + 1)
-        if i != 0
-    ]
-    altered_roll = np.concatenate(altered_rolls, axis=2)
-    close_notes_roll = altered_roll.max(axis=2)
-    starting_notes_roll = np.clip(roll - shift_horizontally(roll, 1), 0, None)
-    matches = np.minimum(starting_notes_roll, close_notes_roll)
-    score = np.sum(matches).item()
+    upper_limit = max_share * roll.shape[0] * roll.shape[1]
+    scores = []
+    for shift in range(1, max_n_time_steps + 1):
+        shifted_roll = shift_horizontally(roll, shift)
+        diff = np.clip(roll - shifted_roll, a_min=0, a_max=None)
+        score = min(np.sum(diff) / upper_limit, 1)
+        scores.append(score)
+    score = min(scores)
     return score
 
 
@@ -237,8 +209,8 @@ def score_tonality(
     }
     mask = np.array(scale_to_wrong_notes[scale][::-1]).reshape((-1, 1))
     mask = np.tile(mask, (int(np.ceil(roll.shape[0] / mask.shape[0])), 1))
-    mask = mask[-roll.shape[0]:, :]
     mask = np.roll(mask, -tonic_position)
+    mask = mask[-roll.shape[0]:, :]
     score = -np.sum(mask * roll).item()
     return score
 
@@ -251,12 +223,10 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         registry of scoring functions
     """
     registry = {
-        'horizontal_variance': score_horizontal_variance,
-        'vertical_variance': score_vertical_variance,
-        'absence_of_long_sounds': score_absence_of_long_sounds,
-        'noncyclicity': score_noncyclicity,
-        'consonances': score_consonances,
+        'absence_of_constant_notes': score_absence_of_constant_notes,
         'conjunct_motion': score_conjunct_motion,
+        'consonances': score_consonances,
+        'noncyclicity': score_noncyclicity,
         'tonality': score_tonality
     }
     return registry

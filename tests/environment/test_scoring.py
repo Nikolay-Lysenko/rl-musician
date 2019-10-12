@@ -11,72 +11,12 @@ import numpy as np
 import pytest
 
 from rlmusician.environment.scoring import (
-    score_horizontal_variance,
-    score_vertical_variance,
-    score_absence_of_long_sounds,
+    score_absence_of_constant_notes,
     score_noncyclicity,
     score_consonances,
     score_conjunct_motion,
     score_tonality
 )
-
-
-@pytest.mark.parametrize(
-    "roll, expected",
-    [
-        (
-            # `roll`
-            np.array([
-                [0, 0],
-                [1, 1]
-            ]),
-            # `expected`
-            0
-        ),
-        (
-            # `roll`
-            np.array([
-                [1, 0],
-                [0, 1]
-            ]),
-            # `expected`
-            0.25
-        ),
-    ]
-)
-def test_score_horizontal_variance(roll: np.ndarray, expected: float) -> None:
-    """Test `score_horizontal_variance` function."""
-    result = score_horizontal_variance(roll)
-    assert result == expected
-
-
-@pytest.mark.parametrize(
-    "roll, expected",
-    [
-        (
-            # `roll`
-            np.array([
-                [1, 0],
-                [1, 0]
-            ]),
-            # `expected`
-            0
-        ),
-        (
-            # `roll`
-            np.array([
-                [1, 0],
-                [0, 1]
-            ]),
-            # `expected`
-            0.25
-        ),
-    ]
-)
-def test_score_vertical_variance(roll: np.ndarray, expected: float) -> None:
-    """Test `score_vertical_variance` function."""
-    result = score_vertical_variance(roll)
-    assert result == expected
 
 
 @pytest.mark.parametrize(
@@ -120,11 +60,11 @@ def test_score_vertical_variance(roll: np.ndarray, expected: float) -> None:
         ),
     ]
 )
-def test_score_absence_of_long_sounds(
+def test_score_absence_of_constant_notes(
         roll: np.ndarray, max_n_time_steps: int, expected: int
 ) -> None:
-    """Test `score_absence_of_long_sounds` function."""
-    result = score_absence_of_long_sounds(roll, max_n_time_steps)
+    """Test `score_absence_of_constant_notes` function."""
+    result = score_absence_of_constant_notes(roll, max_n_time_steps)
     assert result == expected
 
 
@@ -410,6 +350,24 @@ def test_score_conjunct_motion(
             0,
             # `expected`
             -2
+        ),
+        (
+            # `roll`
+            np.array([
+                [0, 0, 0],
+                [0, 0, 1],
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 0],
+                [0, 1, 0],
+                [1, 0, 1],
+            ]),
+            # `scale`
+            'major',
+            # `tonic_position`
+            2,
+            # `expected`
+            -4
         )
     ]
 )
