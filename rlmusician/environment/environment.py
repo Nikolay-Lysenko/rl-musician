@@ -49,10 +49,11 @@ class PianoRollEnv(gym.Env):
         Initialize instance.
 
         :param n_semitones:
-            number of consecutive semitones (piano keys) available to an agent
+            size of available pitch range in semitones; in other words,
+            number of consecutive piano keys available to an agent
         :param n_roll_steps:
-            total duration of composition in piano roll's time steps
-            (in other words, number of columns of piano roll)
+            total duration of composition in piano roll's time steps;
+            in other words, number of columns of piano roll
         :param n_observed_roll_steps:
             number of previous piano roll's time steps available for observing
         :param max_n_stalled_episode_steps:
@@ -82,9 +83,7 @@ class PianoRollEnv(gym.Env):
         self.n_episode_steps_passed = None
         self.n_stalled_episode_steps = None
 
-        self.action_space = gym.spaces.Discrete(
-            n_semitones + 1  # The last action stands for step forward on roll.
-        )
+        self.action_space = gym.spaces.Discrete(n_semitones)
         self.observation_space = gym.spaces.Box(
             low=0,
             high=1,
@@ -120,13 +119,9 @@ class PianoRollEnv(gym.Env):
                     (helpful for debugging and sometimes learning).
         """
         # Act.
-        if action != self.n_semitones:
-            self.piano_roll[action, self.n_piano_roll_steps_passed] = 1
-            self.n_stalled_episode_steps += 1
-        force_movement = (
-            self.n_stalled_episode_steps == self.max_n_stalled_episode_steps
-        )
-        if force_movement or action == self.n_semitones:
+        self.piano_roll[action, self.n_piano_roll_steps_passed] = 1
+        self.n_stalled_episode_steps += 1
+        if self.n_stalled_episode_steps == self.max_n_stalled_episode_steps:
             self.n_piano_roll_steps_passed += 1
             self.n_stalled_episode_steps = 0
         self.n_episode_steps_passed += 1
