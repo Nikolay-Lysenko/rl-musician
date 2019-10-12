@@ -155,6 +155,27 @@ def score_consonances(
     return score
 
 
+def score_contrary_motion(roll: np.ndarray) -> float:
+    """
+    Score composition based on number of time steps with contrary motion.
+
+    Here, a time step has contrary motion if there are at least two lines
+    moving in opposite directions.
+
+    :param roll:
+        piano roll
+    :return:
+        number of time steps with contrary motion
+    """
+    diff = np.diff(roll, axis=1, prepend=0)[:, 1:]
+    cum_sums = np.cumsum(diff, axis=0)
+    moves_down_penalty = np.abs(np.max(cum_sums, axis=0) - 1)
+    moves_up_penalty = np.abs(np.min(cum_sums, axis=0) + 1)
+    score = -np.sum((moves_down_penalty + moves_up_penalty) > 0).item()
+    score += roll.shape[1]  # For the sake of interpretation.
+    return score
+
+
 def score_noncyclicity(
         roll: np.ndarray, max_n_time_steps: int = 4, max_share: float = 0.2
 ) -> float:
@@ -246,6 +267,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         'absence_of_constant_notes': score_absence_of_constant_notes,
         'conjunct_motion': score_conjunct_motion,
         'consonances': score_consonances,
+        'contrary_motion': score_contrary_motion,
         'lines': score_number_of_simultaneously_played_notes,
         'noncyclicity': score_noncyclicity,
         'tonality': score_tonality

@@ -14,6 +14,7 @@ from rlmusician.environment.scoring import (
     score_absence_of_constant_notes,
     score_conjunct_motion,
     score_consonances,
+    score_contrary_motion,
     score_noncyclicity,
     score_number_of_simultaneously_played_notes,
     score_tonality
@@ -246,6 +247,55 @@ def test_score_consonances(
 ) -> None:
     """Test `score_consonances` function."""
     result = score_consonances(roll, interval_consonances, distance_weights)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "roll, expected",
+    [
+        (
+            # `roll`
+            np.array([
+                [0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0],
+                [1, 0, 1, 0, 1],
+                [0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1],
+                [0, 0, 0, 1, 0],
+                [1, 0, 0, 0, 0],
+                [0, 1, 1, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+            ]),
+            # `expected`
+            3
+        ),
+        (
+            # `roll`
+            np.array([
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 1],
+                [0, 1, 0, 1, 0],
+                [0, 0, 1, 0, 0],
+                [1, 0, 1, 0, 1],
+                [0, 1, 0, 1, 0],
+                [0, 0, 0, 1, 0],
+                [0, 0, 1, 0, 1],
+                [0, 1, 0, 0, 0],
+                [1, 0, 0, 0, 0],
+            ]),
+            # `expected`
+            5
+        )
+    ]
+)
+def test_score_contrary_motion(roll: np.ndarray, expected: float) -> None:
+    """Test `score_contrary_motion` function."""
+    result = score_contrary_motion(roll)
     assert result == expected
 
 
