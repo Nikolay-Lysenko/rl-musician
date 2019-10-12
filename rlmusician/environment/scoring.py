@@ -185,6 +185,26 @@ def score_noncyclicity(
     return score
 
 
+def score_number_of_simultaneously_played_notes(
+        roll: np.ndarray, n_lines: int = 3
+) -> float:
+    """
+    Score composition based on number of simultaneously played notes.
+
+    It is a proxy for presence of desired number of melodic lines.
+
+    :param roll:
+        piano roll
+    :param n_lines:
+        desired number of melodic lines
+    :return:
+        negative sum over all time steps of absolute deviations
+        of number of simultaneously played notes from the desired number
+    """
+    score = -np.sum(np.abs((np.sum(roll, axis=0) - n_lines))).item()
+    return score
+
+
 def score_tonality(
         roll: np.ndarray,
         scale: str = 'major',
@@ -226,6 +246,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         'absence_of_constant_notes': score_absence_of_constant_notes,
         'conjunct_motion': score_conjunct_motion,
         'consonances': score_consonances,
+        'lines': score_number_of_simultaneously_played_notes,
         'noncyclicity': score_noncyclicity,
         'tonality': score_tonality
     }

@@ -12,9 +12,10 @@ import pytest
 
 from rlmusician.environment.scoring import (
     score_absence_of_constant_notes,
-    score_noncyclicity,
-    score_consonances,
     score_conjunct_motion,
+    score_consonances,
+    score_noncyclicity,
+    score_number_of_simultaneously_played_notes,
     score_tonality
 )
 
@@ -65,134 +66,6 @@ def test_score_absence_of_constant_notes(
 ) -> None:
     """Test `score_absence_of_constant_notes` function."""
     result = score_absence_of_constant_notes(roll, max_n_time_steps)
-    assert result == expected
-
-
-@pytest.mark.parametrize(
-    "roll, max_n_time_steps, max_share, expected",
-    [
-        (
-            # `roll`
-            np.array([
-                [1, 0, 1, 0, 1, 0],
-                [0, 1, 0, 1, 0, 1],
-            ]),
-            # `max_n_time_steps`
-            1,
-            # `max_share`
-            0.5,
-            # `expected`
-            1
-        ),
-        (
-            # `roll`
-            np.array([
-                [1, 0, 1, 0, 1, 0],
-                [0, 1, 0, 1, 0, 1],
-            ]),
-            # `max_n_time_steps`
-            2,
-            # `max_share`
-            0.5,
-            # `expected`
-            1 / 3
-        ),
-        (
-            # `roll`
-            np.array([
-                [1, 0, 1, 0, 1, 0],
-                [0, 1, 0, 1, 0, 1],
-                [0, 1, 1, 0, 0, 1],
-            ]),
-            # `max_n_time_steps`
-            3,
-            # `max_share`
-            1,
-            # `expected`
-            5 / 18
-        ),
-    ]
-)
-def test_score_noncyclicity(
-        roll: np.ndarray, max_n_time_steps: int, max_share: float,
-        expected: float
-) -> None:
-    """Test `score_noncyclicity` function."""
-    result = score_noncyclicity(roll, max_n_time_steps, max_share)
-    assert result == expected
-
-
-@pytest.mark.parametrize(
-    "roll, interval_consonances, distance_weights, expected",
-    [
-        (
-            # `roll`
-            np.array([
-                [0, 0, 0, 0, 0],
-                [1, 1, 0, 0, 0],
-                [0, 0, 0, 0, 1],
-                [1, 1, 1, 0, 0]
-            ]),
-            # `interval_consonances`
-            {1: -1, 2: -0.5, 3: 0},
-            # `distance_weights`
-            {0: 1, 1: 1, 2: 0.5, 3: 0.25},
-            # `expected`
-            -3.75
-        ),
-        (
-            # `roll`
-            np.array([
-                [0, 0, 0, 0, 0],
-                [0, 0, 1, 0, 0],
-                [1, 0, 1, 0, 0],
-                [0, 0, 0, 0, 1]
-            ]),
-            # `interval_consonances`
-            {1: -1, 2: -0.5, 3: 0},
-            # `distance_weights`
-            {0: 1, 1: 1, 2: 0.5, 3: 0.25},
-            # `expected`
-            -2.25
-        ),
-        (
-            # `roll`
-            np.array([
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 1],
-                [1, 0, 0, 0, 0]
-            ]),
-            # `interval_consonances`
-            {1: -1, 2: -0.5, 3: 0},
-            # `distance_weights`
-            {0: 1, 1: 1, 2: 0.5, 3: 0.25},
-            # `expected`
-            0
-        ),
-        (
-            # `roll`
-            np.array([
-                [0, 1, 0, 1, 0],
-                [0, 1, 1, 0, 0],
-                [1, 0, 0, 1, 0],
-                [0, 1, 0, 0, 1]
-            ]),
-            # `interval_consonances`
-            {1: -1, 2: -0.5, 3: 0},
-            # `distance_weights`
-            {0: 1, 1: 1, 2: 0.5, 3: 0.25},
-            # `expected`
-            -11.75
-        ),
-    ]
-)
-def test_score_consonances(
-        roll: np.ndarray, interval_consonances: Dict[int, float],
-        distance_weights: Dict[int, float], expected: float
-) -> None:
-    """Test `score_consonances` function."""
-    result = score_consonances(roll, interval_consonances, distance_weights)
     assert result == expected
 
 
@@ -299,6 +172,168 @@ def test_score_conjunct_motion(
 ) -> None:
     """Test `score_conjunct_motion` function."""
     result = score_conjunct_motion(roll, max_n_semitones, max_n_time_steps)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "roll, interval_consonances, distance_weights, expected",
+    [
+        (
+            # `roll`
+            np.array([
+                [0, 0, 0, 0, 0],
+                [1, 1, 0, 0, 0],
+                [0, 0, 0, 0, 1],
+                [1, 1, 1, 0, 0]
+            ]),
+            # `interval_consonances`
+            {1: -1, 2: -0.5, 3: 0},
+            # `distance_weights`
+            {0: 1, 1: 1, 2: 0.5, 3: 0.25},
+            # `expected`
+            -3.75
+        ),
+        (
+            # `roll`
+            np.array([
+                [0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0],
+                [1, 0, 1, 0, 0],
+                [0, 0, 0, 0, 1]
+            ]),
+            # `interval_consonances`
+            {1: -1, 2: -0.5, 3: 0},
+            # `distance_weights`
+            {0: 1, 1: 1, 2: 0.5, 3: 0.25},
+            # `expected`
+            -2.25
+        ),
+        (
+            # `roll`
+            np.array([
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1],
+                [1, 0, 0, 0, 0]
+            ]),
+            # `interval_consonances`
+            {1: -1, 2: -0.5, 3: 0},
+            # `distance_weights`
+            {0: 1, 1: 1, 2: 0.5, 3: 0.25},
+            # `expected`
+            0
+        ),
+        (
+            # `roll`
+            np.array([
+                [0, 1, 0, 1, 0],
+                [0, 1, 1, 0, 0],
+                [1, 0, 0, 1, 0],
+                [0, 1, 0, 0, 1]
+            ]),
+            # `interval_consonances`
+            {1: -1, 2: -0.5, 3: 0},
+            # `distance_weights`
+            {0: 1, 1: 1, 2: 0.5, 3: 0.25},
+            # `expected`
+            -11.75
+        ),
+    ]
+)
+def test_score_consonances(
+        roll: np.ndarray, interval_consonances: Dict[int, float],
+        distance_weights: Dict[int, float], expected: float
+) -> None:
+    """Test `score_consonances` function."""
+    result = score_consonances(roll, interval_consonances, distance_weights)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "roll, max_n_time_steps, max_share, expected",
+    [
+        (
+            # `roll`
+            np.array([
+                [1, 0, 1, 0, 1, 0],
+                [0, 1, 0, 1, 0, 1],
+            ]),
+            # `max_n_time_steps`
+            1,
+            # `max_share`
+            0.5,
+            # `expected`
+            1
+        ),
+        (
+            # `roll`
+            np.array([
+                [1, 0, 1, 0, 1, 0],
+                [0, 1, 0, 1, 0, 1],
+            ]),
+            # `max_n_time_steps`
+            2,
+            # `max_share`
+            0.5,
+            # `expected`
+            1 / 3
+        ),
+        (
+            # `roll`
+            np.array([
+                [1, 0, 1, 0, 1, 0],
+                [0, 1, 0, 1, 0, 1],
+                [0, 1, 1, 0, 0, 1],
+            ]),
+            # `max_n_time_steps`
+            3,
+            # `max_share`
+            1,
+            # `expected`
+            5 / 18
+        ),
+    ]
+)
+def test_score_noncyclicity(
+        roll: np.ndarray, max_n_time_steps: int, max_share: float,
+        expected: float
+) -> None:
+    """Test `score_noncyclicity` function."""
+    result = score_noncyclicity(roll, max_n_time_steps, max_share)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "roll, n_lines, expected",
+    [
+        (
+            # `roll`
+            np.array([
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [1, 0, 1, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 1],
+                [1, 0, 0, 1, 1],
+                [0, 0, 0, 1, 1],
+                [0, 0, 1, 1, 1],
+                [0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+            ]),
+            # `n_lines`
+            3,
+            # `expected`
+            -3
+        )
+    ]
+)
+def test_score_number_of_simultaneously_played_notes(
+        roll: np.ndarray, n_lines: int, expected: float
+) -> None:
+    """Test `score_number_of_simultaneously_played_notes` function."""
+    result = score_number_of_simultaneously_played_notes(roll, n_lines)
     assert result == expected
 
 
