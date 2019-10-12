@@ -45,7 +45,7 @@ Currently, there are no perfect tools for algorithmic composition. Plenty of var
 
 In this paper, a new approach to music composition is suggested. Although it is quite straightforward, to the best of the author's knowledge it is not described anywhere, so the first contribution is its rigorous definition. The second contribution\footnote{As of now, it is in progress.} is proper setup and tuning of the parameters. It is often the case that accurately tuned simple methods outperform complex methods \cite{dacrema2019are} and, in addition, they are more transparent and less demanding.
 
-Brief outline of the approach is as follows. There is an environment with 2D table representing piano roll which means that rows of the table correspond to consecutive notes and columns of the table correspond to time steps. An agent observes current time step and some previous time steps. An action of the agent can be either playing a note at the current time step or moving to the next time step. When the last time step of the piano roll is reached, episode is ended and the agent receives reward based on evaluation of created composition. Trainable parameters of the agent are weights of a neural network used as a so called actor model, i.e., a model that maps observation to probabilities of actions. These parameters are trained with cross-entropy method \cite{rubinstein1997optimization} (alternatively, they can be trained with genetic algorithms, ant colony algorithms, or evolutionary strategies \cite{salimans2017evolution}).
+Brief outline of the approach is as follows. There is an environment with 2D table representing piano roll which means that rows of the table correspond to notes and columns of the table correspond to time steps. An agent observes current time step and some previous time steps. An action of the agent is playing a note at the current time step. After certain number of actions are done, a movement to the next time step happens. When the last time step of the piano roll is reached, episode is ended and the agent receives reward based on evaluation of created composition. Trainable parameters of the agent are weights of a neural network used as a so called actor model, i.e., a model that maps observation to probabilities of actions. These parameters are trained with cross-entropy method \cite{rubinstein1997optimization} (alternatively, they can be trained with genetic algorithms, ant colony algorithms, or evolutionary strategies \cite{salimans2017evolution}).
 
 Obviously, the approach belongs to reinforcement learning, because there is an environment, but a dataset is absent. Nevertheless, there are strong connections with supervised deep learning. From generation of new pieces point of view, actor model returns probabilities of next notes given current state. This is similar to sampling new sequences from a next-step prediction model trained with maximum likelihood method on a dataset of existing sequences.
 
@@ -54,8 +54,6 @@ More details on the methodology are provided in Section \ref{sec:methodology}, b
 	\item Finding new ways of music creation is a more challenging task than imitation of famous pieces. If no known pieces are used, chances are that the harder problem is considered and it is not replaced with the simpler problem of imitation.
 	\item There are tuning systems other than equal temperament (for instance, in microtonal music). For some of them it may be impossible to collect dataset large enough to allow training models in a supervised fashion. However, developers of a tuning system should know some underlying principles and so (at least, in theory) it is possible to create evaluational rules and train an agent based on them.
 \end{itemize}
-
-Further, sequential generation of composition by neural network implies that any well-studied architectures from sequence generation tasks can be plugged in and tested. The only difference is that now these neural networks can not be trained with variations of gradient descent, but can be trained with cross-entropy method or alternative methods.
 
 Actually, results reported at this draft version are far from using above advantages at full scale. The current study is rather a proof-of-concept, but this proof-of-concept is easily extendable and ideas on how it can be improved are listed in Section \ref{sec:improvements}.
 
@@ -74,7 +72,7 @@ Usually, softmax activation function is used in the last layer of generative RNN
 
 Since algorithmic composition can be framed as training of a generative model, it sounds natural to try one of the most salient examples of generative models -- generative adversarial networks (GAN) \cite{goodfellow2014gan}. However, widespread notations for music assume sequences of discrete values but classical GAN work well only with continuous data, because gradient of discrete-valued functions is uninformative. Techniques originating from RL can be used to overcome this obstacle \cite{yu2016seqgan,hjelm2017boundary}. Namely, generator is trained with policy gradient method \cite{williams1992simple}. Such methodology is applied to various tasks and music composition is amongst them \cite{limaguimaraes2017objective}.
 
-Nevertheless, not all methods for automated music generation use deep learning. Musical pieces itself can be generated with genetic algorithms \cite{felice2002genorchestra} where selection is based on scores returned by hand-written evaluation rules.
+Nevertheless, not all methods for automated music generation use deep learning. Musical pieces itself can be generated with genetic algorithms \cite{felice2002genorchestra} or Markov chains \cite{farbood2001analysis}. Comprehensive review that covers plenty of approaches beyond deep learning can be found in \cite{fernandez2013ai}.
 
 \subsection{Cross-Entropy Method}
 \label{subsec:crossentropy}
@@ -101,6 +99,8 @@ Initially, cross-entropy method was developed for estimation of rare events prob
 \end{algorithm}
 
 Algorithm \ref{alg:crossentropy} defines a variant of cross-entropy method for optimization. Sometimes, hyperparameter $m$ is omitted and intermediate results are not aggregated over multiple trials. In case of $u(\cdot, w)$ that acts like a deterministic function of $w$, $m$ is redundant, but, in general case, terminal result can be improved by setting $m > 1$.
+
+In context of reinforcement learning, cross-entropy method is used for searching parameters of agent that result in maximum expected reward. Such approach is best suitable for environments where reward becomes known only after episode is finished. If there are rewards granted after intermediate steps, methods based on Q-values usually outperform it.
 
 
 \section{Methodology}
