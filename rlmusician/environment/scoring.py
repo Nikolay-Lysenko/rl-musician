@@ -12,7 +12,7 @@ Author: Nikolay Lysenko
 """
 
 
-from typing import Callable, Dict
+from typing import Callable, Dict, Optional
 
 import numpy as np
 
@@ -22,9 +22,42 @@ from rlmusician.utils import (
 
 
 N_SEMITONES_PER_OCTAVE = 12
+DEFAULT_TONIC_POSITION = 4
 
 
-def score_absence_of_constant_notes(
+def score_absence_of_outer_notes(
+        roll: np.ndarray,
+        scale: str = 'major',
+        tonic_position: Optional[int] = None
+) -> float:
+    """
+    Score composition based on absence of notes not from specified scale.
+
+    :param roll:
+        piano roll
+    :param scale:
+        name of scale
+    :param tonic_position:
+        number of the row (from bottom) that corresponds to the tonic
+    :return:
+        number of played notes not from the specified scale
+        (with negative sign)
+    """
+    if tonic_position is None:
+        tonic_position = DEFAULT_TONIC_POSITION
+    scale_to_wrong_notes = {
+        'major': [0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
+        'minor': [0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1]
+    }
+    mask = np.array(scale_to_wrong_notes[scale][::-1]).reshape((-1, 1))
+    mask = np.tile(mask, (int(np.ceil(roll.shape[0] / mask.shape[0])), 1))
+    mask = np.roll(mask, -tonic_position)
+    mask = mask[-roll.shape[0]:, :]
+    score = -np.sum(mask * roll).item()
+    return score
+
+
+def score_absence_of_stalled_notes(
         roll: np.ndarray, max_n_time_steps: int = 4
 ) -> float:
     """
@@ -177,7 +210,7 @@ def score_contrary_motion(roll: np.ndarray) -> float:
 
 
 def score_noncyclicity(
-        roll: np.ndarray, max_n_time_steps: int = 8, max_share: float = 0.2
+        roll: np.ndarray, max_n_time_steps: int = 8, max_share: float = 0.125
 ) -> float:
     """
     Score composition based on absence of cyclically repeated parts.
@@ -226,33 +259,44 @@ def score_number_of_simultaneously_played_notes(
     return score
 
 
-def score_tonality(
+def score_usage_of_tonic(
         roll: np.ndarray,
-        scale: str = 'major',
-        tonic_position: int = 4
+        tonic_position: Optional[int] = None,
+        min_share: float = 0.2,
+        max_share: float = 0.4
 ) -> float:
     """
-    Score composition based on absence of notes not from specified scale.
+    Score composition based on proper usage of tonic in the lowest line.
 
     :param roll:
         piano roll
-    :param scale:
-        name of scale
     :param tonic_position:
         number of the row (from bottom) that corresponds to the tonic
+    :param min_share:
+        minimum share of time steps with played in the lowest line tonic
+        to consider the tonic actively used there
+    :param max_share:
+        maximum share of time steps with played in the lowest line tonic
+        to consider the tonic excessively used there
     :return:
-        number of played notes not from the specified scale
-        (with negative sign)
+        binary indicator of whether tonic is used actively, but not excessively
+        in the lowest line
     """
-    scale_to_wrong_notes = {
-        'major': [0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-        'minor': [0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1]
-    }
-    mask = np.array(scale_to_wrong_notes[scale][::-1]).reshape((-1, 1))
-    mask = np.tile(mask, (int(np.ceil(roll.shape[0] / mask.shape[0])), 1))
-    mask = np.roll(mask, -tonic_position)
-    mask = mask[-roll.shape[0]:, :]
-    score = -np.sum(mask * roll).item()
+    if tonic_position is None:
+        tonic_position = DEFAULT_TONIC_POSITION
+
+    cum_summed = np.cumsum(roll, axis=0)
+    summed = np.sum(roll, axis=0).reshape((1, -1))
+    not_above_lowest_line = cum_summed == summed
+    lowest_line_roll = np.minimum(roll, not_above_lowest_line)
+
+    remainder = (roll.shape[0] - 1) % N_SEMITONES_PER_OCTAVE
+    tonic_indices = [
+        x for x in range(roll.shape[0])
+        if (x + tonic_position) % N_SEMITONES_PER_OCTAVE == remainder
+    ]
+    share = np.mean(np.max(lowest_line_roll[tonic_indices, :], axis=0)).item()
+    score = 1 if min_share <= share <= max_share else 0
     return score
 
 
@@ -264,12 +308,13 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         registry of scoring functions
     """
     registry = {
-        'absence_of_constant_notes': score_absence_of_constant_notes,
+        'absence_of_outer_notes': score_absence_of_outer_notes,
+        'absence_of_stalled_notes': score_absence_of_stalled_notes,
         'conjunct_motion': score_conjunct_motion,
         'consonances': score_consonances,
         'contrary_motion': score_contrary_motion,
         'lines': score_number_of_simultaneously_played_notes,
         'noncyclicity': score_noncyclicity,
-        'tonality': score_tonality
+        'usage_of_tonic': score_usage_of_tonic
     }
     return registry

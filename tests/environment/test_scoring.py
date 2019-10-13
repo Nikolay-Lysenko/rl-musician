@@ -11,14 +11,92 @@ import numpy as np
 import pytest
 
 from rlmusician.environment.scoring import (
-    score_absence_of_constant_notes,
+    score_absence_of_outer_notes,
+    score_absence_of_stalled_notes,
     score_conjunct_motion,
     score_consonances,
     score_contrary_motion,
     score_noncyclicity,
     score_number_of_simultaneously_played_notes,
-    score_tonality
+    score_usage_of_tonic
 )
+
+
+@pytest.mark.parametrize(
+    "roll, scale, tonic_position, expected",
+    [
+        (
+            # `roll`
+            np.array([
+                [0, 0, 0],
+                [0, 0, 1],
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 0],
+                [0, 1, 0],
+                [1, 0, 1],
+                [0, 0, 0],
+                [1, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+            ]),
+            # `scale`
+            'major',
+            # `tonic_position`
+            4,
+            # `expected`
+            -3
+        ),
+        (
+            # `roll`
+            np.array([
+                [0, 0, 0],
+                [0, 0, 1],
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 0],
+                [0, 1, 0],
+                [1, 0, 1],
+                [0, 0, 0],
+                [1, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+            ]),
+            # `scale`
+            'minor',
+            # `tonic_position`
+            0,
+            # `expected`
+            -2
+        ),
+        (
+            # `roll`
+            np.array([
+                [0, 0, 0],
+                [0, 0, 1],
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 0],
+                [0, 1, 0],
+                [1, 0, 1],
+            ]),
+            # `scale`
+            'major',
+            # `tonic_position`
+            2,
+            # `expected`
+            -4
+        )
+    ]
+)
+def test_score_absence_of_outer_notes(
+        roll: np.ndarray, scale: str, tonic_position: int, expected: float
+) -> None:
+    """Test `score_absence_of_outer_notes` function."""
+    result = score_absence_of_outer_notes(roll, scale, tonic_position)
+    assert result == expected
 
 
 @pytest.mark.parametrize(
@@ -62,11 +140,11 @@ from rlmusician.environment.scoring import (
         ),
     ]
 )
-def test_score_absence_of_constant_notes(
+def test_score_absence_of_stalled_notes(
         roll: np.ndarray, max_n_time_steps: int, expected: int
 ) -> None:
-    """Test `score_absence_of_constant_notes` function."""
-    result = score_absence_of_constant_notes(roll, max_n_time_steps)
+    """Test `score_absence_of_stalled_notes` function."""
+    result = score_absence_of_stalled_notes(roll, max_n_time_steps)
     assert result == expected
 
 
@@ -388,7 +466,7 @@ def test_score_number_of_simultaneously_played_notes(
 
 
 @pytest.mark.parametrize(
-    "roll, scale, tonic_position, expected",
+    "roll, tonic_position, min_share, max_share, expected",
     [
         (
             # `roll`
@@ -405,60 +483,49 @@ def test_score_number_of_simultaneously_played_notes(
                 [0, 0, 0],
                 [0, 0, 0],
                 [0, 0, 0],
+                [0, 1, 1],
             ]),
-            # `scale`
-            'major',
-            # `tonic_position`
-            4,
-            # `expected`
-            -3
-        ),
-        (
-            # `roll`
-            np.array([
-                [0, 0, 0],
-                [0, 0, 1],
-                [1, 0, 0],
-                [0, 1, 0],
-                [0, 0, 0],
-                [0, 1, 0],
-                [1, 0, 1],
-                [0, 0, 0],
-                [1, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0],
-            ]),
-            # `scale`
-            'minor',
             # `tonic_position`
             0,
+            # `min_share`
+            0.6,
+            # `max_share`
+            0.7,
             # `expected`
-            -2
+            1
         ),
         (
             # `roll`
             np.array([
-                [0, 0, 0],
-                [0, 0, 1],
                 [1, 0, 0],
+                [0, 0, 1],
+                [0, 0, 0],
                 [0, 1, 0],
                 [0, 0, 0],
                 [0, 1, 0],
-                [1, 0, 1],
+                [0, 0, 1],
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 1, 1],
             ]),
-            # `scale`
-            'major',
             # `tonic_position`
-            2,
+            0,
+            # `min_share`
+            0.6,
+            # `max_share`
+            0.7,
             # `expected`
-            -4
-        )
+            0
+        ),
     ]
 )
-def test_score_tonality(
-        roll: np.ndarray, scale: str, tonic_position: int, expected: float
+def test_score_usage_of_tonic(
+        roll: np.ndarray, tonic_position: int,
+        min_share: float, max_share: float, expected: float
 ) -> None:
-    """Test `score_tonality` function."""
-    result = score_tonality(roll, scale, tonic_position)
+    """Test `score_usage_of_tonic` function."""
+    result = score_usage_of_tonic(roll, tonic_position, min_share, max_share)
     assert result == expected

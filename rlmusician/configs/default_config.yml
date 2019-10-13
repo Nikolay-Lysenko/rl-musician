@@ -5,12 +5,13 @@ environment:
   max_n_stalled_episode_steps: 3
   scoring_coefs:
     noncyclicity: 250
+    usage_of_tonic: 50
     lines: 1
     conjunct_motion: 1
     contrary_motion: 1
     consonances: 1
-    tonality: 1
-    absence_of_constant_notes: 1
+    absence_of_outer_notes: 1
+    absence_of_stalled_notes: 1
   scoring_fn_params:
     consonances:
       interval_consonances:

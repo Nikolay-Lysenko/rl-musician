@@ -26,7 +26,7 @@ class TestPianoRollEnv:
                     n_roll_steps=5,
                     n_observed_roll_steps=3,
                     max_n_stalled_episode_steps=2,
-                    scoring_coefs={'tonality': 1},
+                    scoring_coefs={'absence_of_outer_notes': 1},
                     scoring_fn_params={},
                     padding_mean=0.1,
                     rendering_params={}
@@ -58,7 +58,7 @@ class TestPianoRollEnv:
                     n_roll_steps=5,
                     n_observed_roll_steps=3,
                     max_n_stalled_episode_steps=2,
-                    scoring_coefs={'tonality': 1},
+                    scoring_coefs={'absence_of_outer_notes': 1},
                     scoring_fn_params={},
                     padding_mean=0,
                     rendering_params={}
