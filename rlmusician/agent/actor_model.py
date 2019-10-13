@@ -60,9 +60,9 @@ def create_actor_model(
 
     roll_input = Input(shape=observation_shape, name='piano_roll')
     reshaped_input = Reshape(observation_shape + (1,))(roll_input)
-    roll_hidden = Conv2D(4, (6, 6), activation='relu')(reshaped_input)
-    roll_embedded = Flatten()(roll_hidden)
-    output = Dense(n_actions, activation='softmax')(roll_embedded)
+    conv_hidden = Conv2D(2, (3, 3), activation='relu')(reshaped_input)
+    embedding = Flatten()(conv_hidden)
+    output = Dense(n_actions, activation='softmax')(embedding)
     model = Model(inputs=roll_input, outputs=output)
     model.compile(optimizer='sgd', loss='mse')  # Arbitrary unused values.
     return model

@@ -74,7 +74,7 @@ def score_conjunct_motion(
         if i != 0
     ]
     altered_roll = np.concatenate(altered_rolls, axis=2)
-    close_notes_roll = altered_roll.max(axis=2)
+    close_notes_roll = np.max(altered_roll, axis=2)
     starting_notes_roll = np.clip(roll - shift_horizontally(roll, 1), 0, None)
     matches = np.minimum(starting_notes_roll, close_notes_roll)
     score = np.sum(matches).item()
@@ -177,7 +177,7 @@ def score_contrary_motion(roll: np.ndarray) -> float:
 
 
 def score_noncyclicity(
-        roll: np.ndarray, max_n_time_steps: int = 4, max_share: float = 0.2
+        roll: np.ndarray, max_n_time_steps: int = 8, max_share: float = 0.2
 ) -> float:
     """
     Score composition based on absence of cyclically repeated parts.

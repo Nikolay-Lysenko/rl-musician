@@ -1,7 +1,7 @@
 environment:
   n_semitones: 25
-  n_roll_steps: 31
-  n_observed_roll_steps: 6
+  n_roll_steps: 33
+  n_observed_roll_steps: 3
   max_n_stalled_episode_steps: 3
   scoring_coefs:
     noncyclicity: 250
