@@ -1,8 +1,8 @@
 environment:
   n_semitones: 25
   n_roll_steps: 33
-  n_observed_roll_steps: 3
-  max_n_stalled_episode_steps: 3
+  observation_decay: 0.75
+  n_draws_per_roll_step: 3
   scoring_coefs:
     noncyclicity: 250
     usage_of_tonic: 50
@@ -29,7 +29,6 @@ environment:
         11: -3
       distance_weights:
         0: 1
-  padding_mean: 0.1
   rendering_params:
     dir: rlmusician_data
     lowest_note: C4

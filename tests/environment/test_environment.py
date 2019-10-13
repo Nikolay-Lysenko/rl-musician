@@ -20,15 +20,45 @@ class TestPianoRollEnv:
         "env, actions, expected",
         [
             (
+                    # `env`
+                    PianoRollEnv(
+                        n_semitones=5,
+                        n_roll_steps=5,
+                        observation_decay=0.5,
+                        n_draws_per_roll_step=2,
+                        scoring_coefs={'absence_of_outer_notes': 1},
+                        scoring_fn_params={},
+                        rendering_params={}
+                    ),
+                    # `actions`
+                    [2, 2, 1, 1, 1, 3, 3],
+                    # `expected`
+                    np.array([0, 0.75, 0.125, 1.5, 0])
+            )
+        ]
+    )
+    def test_observation(
+            self, env: PianoRollEnv, actions: List[int], expected: np.ndarray
+    ) -> None:
+        """Test that `step` method returns proper observation."""
+        env.reset()
+        for action in actions:
+            observation, reward, done, info = env.step(action)
+        assert not done
+        np.testing.assert_equal(observation, expected)
+
+    @pytest.mark.parametrize(
+        "env, actions, expected",
+        [
+            (
                 # `env`
                 PianoRollEnv(
                     n_semitones=5,
                     n_roll_steps=5,
-                    n_observed_roll_steps=3,
-                    max_n_stalled_episode_steps=2,
+                    observation_decay=0.5,
+                    n_draws_per_roll_step=2,
                     scoring_coefs={'absence_of_outer_notes': 1},
                     scoring_fn_params={},
-                    padding_mean=0.1,
                     rendering_params={}
                 ),
                 # `actions`
@@ -38,10 +68,10 @@ class TestPianoRollEnv:
             )
         ]
     )
-    def test_step(
+    def test_reward(
             self, env: PianoRollEnv, actions: List[int], expected: float
     ) -> None:
-        """Test `step` method."""
+        """Test that `step` method returns proper reward."""
         env.reset()
         for action in actions:
             observation, reward, done, info = env.step(action)
@@ -56,15 +86,14 @@ class TestPianoRollEnv:
                 PianoRollEnv(
                     n_semitones=5,
                     n_roll_steps=5,
-                    n_observed_roll_steps=3,
-                    max_n_stalled_episode_steps=2,
+                    observation_decay=0.5,
+                    n_draws_per_roll_step=2,
                     scoring_coefs={'absence_of_outer_notes': 1},
                     scoring_fn_params={},
-                    padding_mean=0,
                     rendering_params={}
                 ),
                 # `expected`
-                np.zeros((5, 3))
+                np.zeros((5,))
             )
         ]
     )
@@ -72,6 +101,6 @@ class TestPianoRollEnv:
         """Test `reset` method."""
         observation = env.reset()
         np.testing.assert_equal(observation, expected)
-        assert env.n_episode_steps_passed == 0
-        assert env.n_piano_roll_steps_passed == 0
-        assert env.n_stalled_episode_steps == 0
+        assert env.current_episode_step == 0
+        assert env.current_roll_step == 0
+        assert env.n_draws_at_current_roll_step == 0

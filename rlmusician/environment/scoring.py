@@ -44,7 +44,7 @@ def score_absence_of_outer_notes(
         (with negative sign)
     """
     if tonic_position is None:
-        tonic_position = DEFAULT_TONIC_POSITION
+        tonic_position = DEFAULT_TONIC_POSITION  # pragma: no cover
     scale_to_wrong_notes = {
         'major': [0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
         'minor': [0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1]
@@ -283,7 +283,7 @@ def score_usage_of_tonic(
         in the lowest line
     """
     if tonic_position is None:
-        tonic_position = DEFAULT_TONIC_POSITION
+        tonic_position = DEFAULT_TONIC_POSITION  # pragma: no cover
 
     cum_summed = np.cumsum(roll, axis=0)
     summed = np.sum(roll, axis=0).reshape((1, -1))

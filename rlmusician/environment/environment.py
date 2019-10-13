@@ -38,11 +38,10 @@ class PianoRollEnv(gym.Env):
             self,
             n_semitones: int,
             n_roll_steps: int,
-            n_observed_roll_steps: int,
-            max_n_stalled_episode_steps: int,
+            observation_decay: float,
+            n_draws_per_roll_step: int,
             scoring_coefs: Dict[str, float],
             scoring_fn_params: Dict[str, Dict[str, Any]],
-            padding_mean: float,
             rendering_params: Dict[str, Any]
     ):
         """
@@ -54,41 +53,38 @@ class PianoRollEnv(gym.Env):
         :param n_roll_steps:
             total duration of composition in piano roll's time steps;
             in other words, number of columns of piano roll
-        :param n_observed_roll_steps:
-            number of previous piano roll's time steps available for observing
-        :param max_n_stalled_episode_steps:
-            number of episode steps after which forced movement forward occurs
-            on piano roll
+        :param observation_decay:
+            coefficient of exponential decay for previous piano roll's
+            time steps
+        :param n_draws_per_roll_step:
+            number of episode steps after which movement to the next
+            piano roll's time step occurs
         :param scoring_coefs:
             mapping from scoring function names to their weights in final score
         :param scoring_fn_params:
             mapping from scoring function names to their parameters
-        :param padding_mean:
-            mean of binomial distribution for observation padding at
-            early piano roll's time steps
         :param rendering_params:
             settings of environment rendering
         """
         self.n_semitones = n_semitones
         self.n_roll_steps = n_roll_steps
-        self.n_observed_roll_steps = n_observed_roll_steps
-        self.max_n_stalled_episode_steps = max_n_stalled_episode_steps
+        self.observation_decay = observation_decay
+        self.n_draws_per_roll_step = n_draws_per_roll_step
         self.scoring_coefs = scoring_coefs
         self.scoring_fn_params = scoring_fn_params
-        self.padding_mean = padding_mean
         self.rendering_params = rendering_params
 
         self.piano_roll = None
-        self.n_piano_roll_steps_passed = None
-        self.n_episode_steps_passed = None
-        self.n_stalled_episode_steps = None
+        self.current_episode_step = None
+        self.current_roll_step = None
+        self.n_draws_at_current_roll_step = None
 
         self.action_space = gym.spaces.Discrete(n_semitones)
         self.observation_space = gym.spaces.Box(
             low=0,
-            high=1,
-            shape=(n_semitones, n_observed_roll_steps),
-            dtype=np.int32
+            high=1 / (1 - observation_decay),
+            shape=(n_semitones,),
+            dtype=np.float32
         )
 
     def __evaluate(self) -> float:
@@ -102,6 +98,17 @@ class PianoRollEnv(gym.Env):
                 **self.scoring_fn_params.get(fn_name, {})
             )
         return score
+
+    @property
+    def __decay_coefs(self) -> np.ndarray:
+        """Get decay coefficients for passed piano roll's steps."""
+        decay_coefs = np.empty((self.current_roll_step + 1,))
+        decay_coefs[0] = 1
+        decay_coefs[1:] = self.observation_decay
+        decay_coefs = np.cumprod(decay_coefs)
+        decay_coefs = np.flip(decay_coefs)
+        decay_coefs = decay_coefs.reshape((1, -1))
+        return decay_coefs
 
     def step(self, action: int) -> Tuple[np.ndarray, float, bool, Dict]:
         """
@@ -119,26 +126,17 @@ class PianoRollEnv(gym.Env):
                     (helpful for debugging and sometimes learning).
         """
         # Act.
-        self.piano_roll[action, self.n_piano_roll_steps_passed] = 1
-        self.n_stalled_episode_steps += 1
-        if self.n_stalled_episode_steps == self.max_n_stalled_episode_steps:
-            self.n_piano_roll_steps_passed += 1
-            self.n_stalled_episode_steps = 0
-        self.n_episode_steps_passed += 1
+        self.piano_roll[action, self.current_roll_step] = 1
+        self.n_draws_at_current_roll_step += 1
+        if self.n_draws_at_current_roll_step == self.n_draws_per_roll_step:
+            self.current_roll_step += 1
+            self.n_draws_at_current_roll_step = 0
+        self.current_episode_step += 1
 
         # Provide feedback.
-        steps_to_see = (
-            self.n_piano_roll_steps_passed - self.n_observed_roll_steps + 1,
-            self.n_piano_roll_steps_passed + 1
-        )
-        if steps_to_see[0] >= 0:
-            observation = self.piano_roll[:, steps_to_see[0]:steps_to_see[1]]
-        else:
-            padding_size = (self.n_semitones, -steps_to_see[0])
-            padding = np.random.binomial(1, self.padding_mean, padding_size)
-            valid_roll_part = self.piano_roll[:, 0:steps_to_see[1]]
-            observation = np.hstack((padding, valid_roll_part))
-        done = self.n_piano_roll_steps_passed == self.n_roll_steps - 1
+        known_piano_roll = self.piano_roll[:, :self.current_roll_step + 1]
+        observation = np.sum(self.__decay_coefs * known_piano_roll, axis=1)
+        done = self.current_roll_step == self.n_roll_steps - 1
         reward = self.__evaluate() if done else 0
         info = {}
         return observation, reward, done, info
@@ -150,15 +148,14 @@ class PianoRollEnv(gym.Env):
         :return:
             the initial observation of the space
         """
-        self.n_episode_steps_passed = 0
-        self.n_piano_roll_steps_passed = 0
-        self.n_stalled_episode_steps = 0
+        self.current_episode_step = 0
+        self.current_roll_step = 0
+        self.n_draws_at_current_roll_step = 0
 
         piano_roll_shape = (self.n_semitones, self.n_roll_steps)
         self.piano_roll = np.zeros(piano_roll_shape, dtype=np.int32)
 
-        observed_roll_shape = (self.n_semitones, self.n_observed_roll_steps)
-        observation = np.zeros(observed_roll_shape, dtype=np.int32)
+        observation = np.zeros((self.n_semitones,), dtype=np.float32)
         return observation
 
     def render(self, mode='human') -> None:  # pragma: no cover
@@ -168,7 +165,7 @@ class PianoRollEnv(gym.Env):
         :return:
             None
         """
-        episode_end = self.n_piano_roll_steps_passed == self.n_roll_steps - 1
+        episode_end = self.current_roll_step == self.n_roll_steps - 1
         if not episode_end:
             return
 

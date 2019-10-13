@@ -43,7 +43,7 @@ def create_actor_model(
     Create simple actor network for `PianoRollEnv`.
 
     :param observation_shape:
-        shape of observed part of piano roll
+        shape of observation
     :param n_actions:
         number of actions available to the agent
     :return:
@@ -55,14 +55,11 @@ def create_actor_model(
         warnings.simplefilter('ignore')
         import_keras_silently()
         from keras.models import Model
-        from keras.layers import Conv2D, Dense, Flatten, Input, Reshape
+        from keras.layers import Dense, Input
         mute_tensorflow()
 
-    roll_input = Input(shape=observation_shape, name='piano_roll')
-    reshaped_input = Reshape(observation_shape + (1,))(roll_input)
-    conv_hidden = Conv2D(2, (3, 3), activation='relu')(reshaped_input)
-    embedding = Flatten()(conv_hidden)
-    output = Dense(n_actions, activation='softmax')(embedding)
-    model = Model(inputs=roll_input, outputs=output)
+    observed_input = Input(shape=observation_shape, name='piano_roll')
+    output = Dense(n_actions, activation='softmax')(observed_input)
+    model = Model(inputs=observed_input, outputs=output)
     model.compile(optimizer='sgd', loss='mse')  # Arbitrary unused values.
     return model
