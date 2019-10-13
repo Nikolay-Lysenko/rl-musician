@@ -5,9 +5,9 @@ environment:
   n_draws_per_roll_step: 3
   scoring_coefs:
     noncyclicity: 250
-    usage_of_tonic: 50
+    usage_of_tonic: 30
     lines: 1
-    conjunct_motion: 1
+    conjunct_motion: 2
     contrary_motion: 1
     consonances: 1
     absence_of_outer_notes: 1

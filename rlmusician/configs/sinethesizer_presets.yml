@@ -7,9 +7,13 @@
     decay_share: 0.15
     sustain_level: 0.6
     release_share: 0.2
+  fundamental_effects:
+  - name: vibrato
+    frequency: 4
+    width: 0.2
   overtones_specs:
   - waveform: sine
-    frequency_ratio: 2
+    frequency_ratio: 3
     volume_share: 0.2
     volume_envelope:
       name: relative_adsr
@@ -17,21 +21,34 @@
       decay_share: 0.15
       sustain_level: 0.6
       release_share: 0.3
-  - waveform: sine
-    frequency_ratio: 3
+    effects:
+    - name: vibrato
+      frequency: 4
+      width: 0.2
+  - waveform: triangle
+    frequency_ratio: 5
     volume_share: 0.1
     volume_envelope:
       name: relative_adsr
       attack_share: 0.15
       decay_share: 0.15
-      sustain_level: 0.6
+      sustain_level: 0.5
       release_share: 0.4
-  - waveform: sine
-    frequency_ratio: 4
+  - waveform: triangle
+    frequency_ratio: 7
     volume_share: 0.05
     volume_envelope:
       name: relative_adsr
       attack_share: 0.15
       decay_share: 0.15
-      sustain_level: 0.6
+      sustain_level: 0.4
       release_share: 0.5
+  - waveform: triangle
+    frequency_ratio: 9
+    volume_share: 0.025
+    volume_envelope:
+      name: relative_adsr
+      attack_share: 0.15
+      decay_share: 0.15
+      sustain_level: 0.3
+      release_share: 0.6
