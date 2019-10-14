@@ -210,6 +210,7 @@ class CrossEntropyAgent:
         :return:
             None
         """
+        print("population | avg_score_over_current_top |   global_best_score")
         for i_population in range(n_populations):
             args = [(self, deepcopy(env)) for _ in range(self.population_size)]
             entries = map_in_parallel(
@@ -230,9 +231,9 @@ class CrossEntropyAgent:
             top_scores = [x['score'] for x in top_entries]
             avg_top_score = np.mean(top_scores)
             print(
-                f"Population {i_population}: "
-                f"mean score over top candidates is {avg_top_score}, "
-                f"global best score is {self.best['score']}."
+                f"{i_population:>10} | "
+                f"{avg_top_score:>26} | "
+                f"{self.best['score']:>19}"
             )
         best_flat_weights = self.best['flat_weights']
         self.model = self.create_model(best_flat_weights)
