@@ -58,7 +58,7 @@ def create_actor_model(
         from keras.layers import Dense, Input
         mute_tensorflow()
 
-    observed_input = Input(shape=observation_shape, name='piano_roll')
+    observed_input = Input(shape=observation_shape, name='input')
     output = Dense(n_actions, activation='softmax')(observed_input)
     model = Model(inputs=observed_input, outputs=output)
     model.compile(optimizer='sgd', loss='mse')  # Arbitrary unused values.
