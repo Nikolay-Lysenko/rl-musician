@@ -71,6 +71,8 @@ def main() -> None:
     now = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S,%f")
     weights_path = os.path.join(results_dir, f'agent_weights_{now}.h5f')
     agent.model.save_weights(weights_path)
+
+    env.verbose = True
     agent.test(env, n_episodes=cli_args.episodes)
 
 

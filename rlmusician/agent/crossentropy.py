@@ -250,6 +250,7 @@ class CrossEntropyAgent:
             None
         """
         for i_episode in range(n_episodes):
+            print(f"\nEpisode {i_episode}:")
             reward = run_episode(self.model, env)
             env.render()
-            print(f"Episode {i_episode}: reward is {reward}.")
+            print(f"Reward is {reward}.")

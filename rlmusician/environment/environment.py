@@ -21,7 +21,7 @@ import gym
 import numpy as np
 from sinethesizer.io.piano_roll_to_tsv import write_roll_to_tsv_file
 
-from rlmusician.environment.scoring import get_scoring_functions_registry
+from rlmusician.environment.scoring import evaluate
 from rlmusician.utils import (
     create_midi_from_piano_roll, create_wav_from_events
 )
@@ -78,6 +78,7 @@ class PianoRollEnv(gym.Env):
         self.current_episode_step = None
         self.current_roll_step = None
         self.n_draws_at_current_roll_step = None
+        self.verbose = False
 
         self.action_space = gym.spaces.Discrete(n_semitones)
         self.observation_space = gym.spaces.Box(
@@ -86,18 +87,6 @@ class PianoRollEnv(gym.Env):
             shape=(n_semitones,),
             dtype=np.float32
         )
-
-    def __evaluate(self) -> float:
-        """Evaluate current state of piano roll."""
-        score = 0
-        registry = get_scoring_functions_registry()
-        for fn_name, weight in self.scoring_coefs.items():
-            fn = registry[fn_name]
-            score += weight * fn(
-                self.piano_roll,
-                **self.scoring_fn_params.get(fn_name, {})
-            )
-        return score
 
     @property
     def __decay_coefs(self) -> np.ndarray:
@@ -137,7 +126,14 @@ class PianoRollEnv(gym.Env):
         known_piano_roll = self.piano_roll[:, :self.current_roll_step + 1]
         observation = np.sum(self.__decay_coefs * known_piano_roll, axis=1)
         done = self.current_roll_step == self.n_roll_steps - 1
-        reward = self.__evaluate() if done else 0
+        reward = 0
+        if done:
+            reward = evaluate(
+                self.piano_roll,
+                self.scoring_coefs,
+                self.scoring_fn_params,
+                self.verbose
+            )
         info = {}
         return observation, reward, done, info
 

@@ -12,7 +12,7 @@ Author: Nikolay Lysenko
 """
 
 
-from typing import Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 import numpy as np
 
@@ -318,3 +318,34 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         'usage_of_tonic': score_usage_of_tonic
     }
     return registry
+
+
+def evaluate(
+        roll: np.ndarray,
+        scoring_coefs: Dict[str, float],
+        scoring_fn_params: Dict[str, Any],
+        verbose: bool = False
+) -> float:
+    """
+    Evaluate piano roll.
+
+    :param roll:
+        piano roll
+    :param scoring_coefs:
+        mapping from scoring function names to their weights in final score
+    :param scoring_fn_params:
+        mapping from scoring function names to their parameters
+    :param verbose:
+        if it is set to `True`, scores by all functions are printed separately
+    :return:
+        overall score of piano roll quality
+    """
+    score = 0
+    registry = get_scoring_functions_registry()
+    for fn_name, weight in scoring_coefs.items():
+        fn = registry[fn_name]
+        curr_score = weight * fn(roll, **scoring_fn_params.get(fn_name, {}))
+        if verbose:
+            print(f'{fn_name:>25}: {curr_score}')  # pragma: no cover
+        score += curr_score
+    return score
