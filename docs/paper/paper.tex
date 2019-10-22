@@ -66,19 +66,13 @@ Actually, results reported at this draft version are far from using above advant
 
 Usage of computers for automatic composition of music dates back to 1950s and, what is more, approaches that can be labeled as algorithmic are known since Guido of Arezzo (11th century). Therefore, it is impossible to list here all studies about the subject. An interested reader can find more information in specialized reviews such as \cite{fernandez2013ai}. What is discussed below is just some examples related to reinforcement learning.
 
-Reinforcement learning can be applied to algorithmic composition either as a standalone paradigm or in connection with deep learning.
+Reinforcement learning can be applied to algorithmic composition either as a standalone paradigm or in connection with deep learning. As for the first case, probably, there are no influential works and only separate studies like \cite{yi2007automatic} are available. Conversely, the second group recently gained attention and several interesting approaches were developed there.
 
-As for the first case, there are not \cite{yi2007automatic}.
-
-The second group (works where connections with deep learning are established) recently gained attention and several interesting approaches were developed there.
-
-Reinforcement learning can be used for altering weights of recurrent neural networks trained to generate music sequentially \cite{jaques2016generating, kotecha2018bach}. The goal is to make generated pieces more structured and conformed with music theory rules. To define an environment, let its state be composed of recurrent neural networks states and previously played notes, let an action be an output for current time step and let reward depend on both evaluational rules and probability of output according to initial RNN. Rewards are granted immediately after a step and so DQN (Deep Q-Networks \cite{mnih2013playing}) are preferred as a training algorithm.
+For example, reinforcement learning can be used for altering weights of recurrent neural networks trained to generate music sequentially \cite{jaques2016generating, kotecha2018bach}. The goal is to make generated pieces more structured and conformed with music theory rules. To define an environment, let its state be composed of recurrent neural networks states and previously played notes, let an action be an output for current time step and let reward depend on both evaluational rules and probability of output according to initial RNN. Rewards are granted immediately after a step and so DQN (Deep Q-Networks \cite{mnih2013playing}) are preferred as a training algorithm.
 
 Usually, softmax activation function is used in the last layer of generative RNN. However, it is possible to generalize it with Boltzmann softmax which is a family of activation functions parametrized by one parameter called temperature and denoted as $t$. Depending on temperature, output distribution can vary from atomic distribution concentrated at the most probable action ($t = 0$) to distribution returned with softmax activation ($t = 1$) and to uniform distribution ($t \to +\infty$). In \cite{kumar2019polyphonic}, Boltzmann softmax is used and also input vector is extended by introducing an additional part indicating origination of initial input (so called plan). An environment is defined so that state is a pair of temperature and plan, actions are changes in either temperature or plan, and reward depends on evaluation of produced with these settings piece.
 
-Since algorithmic composition can be framed as training of a generative model, it sounds natural to try one of the most salient examples of generative models -- generative adversarial networks (GAN) \cite{goodfellow2014gan}. However, widespread notations for music assume sequences of discrete values but classical GAN work well only with continuous data, because gradient of discrete-valued functions is uninformative. Techniques originating from RL can be used to overcome this obstacle \cite{yu2016seqgan,hjelm2017boundary}. Namely, generator is trained with policy gradient method \cite{williams1992simple}. Such methodology is applied to various tasks and music composition is amongst them \cite{limaguimaraes2017objective}.
-
-% Nevertheless, not all methods for automated music generation use deep learning. Musical pieces itself can be generated with genetic algorithms \cite{felice2002genorchestra} or HMMs (Hidden Markov Models) \cite{farbood2001analysis}
+Since algorithmic composition can be framed as training of a generative model, it sounds natural to try one of the most salient examples of generative models -- generative adversarial networks (GAN) \cite{goodfellow2014gan}. However, widespread notations for music assume sequences of discrete values but classical GAN work well only with continuous data, because gradient of discrete-valued functions is uninformative. Techniques originating from reinforcement learning can be used to overcome this obstacle \cite{yu2016seqgan,hjelm2017boundary}. Namely, generator is trained with policy gradient method \cite{williams1992simple}. Such methodology is applied to various tasks and music composition is amongst them \cite{limaguimaraes2017objective}.
 
 \subsection{Cross-Entropy Method}
 \label{subsec:crossentropy}
@@ -117,7 +111,19 @@ In context of reinforcement learning, cross-entropy method is used for searching
 
 For this study, piano roll is chosen as music representation format, but there are some subtleties.
 
-Here, each row of a table does not correspond to a particular note or pitch. Relative axis is used instead of absolute axis. All that is important is that each row is one semitone higher than the row right below it. Thus, a musical piece is given only up to transposition and user-defined value for a pivot note is required to define absolute pitches.
+Here, each row of a table does not correspond to a particular note or pitch. Relative axis is used instead of absolute axis. All that is important is that each row is one semitone higher than the row right below it. Thus, a musical piece is given only up to transposition and user-defined value for a pivot note is required to define absolute pitches. Similarly, duration of one time step is not defined by piano roll format and must be set externally too.
+
+Another nuance is that there are no attempts to resolve ambiguity for successive cells of the same pitch. If values of 1 are contained by $l$ successive cells of the same pitch, this line can be played either as one sound event that lasts $l$ time steps or as $l$ sound events that last one time step each or as $k$, $1 < k < n$, sound events of varying duration. Piano roll format does not specify it and evaluation of a roll is independent of ways to resolve it.
+
+Denote number of rows as $n$ and number of time steps as $m$ and let piano roll be represented as matrix $R$ of size $n \times m$. Suppose that current time step is $t$, $1 \le t \le m$. Then observation is defined as:
+$$v = \sum_{i = 1}^t \beta^{t - i} R_{\cdot i},$$
+where $\beta$ is a hyperparameter related to exponential decay, $0 < \beta < 1$.
+
+It is important to distinguish between time steps of piano roll (columns of $R$) and time steps of an episode (moments when actions are taken by an agent). For a particular piano roll's time step $t$ there are $a$ episode time steps where $a$ is a hyperparameter. At each of these episode time steps, a cell from the $t$-th column may be filled with 1 or nothing may happen (if a cell that already contains 1 is chosen for action).
+
+Agent takes action by drawing it from probability distribution returned by its actor model. An actor model can be every function that takes observation as input and returns probability distribution over cells from the current time step. Here, shallow neural network is used as actor model. Its weights can be viewed as something that defines transition matrix for a Markov chain from which actions are generated.
+
+An episode starts with a piano roll that contains only zeros. Initial observation is zero vector of size $n \times 1$. An episode is being run until final piano roll's time step is reached. Then created piano roll is evaluated and resulting score is returned as reward for the episode.
 
 \subsection{Evaluational Rules}
 \label{subsec:setup}
@@ -126,18 +132,16 @@ Here, each row of a table does not correspond to a particular note or pitch. Rel
 \section{Experimental Results}
 \label{sec:results}
 
-A software implementation of the above methodology in Python programming language is available on GitHub\footnote{\url{https://github.com/Nikolay-Lysenko/rl-musician}}. The code has built-in documentation, is covered with unit tests, and is released as a package on PyPI\footnote{\url{https://pypi.org/project/rl-musician/0.1.1/}}.
+A software implementation of the above methodology in Python programming language is available on GitHub\footnote{\url{https://github.com/Nikolay-Lysenko/rl-musician}}. The code has built-in documentation, is covered with unit tests, and is released as a package on PyPI\footnote{\url{https://pypi.org/project/rl-musician/0.1.2/}}.
 
 The implementation relies on some open-source tools \cite{brockman2016openai,chollet2015keras,oliphant2006guide,raffel2014intuitive,dong2018pypianoroll}.
 
 
 \section{Further Improvements}
 \label{sec:improvements}
-% better evaluational rules (tonality, rhythm);
-% randomized initial observations;
+% impose known constraints natively instead of trying to learn them;
 % LSTM as actor model;
 % evolutionary strategies instead of cross-entropy;
-% start from supervisedly pre-trained weigths;
 
 
 \section{Conclusion}
