@@ -16,7 +16,7 @@
 
 \title{RL-Musician: A Tool for Music Composition with Reinforcement Learning}
 
-\date{September 30, 2019}
+\date{Ocotber 26, 2019}
 
 \author{
   Nikolay~Lysenko\\
@@ -121,12 +121,22 @@ where $\beta$ is a hyperparameter related to exponential decay, $0 < \beta < 1$.
 
 It is important to distinguish between time steps of piano roll (columns of $R$) and time steps of an episode (moments when actions are taken by an agent). For a particular piano roll's time step $t$ there are $a$ episode time steps where $a$ is a hyperparameter. At each of these episode time steps, a cell from the $t$-th column may be filled with 1 or nothing may happen (if a cell that already contains 1 is chosen for action).
 
-Agent takes action by drawing it from probability distribution returned by its actor model. An actor model can be every function that takes observation as input and returns probability distribution over cells from the current time step. Here, shallow neural network is used as actor model. Its weights can be viewed as something that defines transition matrix for a Markov chain from which actions are generated.
+Agent takes action by drawing it from probability distribution returned by its actor model. An actor model can be every function that takes observation as input and returns probability distribution over cells from the current time step. Here, shallow neural network is used as actor model. Its weights can be viewed as something that defines transition matrix for a Markov chain from which sequence of piano roll's states is generated.
 
 An episode starts with a piano roll that contains only zeros. Initial observation is zero vector of size $n \times 1$. An episode is being run until final piano roll's time step is reached. Then created piano roll is evaluated and resulting score is returned as reward for the episode.
 
 \subsection{Evaluational Rules}
 \label{subsec:setup}
+
+Eight properties of a final piano roll are evaluated at the current revision of the study.
+
+\begin{itemize}
+	\item \textbf{Consonances.} A negative or positive score is granted for each pair of sounding cells from the same column, then all these scores are summed. Each pair-related score depends on interval between the two corresponding pitches. The more consonant the interval is, the higher the score is. However, there is an exception -- score is zero for intervals of integer number of octaves although they are perfectly consonant. This is done in order to prevent doubling the same melody in different lines.
+	\item \textbf{Absence of notes not from the specified scale.} Mode (major or minor) and position of a row with the tonic are set by the user before training. A negative penalty is assigned to each sounding cell of a pitch that does not belong to the specified scale.
+	\item \textbf{Conjunct motion.} A positive score is granted for every sounding cell such that the previous cell of the same pitch is not sounding, but there is a sounding cell of close enough pitch in the previous column.
+	\item \textbf{Contrary motion.} A positive score is granted for every column such that there are both a sounding cell of pitch lower than that of closest to it sounding cell from the previous column and a sounding cell of pitch higher than that of closest to it sounding cell from the previous column.
+    \item \textbf{Noncyclicity.} From subject matter point of view, this score penalizes pieces where the same sequence of sound events is repeated over and over again. Technically, it is implemented as  
+\end{itemize}
 
 
 \section{Experimental Results}
