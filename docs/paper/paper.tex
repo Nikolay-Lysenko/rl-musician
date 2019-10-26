@@ -131,18 +131,25 @@ An episode starts with a piano roll that contains only zeros. Initial observatio
 Eight properties of a final piano roll are evaluated at the current revision of the study.
 
 \begin{itemize}
-	\item \textbf{Consonances.} A negative or positive score is granted for each pair of sounding cells from the same column, then all these scores are summed. Each pair-related score depends on interval between the two corresponding pitches. The more consonant the interval is, the higher the score is. However, there is an exception -- score is zero for intervals of integer number of octaves although they are perfectly consonant. This is done in order to prevent doubling the same melody in different lines.
-	\item \textbf{Absence of notes not from the specified scale.} Mode (major or minor) and position of a row with the tonic are set by the user before training. A negative penalty is assigned to each sounding cell of a pitch that does not belong to the specified scale.
-	\item \textbf{Conjunct motion.} A positive score is granted for every sounding cell such that the previous cell of the same pitch is not sounding, but there is a sounding cell of close enough pitch in the previous column.
-	\item \textbf{Contrary motion.} A positive score is granted for every column such that there are both a sounding cell of pitch lower than that of closest to it sounding cell from the previous column and a sounding cell of pitch higher than that of closest to it sounding cell from the previous column.
-    \item \textbf{Noncyclicity.} From subject matter point of view, this score penalizes pieces where the same sequence of sound events is repeated over and over again. Technically, it is implemented as  
+	\item \textbf{Consonances.} Speaking formally, total reward for consonances is:
+	$$\sum_{t = 1}^m \sum_{i, j = 1}^n [i > j]R_{it} R_{jt} c((i - j) \bmod 12),$$
+	where square brackets are Iverson brackets and $c$ is a function that maps interval in semitones into measure of its consonance, $c: \{0, \dots, 11\} \to \mathbb{R}$.
+	The interpretation is as follows. Since $R_{it} \in \{0, 1\}$, only pairs of sounding cells from the same column affect the total sum. Value of each non-zero term depends on interval between the two corresponding pitches. The more consonant the interval is, the higher the value should be. Function $c$ must be chosen in a way providing that. However, there is an exception -- here, $c(0) = 0$ although intervals of whole number of octaves are perfectly consonant. This is done in order to prevent doubling the same melody in different octaves. 
+	\item \textbf{Absence of notes not from the specified scale.} Mode (major or minor) and position of a row with the tonic are set by user before training. The same negative penalty is assigned to each sounding cell of a pitch that does not belong to the specified scale and then these penalties are summed.
+	\item \textbf{Usage of the tonic.} A positive reward is assigned to a roll as a whole if share of columns where the lowest sounding note belongs to the tonic pitch class lies within a specified interval.  
+	\item \textbf{Conjunct motion.} A positive reward is granted for every sounding cell such that the previous cell of the same pitch is not sounding, but there is a sounding cell of close enough pitch in the previous column.
+	\item \textbf{Contrary motion.} A positive reward is granted for every column such that there are both a sounding cell of pitch lower than that of closest to it sounding cell from the previous column and a sounding cell of pitch higher than that of closest to it sounding cell from the previous column.
+	\item \textbf{Lines.} Ideally, a created composition should be decomposable into melodic lines. To have $k$ melodic lines, it is necessary (but not sufficient) that exactly $k$ cells are sounding in every column. So below penalty may be used as a proxy for scoring presence of desired number of melodic lines:
+	$$-\sum_{t = 1}^m \left| k - \sum_{i=1}^n R_{it} \right|.$$  
+    \item \textbf{Noncyclicity.} Pieces where the same sequence of sound events is repeated over and over again should be penalized or, as a matter of choice, pieces should be rewarded for their noncyclicity. Here, the latter approach is used. The reward is implemented as minimum number of positive cells over differences between piano roll and its shifted version for all shift values from 1 up to a certain value (currently, it is equal to 8). To be more precise, this score is also clipped from above in order to prevent rewarding of placing extra sounding cells. In literature, scores based on autocorrelation are sometimes used as alternative way to push results away from degenerate states.
+    \item \textbf{Absence of pitches played for a long time.} Partial case of a degenerate roll is a roll with some pitches that are constantly sounding. A negative penalty is assigned to every sounding cell such that cells of the same pitch are sounding in all $l$ previous columns where $l$ is a hyperparameter.
 \end{itemize}
 
 
 \section{Experimental Results}
 \label{sec:results}
 
-A software implementation of the above methodology in Python programming language is available on GitHub\footnote{\url{https://github.com/Nikolay-Lysenko/rl-musician}}. The code has built-in documentation, is covered with unit tests, and is released as a package on PyPI\footnote{\url{https://pypi.org/project/rl-musician/0.1.2/}}.
+A software implementation of the above methodology in Python programming language is available on GitHub\footnote{\url{https://github.com/Nikolay-Lysenko/rl-musician}}. The code has built-in documentation, is covered with unit tests, and is released as a package on PyPI\footnote{\url{https://pypi.org/project/rl-musician/0.1.2/}}. All important settings are placed to a separate configuration file and so it is easy to experiment with them.
 
 The implementation relies on some open-source tools \cite{brockman2016openai,chollet2015keras,oliphant2006guide,raffel2014intuitive,dong2018pypianoroll}.
 
@@ -150,6 +157,7 @@ The implementation relies on some open-source tools \cite{brockman2016openai,cho
 \section{Further Improvements}
 \label{sec:improvements}
 % impose known constraints natively instead of trying to learn them;
+% structure (rhythm; start, end, motiff);
 % LSTM as actor model;
 % evolutionary strategies instead of cross-entropy;
 
