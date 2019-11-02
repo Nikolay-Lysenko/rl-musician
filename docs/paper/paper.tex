@@ -55,7 +55,7 @@ More details on the methodology are provided in Section \ref{sec:methodology}, b
 	\item There are tuning systems other than equal temperament (for instance, in microtonal music). For some of them it may be impossible to collect dataset large enough to allow training models in a supervised fashion. However, developers of a tuning system should know some underlying principles and so (at least, in theory) it is possible to create evaluational rules and train an agent based on them.
 \end{itemize}
 
-Actually, results reported at this draft version are far from using above advantages at full scale. The current study is rather a proof-of-concept, but this proof-of-concept is easily extendable and ideas on how it can be improved are listed in Section \ref{sec:improvements}.
+Actually, results reported at this draft version are far from using above advantages at full scale. The current study is rather a proof-of-concept, but this proof-of-concept is easily extendable and ideas on how it can be improved are listed in Section \ref{sec:conclusion}.
 
 
 \section{Background and Related Work}
@@ -72,7 +72,7 @@ For example, reinforcement learning can be used for altering weights of recurren
 
 Usually, softmax activation function is used in the last layer of generative RNN. However, it is possible to generalize it with Boltzmann softmax which is a family of activation functions parametrized by one parameter called temperature and denoted as $t$. Depending on temperature, output distribution can vary from atomic distribution concentrated at the most probable action ($t = 0$) to distribution returned with softmax activation ($t = 1$) and to uniform distribution ($t \to +\infty$). In \cite{kumar2019polyphonic}, Boltzmann softmax is used and also input vector is extended by introducing an additional part indicating origination of initial input (so called plan). An environment is defined so that state is a pair of temperature and plan, actions are changes in either temperature or plan, and reward depends on evaluation of produced with these settings piece.
 
-Since algorithmic composition can be framed as training of a generative model, it sounds natural to try one of the most salient examples of generative models -- generative adversarial networks (GAN) \cite{goodfellow2014gan}. However, widespread notations for music assume sequences of discrete values but classical GAN work well only with continuous data, because gradient of discrete-valued functions is uninformative. Techniques originating from reinforcement learning can be used to overcome this obstacle \cite{yu2016seqgan,hjelm2017boundary}. Namely, generator is trained with policy gradient method \cite{williams1992simple}. Such methodology is applied to various tasks and music composition is amongst them \cite{limaguimaraes2017objective}.
+Since algorithmic composition can be framed as training of a generative model, it sounds natural to try one of the most salient examples of generative models -- generative adversarial networks (GANs) \cite{goodfellow2014gan}. However, widespread notations for music assume sequences of discrete values but classical GANs work well only with continuous data, because gradient of discrete-valued functions is uninformative. Techniques originating from reinforcement learning can be used to overcome this obstacle \cite{yu2016seqgan,hjelm2017boundary}. Namely, generator is trained with policy gradient method \cite{williams1992simple}. Such methodology is applied to various tasks and music composition is amongst them \cite{limaguimaraes2017objective}.
 
 \subsection{Cross-Entropy Method}
 \label{subsec:crossentropy}
@@ -83,18 +83,18 @@ Initially, cross-entropy method was developed for estimation of rare events prob
 	\caption{Cross-entropy method for optimization} \label{alg:crossentropy}
 	\textbf{Input:} $X$ -- set of elements, $f: X \to \mathbb{R}$ -- target function, $u(\cdot, w)$ -- probabilistic distribution over $X$ parametrized by vector $w$. \\
 	\textbf{Output:} $\hat{w}$ -- approximate solution to the problem $\max_w \mathbb{E}_{x \sim u(\cdot, w)} f(x)$. \\
-	\textbf{Hyperparameters:} $w_0$ -- initial value of $w$; $N$ -- number of iterations, $n$ -- number of vectors to draw at each iteration, $\sigma$ -- standard deviation for vectors generation, $m$ -- number of trials for each vector; $\rho$ -- fraction of best vectors to use for update; $\alpha$ -- smoothing coefficient of updates.
+	\textbf{Hyperparameters:} $w^{(0)}$ -- initial value of $w$; $N$ -- number of iterations, $n$ -- number of vectors to draw at each iteration, $\sigma$ -- standard deviation for vectors generation, $m$ -- number of trials for each vector; $\rho$ -- fraction of best vectors to use for update; $\alpha$ -- smoothing coefficient of updates.
 	\begin{algorithmic}[1]
 		\FORALL{$i \in \{1, \dots, N\}$}
 		    \FORALL{$j \in \{1, \dots, n\}$}
-		        \STATE{draw $w_{ij} \sim \mathcal{N}(\cdot \vert w_{i-1}, \sigma)$}
-		        \STATE{$r_j \gets \sum_{k = 1}^{m} f(x_k)$ where $x_k \sim u(\cdot, w_{ij})$}
+		        \STATE{draw $w^{(i,j)} \sim \mathcal{N}(\cdot \vert w^{(i-1)}, \sigma)$}
+		        \STATE{$r_j \gets \sum_{k = 1}^{m} f(x_k)$ where $x_k \sim u(\cdot, w^{(i,j)})$}
 		    \ENDFOR
 		    \STATE{$r_{\mathrm{threshold}} \gets$ $[\rho n]$-th highest value of $\{r_j: j \in \{1, \dots, n\}\}$}
 		    \STATE{$J \gets \{j: r_j \ge r_{\mathrm{threshold}}\}$}
-		    \STATE{$w_i \gets \alpha w_{i-1} + (1 - \alpha)(\sum_{j \in J} w_{ij}) / [\rho n]$}
+		    \STATE{$w^{(i)} \gets \alpha w^{(i-1)} + (1 - \alpha)(\sum_{j \in J} w^{(i,j)}) / [\rho n]$}
 		\ENDFOR
-	    \STATE{$\hat{w} \gets w_N$}
+	    \STATE{$\hat{w} \gets w^{(N)}$}
 	\end{algorithmic}
 \end{algorithm}
 
@@ -113,7 +113,7 @@ For this study, piano roll is chosen as music representation format, but there a
 
 Here, each row of a table does not correspond to a particular note or pitch. Relative axis is used instead of absolute axis. All that is important is that each row is one semitone higher than the row right below it. Thus, a musical piece is given only up to transposition and user-defined value for a pivot note is required to define absolute pitches. Similarly, duration of one time step is not defined by piano roll format and must be set externally too.
 
-Another nuance is that there are no attempts to resolve ambiguity for successive cells of the same pitch. If values of 1 are contained by $l$ successive cells of the same pitch, this line can be played either as one sound event that lasts $l$ time steps or as $l$ sound events that last one time step each or as $k$, $1 < k < n$, sound events of varying duration. Piano roll format does not specify it and evaluation of a roll is independent of ways to resolve it.
+Another nuance is that there are no attempts to resolve ambiguity for successive cells of the same pitch. If values of 1 are contained by $l$ successive cells of the same pitch, this line can be played either as one sound event that lasts $l$ time steps or as $l$ sound events that last one time step each or as $k$, $1 < k < l$, sound events of varying duration. Piano roll format does not specify it and evaluation of a roll is independent of ways to resolve it.
 
 Denote number of rows as $n$ and number of time steps as $m$ and let piano roll be represented as matrix $R$ of size $n \times m$. Suppose that current time step is $t$, $1 \le t \le m$. Then observation is defined as:
 $$v = \sum_{i = 1}^t \beta^{t - i} R_{\cdot i},$$
@@ -153,17 +153,19 @@ A software implementation of the above methodology in Python programming languag
 
 The implementation relies on some open-source tools \cite{brockman2016openai,chollet2015keras,oliphant2006guide,raffel2014intuitive,dong2018pypianoroll}.
 
+To use less computation time, size of piano roll was chosen as follows: $n = 25$ (two octaves and one more note) and $m = 33$ (note that the last time step is silent by design, so only 32 time steps are filled). Training an agent from scratch on a CPU of a regular laptop takes less than an hour with these settings.
 
-\section{Further Improvements}
-\label{sec:improvements}
-% impose known constraints natively instead of trying to learn them;
-% structure (rhythm; start, end, motiff);
-% LSTM as actor model;
-% evolutionary strategies instead of cross-entropy;
+As for human evaluation, created pieces lack rhythmic and tonal structure. Such drawback can be expected a priori, because there are no evaluational rules for structure-related properties. On the other hand, pieces are quite ear-pleasant. Thus, current version of the tool may be used by a human composer as an auxiliary source of inspiration. In particular, generated short parts further can be inserted into a longer piece.
 
 
 \section{Conclusion}
 \label{sec:conclusion}
+
+This paper studies capabilities of reinforcement learning for music composition without usage of existing pieces. Here, music composition is framed as optimization problem where the goal is to find values of generative model's parameters maximizing average score of pieces generated with them. It is found that some progress can be made in this direction.
+
+However, it is also found that vast majority of computational resources and engineering efforts are now spent on preventing an agent from taking actions that are discouraged by music theory. It is much easier to impose known constraints in program code than to learn them from environment responses. So it seems very promising to exclude discouraged actions and then focus training on things of higher level such as rhythm dynamic, presence of motiffs, proper final, and so on.
+
+If setup become more complicated after above modifications, it is worth trying to use LSTM neural network as actor model and evolutionary strategies as training algorithm.
 
 
 \bibliographystyle{unsrt}  
