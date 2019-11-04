@@ -15,6 +15,8 @@ Comparing to music composition tools such as [MuseNet](https://openai.com/blog/m
 
 Currently, the implementation of environment supports only equal temperament, but this limitation may be eliminated in the future.
 
+To find more details, look at [a draft of a paper](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/docs/paper/paper.pdf).
+
 ## Installation
 
 To install a stable version, run:
