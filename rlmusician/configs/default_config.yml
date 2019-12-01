@@ -1,8 +1,34 @@
+piece:
+  tonic: C
+  scale: major
+  n_measures: 32
+  line_params:
+    - species: first
+      lowest_note: G3
+      highest_note: G4
+      start_note: C4
+      end_note: C4
+    - species: first
+      lowest_note: E4
+      highest_note: E5
+      start_note: C5
+      end_note: G4
+    - species: first
+      lowest_note: G4
+      highest_note: G5
+      start_note: G5
+      end_note: C5
+  rendering_params:
+    dir: rlmusician_data
+    measure_in_seconds: 0.5
+    midi:
+      instrument: 0
+      velocity: 100
+    sinethesizer:
+      timbre: default_timbre
+      volume: 0.2
 environment:
-  n_semitones: 25
-  n_roll_steps: 33
   observation_decay: 0.75
-  n_draws_per_roll_step: 3
   scoring_coefs:
     noncyclicity: 250
     usage_of_tonic: 30
@@ -29,16 +55,6 @@ environment:
         11: -3
       distance_weights:
         0: 1
-  rendering_params:
-    dir: rlmusician_data
-    lowest_note: C4
-    step_in_seconds: 0.5
-    midi:
-      instrument: 0
-      velocity: 100
-    sinethesizer:
-      timbre: default_timbre
-      volume: 0.2
 agent:
   population_size: 150
   elite_fraction: 0.1
