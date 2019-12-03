@@ -2,7 +2,8 @@ piece:
   tonic: C
   scale: major
   n_measures: 32
-  line_params:
+  max_skip: 2
+  line_specifications:
     - species: first
       lowest_note: G3
       highest_note: G4
