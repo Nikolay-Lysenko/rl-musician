@@ -1,4 +1,6 @@
 """
+Define data structure that represents musical piece.
+
 Author: Nikolay Lysenko
 """
 
@@ -8,54 +10,15 @@ from typing import Any, Dict, List, NamedTuple
 import numpy as np
 from sinethesizer.io.utils import get_note_to_position_mapping
 
+from rlmusician.utils import (
+    get_positions_from_scale, get_tonic_triad_positions, slice_positions
+)
 
-N_SEMITONES_PER_OCTAVE = 12
+
 NOTE_TO_POSITION = get_note_to_position_mapping()
 
 
-def get_positions_from_scale(tonic: str, scale: str) -> List[int]:
-    """"""
-    scale_patterns = {
-        'major': [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
-        'minor': [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
-    }
-    tonic_position = NOTE_TO_POSITION[tonic + '1']
-    positions_from_scale = [
-        x for x in range(len(NOTE_TO_POSITION))
-        if scale_patterns[scale][(x - tonic_position) % N_SEMITONES_PER_OCTAVE]
-    ]
-    return positions_from_scale
-
-
-def get_tonic_triad_positions(tonic: str, scale: str) -> List[int]:
-    """"""
-    scale_patterns = {
-        'major': [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],
-        'minor': [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0]
-    }
-    tonic_position = NOTE_TO_POSITION[tonic + '1']
-    tonic_triad_positions = [
-        x for x in range(len(NOTE_TO_POSITION))
-        if scale_patterns[scale][(x - tonic_position) % N_SEMITONES_PER_OCTAVE]
-    ]
-    return tonic_triad_positions
-
-
-def slice_positions(
-        positions: List[int],
-        lowest_note: str,
-        highest_note: str,
-) -> List[int]:
-    """"""
-    lowest_position = NOTE_TO_POSITION[lowest_note]
-    highest_position = NOTE_TO_POSITION[highest_note]
-    sliced_positions = [
-        x for x in positions
-        if lowest_position <= x <= highest_position
-    ]
-    return sliced_positions
-
-
+# TODO: Should it be a class method?
 def filter_movements(
         movements: List[int], current_position: int, end_position: int,
         is_from_tonic_triad: bool
