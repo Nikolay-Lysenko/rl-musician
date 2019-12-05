@@ -18,20 +18,6 @@ from rlmusician.utils import (
 NOTE_TO_POSITION = get_note_to_position_mapping()
 
 
-# TODO: Should it be a class method?
-def filter_movements(
-        movements: List[int], current_position: int, end_position: int,
-        is_from_tonic_triad: bool
-) -> List[int]:
-    """"""
-    allowed_movements = [
-        movement for movement in movements
-        if 0 <= current_position + movement < end_position
-        and (movement != 0 or is_from_tonic_triad)
-    ]
-    return allowed_movements
-
-
 class AvailablePitch(NamedTuple):
     """"""
 
@@ -62,22 +48,34 @@ class Piece:
 
         self.positions_from_scale = get_positions_from_scale(tonic, scale)
         self.tonic_triad_positions = get_tonic_triad_positions(tonic, scale)
+        self.all_movements = list(range(-self.max_skip, self.max_skip + 1))
 
-        self.piano_roll = None
-        self.__create_piano_roll()
+        shape = (len(NOTE_TO_POSITION), self.n_measures)
+        self._piano_roll = np.array(shape, dtype=int)
+        self.lowest_row_to_show = None
+        self.highest_row_to_show = None
 
         self.lines = []
         self.line_elements = []
         self.line_mappings = []
-        for line_specification in line_specifications:
-            self.__define_elements(line_specification)
-            self.__create_line(line_specification)
+        for specs in line_specifications:
+            self.lines.append([None for _ in range(self.n_measures)])
+            self.__define_elements(specs)
+            self.__update_range_to_show(specs)
+            self.__add_end_note(specs['start_note'], 'start')
+            self.__add_end_note(specs['end_note'], 'end')
 
-    def __create_piano_roll(self) -> None:
-        """"""
-        shape = (len(NOTE_TO_POSITION), self.n_measures)
-        self.piano_roll = np.array(shape, dtype=int)
-        # TODO: Define range that is passed as observation.
+    def __get_allowed_movements(
+            self, current_position: int, end_position: int,
+            is_from_tonic_triad: bool
+    ) -> List[int]:
+        """Get all possible shifts in scale degrees from current position."""
+        allowed_movements = [
+            movement for movement in self.all_movements
+            if 0 <= current_position + movement < end_position
+            and (movement != 0 or is_from_tonic_triad)
+        ]
+        return allowed_movements
 
     def __define_elements(self, specs: Dict[str, Any]) -> None:
         """Define list of pitches that can be used within a line."""
@@ -92,11 +90,10 @@ class Piece:
             )
         elements = []
         mapping = {}
-        movements = list(range(-self.max_skip, self.max_skip + 1))
         for pitch_number, absolute_position in enumerate(sliced_positions):
             is_from_triad = absolute_position in self.tonic_triad_positions
-            allowed_movements = filter_movements(
-                movements, pitch_number, len(sliced_positions), is_from_triad
+            allowed_movements = self.__get_allowed_movements(
+                pitch_number, len(sliced_positions), is_from_triad
             )
             pitch = AvailablePitch(
                 absolute_position,
@@ -108,36 +105,39 @@ class Piece:
         self.line_elements.append(elements)
         self.line_mappings.append(mapping)
 
-    def __validate_end_note(self, note: str, end_type: str) -> None:
-        """Validate start note or end note for a line."""
-        line_elements = self.line_elements[-1]
+    def __update_range_to_show(self, specs: Dict[str, Any]) -> None:
+        """"""
+        low_bound = NOTE_TO_POSITION[specs['lowest_note']]
+        self.lowest_row_to_show = max(
+            self.lowest_row_to_show or 0, low_bound
+        )
+        high_bound = NOTE_TO_POSITION[specs['highest_note']]
+        self.highest_row_to_show = min(
+            self.highest_row_to_show or 87, high_bound
+        )
+
+    def __add_end_note(self, note: str, end_type: str) -> None:
+        """Add start note or end note to its line and to piano roll."""
         absolute_position = NOTE_TO_POSITION[note]
         relative_position = self.line_mappings[-1][absolute_position]
+        line_elements = self.line_elements[-1]
         note_is_valid = line_elements[relative_position].is_from_tonic_triad
         if not note_is_valid:
             raise ValueError(
                 f"{note} is not a tonic triad member for "
                 f"{self.tonic}-{self.scale}; it can not be {end_type} note."
             )
+        column = 0 if end_type == 'start' else -1
+        self.lines[-1][column] = relative_position
+        self._piano_roll[absolute_position, column] = 1
 
-    def __create_line(self, specs: Dict[str, Any]) -> None:
+    @property
+    def piano_roll(self) -> np.ndarray:
         """"""
-        line = [None for _ in range(self.n_measures)]
-        line_mapping = self.line_mappings[-1]
-
-        self.__validate_end_note(specs['start_note'], 'start')
-        start_position = NOTE_TO_POSITION[specs['start_note']]
-        line[0] = line_mapping[start_position]
-        self.piano_roll[start_position, 0] = 1
-        # TODO: Consider inserting start and end notes instead of doubling.
-        # TODO: Also consider merging with `__validate_end_note`.
-
-        self.__validate_end_note(specs['end_note'], 'end')
-        end_position = NOTE_TO_POSITION[specs['end_note']]
-        line[-1] = line_mapping[end_position]
-        self.piano_roll[end_position, -1] = 1
-
-        self.lines.append(line)
+        piano_roll = self._piano_roll[
+            self.lowest_row_to_show:self.highest_row_to_show+1, :
+        ]
+        return np.flip(piano_roll, axis=0)
 
     def validate_movements(self, movements: List[int]) -> bool:
         """"""
