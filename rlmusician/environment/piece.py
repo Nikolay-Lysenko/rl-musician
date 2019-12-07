@@ -1,5 +1,5 @@
 """
-Define data structure that represents musical piece.
+Define data structure that represents musical piece compliant with some rules.
 
 Author: Nikolay Lysenko
 """
@@ -18,10 +18,11 @@ from rlmusician.utils import (
 NOTE_TO_POSITION = get_note_to_position_mapping()
 
 
-class AvailablePitch(NamedTuple):
+class LineElement(NamedTuple):
     """"""
 
     absolute_position: int
+    relative_position: int
     is_from_tonic_triad: bool
     allowed_movements: List[int]
 
@@ -95,12 +96,13 @@ class Piece:
             allowed_movements = self.__get_allowed_movements(
                 pitch_number, len(sliced_positions), is_from_triad
             )
-            pitch = AvailablePitch(
+            element = LineElement(
                 absolute_position,
+                pitch_number,
                 is_from_triad,
                 allowed_movements
             )
-            elements.append(pitch)
+            elements.append(element)
             mapping[absolute_position] = pitch_number
         self.line_elements.append(elements)
         self.line_mappings.append(mapping)
@@ -120,24 +122,24 @@ class Piece:
         """Add start note or end note to its line and to piano roll."""
         absolute_position = NOTE_TO_POSITION[note]
         relative_position = self.line_mappings[-1][absolute_position]
-        line_elements = self.line_elements[-1]
-        note_is_valid = line_elements[relative_position].is_from_tonic_triad
-        if not note_is_valid:
+        element = self.line_elements[-1][relative_position]
+        if not element.is_from_tonic_triad:
             raise ValueError(
                 f"{note} is not a tonic triad member for "
                 f"{self.tonic}-{self.scale}; it can not be {end_type} note."
             )
         column = 0 if end_type == 'start' else -1
-        self.lines[-1][column] = relative_position
+        self.lines[-1][column] = element
         self._piano_roll[absolute_position, column] = 1
 
     @property
     def piano_roll(self) -> np.ndarray:
         """"""
-        piano_roll = self._piano_roll[
+        reverted_roll = self._piano_roll[
             self.lowest_row_to_show:self.highest_row_to_show+1, :
         ]
-        return np.flip(piano_roll, axis=0)
+        roll = np.flip(reverted_roll, axis=0)
+        return roll
 
     def validate_movements(self, movements: List[int]) -> bool:
         """"""
