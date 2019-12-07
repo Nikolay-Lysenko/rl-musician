@@ -153,7 +153,7 @@ class Piece:
         if relative_position is None:
             raise ValueError(
                 f"Passed {end_type} note {note} does not belong to "
-                f"{self.tonic}-{self.scale}."
+                f"{self.tonic}-{self.scale} or is out of line range."
             )
         element = self.line_elements[-1][relative_position]
         if not element.is_from_tonic_triad:
@@ -163,9 +163,6 @@ class Piece:
             )
         column = 0 if end_type == 'start' else -1
         self.lines[-1][column] = element
-        print(self._piano_roll)
-        print(absolute_position)
-        print(column)
         self._piano_roll[absolute_position, column] = 1
 
     def __compute_destination(
@@ -252,6 +249,8 @@ class Piece:
         :return:
             None
         """
+        if self.current_measure == self.n_measures - 1:
+            raise RuntimeError("Attempt to add notes to a finished piece.")
         if not self.check_movements(movements):
             raise ValueError('Passed movements are not permitted.')
         zipped = zip(movements, self.lines, self.line_elements)
@@ -267,7 +266,7 @@ class Piece:
 
     @property
     def piano_roll(self) -> np.ndarray:
-        """Get piano roll representation of a piece without irrelevant rows."""
+        """Get piece representation as piano roll (without irrelevant rows)."""
         reverted_roll = self._piano_roll[
             self.lowest_row_to_show:self.highest_row_to_show + 1, :
         ]
