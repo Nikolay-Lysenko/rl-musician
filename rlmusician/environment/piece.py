@@ -49,7 +49,23 @@ class Piece:
             line_specifications: List[Dict[str, Any]],
             rendering_params: Dict[str, Any]
     ):
-        """Initialize instance."""
+        """
+        Initialize instance.
+
+        :param tonic:
+            tonic pitch class represented by letter (like C or A#)
+        :param scale:
+            scale (currently, 'major' and 'minor' are supported)
+        :param n_measures:
+            duration of piece in measures
+        :param max_skip:
+            maximum allowed skip (in scale degrees) between conjugate notes
+            from the same line
+        :param line_specifications:
+            parameters of lines
+        :param rendering_params:
+            settings of saving piece to TSV, MIDI, and WAV files
+        """
         self.tonic = tonic
         self.scale = scale
         self.n_measures = n_measures
@@ -62,7 +78,7 @@ class Piece:
         self.all_movements = list(range(-self.max_skip, self.max_skip + 1))
 
         shape = (len(NOTE_TO_POSITION), self.n_measures)
-        self._piano_roll = np.array(shape, dtype=int)
+        self._piano_roll = np.zeros(shape, dtype=int)
         self.lowest_row_to_show = None
         self.highest_row_to_show = None
 
@@ -133,7 +149,12 @@ class Piece:
     def __add_end_note(self, note: str, end_type: str) -> None:
         """Add start note or end note to its line and to piano roll."""
         absolute_position = NOTE_TO_POSITION[note]
-        relative_position = self.line_mappings[-1][absolute_position]
+        relative_position = self.line_mappings[-1].get(absolute_position)
+        if relative_position is None:
+            raise ValueError(
+                f"Passed {end_type} note {note} does not belong to "
+                f"{self.tonic}-{self.scale}."
+            )
         element = self.line_elements[-1][relative_position]
         if not element.is_from_tonic_triad:
             raise ValueError(
@@ -142,6 +163,9 @@ class Piece:
             )
         column = 0 if end_type == 'start' else -1
         self.lines[-1][column] = element
+        print(self._piano_roll)
+        print(absolute_position)
+        print(column)
         self._piano_roll[absolute_position, column] = 1
 
     def __compute_destination(

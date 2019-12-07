@@ -20,20 +20,20 @@ class TestPianoRollEnv:
         "env, actions, expected",
         [
             (
-                    # `env`
-                    PianoRollEnv(
-                        n_semitones=5,
-                        n_roll_steps=5,
-                        observation_decay=0.5,
-                        n_draws_per_roll_step=2,
-                        scoring_coefs={'absence_of_outer_notes': 1},
-                        scoring_fn_params={},
-                        rendering_params={}
-                    ),
-                    # `actions`
-                    [2, 2, 1, 1, 1, 3, 3],
-                    # `expected`
-                    np.array([0, 0.75, 0.125, 1.5, 0])
+                # `env`
+                PianoRollEnv(
+                    n_semitones=5,
+                    n_roll_steps=5,
+                    observation_decay=0.5,
+                    n_draws_per_roll_step=2,
+                    scoring_coefs={'absence_of_outer_notes': 1},
+                    scoring_fn_params={},
+                    rendering_params={}
+                ),
+                # `actions`
+                [2, 2, 1, 1, 1, 3, 3],
+                # `expected`
+                np.array([0, 0.75, 0.125, 1.5, 0])
             )
         ]
     )

@@ -5,8 +5,9 @@ Author: Nikolay Lysenko
 """
 
 
-from . import environment, scoring
+from . import environment, piece, scoring
 from .environment import PianoRollEnv
+from .piece import Piece
 
 
-__all__ = ['PianoRollEnv', 'environment', 'scoring']
+__all__ = ['PianoRollEnv', 'Piece', 'environment', 'piece', 'scoring']
