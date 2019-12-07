@@ -20,7 +20,7 @@ class TestPianoRollEnv:
         "tonic, scale, n_measures, max_skip, line_specifications, match",
         [
             (
-                 # `tonic`
+                # `tonic`
                 'C',
                 # `scale`
                 'major',
@@ -197,6 +197,51 @@ class TestPianoRollEnv:
                     [1, 1, 1],
                     [1, -2, -1],
                     [2, 1, -1],
+                ],
+                # `expected`
+                [True, False, False, False]
+            ),
+            (
+                # `tonic`
+                'C',
+                # `scale`
+                'major',
+                # `n_measures`
+                6,
+                # `max_skip`
+                2,
+                # `line_specifications`
+                [
+                    {
+                        'lowest_note': 'G3',
+                        'highest_note': 'G4',
+                        'start_note': 'C4',
+                        'end_note': 'C4'
+                    },
+                    {
+                        'lowest_note': 'E4',
+                        'highest_note': 'E5',
+                        'start_note': 'C5',
+                        'end_note': 'G4'
+                    },
+                    {
+                        'lowest_note': 'G4',
+                        'highest_note': 'G5',
+                        'start_note': 'G5',
+                        'end_note': 'C5'
+                    },
+                ],
+                # `previous_movements`
+                [
+                    [2, -1, 0],
+                    [1, -1, -1],
+                ],
+                # `candidate_movements`
+                [
+                    [-1, -1, -1],
+                    [-1, -1, 1],
+                    [-1, 2, -1],
+                    [1, -1, -1],
                 ],
                 # `expected`
                 [True, False, False, False]

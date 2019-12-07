@@ -176,18 +176,20 @@ class Piece:
         position = current_element.relative_position + movement
         destination = elements[position]
 
-        # More than 2 notes that are out of tonic triad mustn't occur in a row.
-        previous_element_is_not_from_tonic_triad = not (
-            self.current_measure == 0
-            or line[self.current_measure - 1].is_from_tonic_triad
-        )
-        three_non_triad_notes_in_a_row = min(
-            previous_element_is_not_from_tonic_triad,
-            not current_element.is_from_tonic_triad,
-            not destination.is_from_tonic_triad
-        )
-        if three_non_triad_notes_in_a_row:
-            return None
+        # Change of direction can not occur after two non-triad members.
+        if self.current_measure > 0:
+            previous_element = line[self.current_measure - 1]
+            previous_movement = (
+                current_element.relative_position
+                - previous_element.relative_position
+            )
+            improper_change_of_direction = min(
+                not previous_element.is_from_tonic_triad,
+                not current_element.is_from_tonic_triad,
+                previous_movement * movement < 0
+            )
+            if improper_change_of_direction:
+                return None
 
         # Skip must lead to a tonic triad member.
         if abs(movement) > 1 and not destination.is_from_tonic_triad:
