@@ -245,7 +245,7 @@ class TestPianoRollEnv:
                 ],
                 # `expected`
                 [True, False, False, False]
-            )
+            ),
         ]
     )
     def test_check_movements(
@@ -266,3 +266,98 @@ class TestPianoRollEnv:
             for movements in candidate_movements
         ]
         assert result == expected
+
+    @pytest.mark.parametrize(
+        "tonic, scale, n_measures, max_skip, line_specifications, "
+        "movements, expected_positions, expected_roll",
+        [
+            (
+                # `tonic`
+                'C',
+                # `scale`
+                'major',
+                # `n_measures`
+                10,
+                # `max_skip`
+                2,
+                # `line_specifications`
+                [
+                    {
+                        'lowest_note': 'G3',
+                        'highest_note': 'G4',
+                        'start_note': 'C4',
+                        'end_note': 'C4'
+                    },
+                    {
+                        'lowest_note': 'G4',
+                        'highest_note': 'G5',
+                        'start_note': 'G5',
+                        'end_note': 'C5'
+                    },
+                ],
+                # `movements`
+                [
+                    [1, -1],
+                    [-1, -1],
+                    [2, -2],
+                    [2, -1],
+                    [-2, -1],
+                    [0, -1],
+                    [-2, 1],
+                    [1, 1],
+                    [-1, 1]
+                ],
+                # `expected_positions`
+                [
+                    [3, 4, 3, 5, 7, 5, 5, 3, 4, 3],
+                    [7, 6, 5, 3, 2, 1, 0, 1, 2, 3],
+                ],
+                # `expected_roll`
+                np.array([
+                    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+                    [0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 1, 0, 1, 1, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ])
+            ),
+        ]
+    )
+    def test_add_measure(
+            self, tonic: str, scale: str, n_measures: int, max_skip: int,
+            line_specifications: List[Dict[str, Any]],
+            movements: List[List[int]],
+            expected_positions: List[int], expected_roll: np.ndarray
+    ) -> None:
+        """Test `add_measure` method."""
+        piece = Piece(
+            tonic, scale, n_measures, max_skip, line_specifications, {}
+        )
+        for mov in movements:
+            piece.add_measure(mov)
+        relative_positions = [
+            [element.relative_position for element in line]
+            for line in piece.lines
+        ]
+        assert relative_positions == expected_positions
+        np.testing.assert_equal(piece.piano_roll, expected_roll)
