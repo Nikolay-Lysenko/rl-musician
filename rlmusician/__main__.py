@@ -13,7 +13,7 @@ from pkg_resources import resource_filename
 import yaml
 
 from rlmusician.agent import create_actor_model, CrossEntropyAgent
-from rlmusician.environment import PianoRollEnv
+from rlmusician.environment import CounterpointEnv, Piece
 
 
 def parse_cli_args() -> argparse.Namespace:
@@ -50,11 +50,12 @@ def main() -> None:
     with open(config_path) as config_file:
         settings = yaml.safe_load(config_file)
 
-    results_dir = settings['environment']['rendering_params']['dir']
+    results_dir = settings['piece']['rendering_params']['dir']
     if not os.path.isdir(results_dir):
         os.mkdir(results_dir)
 
-    env = PianoRollEnv(**settings['environment'])
+    piece = Piece(**settings['piece'])
+    env = CounterpointEnv(piece, **settings['environment'])
     observation_shape = env.observation_space.shape
     n_actions = env.action_space.n
     model_params = {

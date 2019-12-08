@@ -91,7 +91,7 @@ class Piece:
             self.__update_range_to_show(specs)
             self.__add_end_note(specs['start_note'], 'start')
             self.__add_end_note(specs['end_note'], 'end')
-        self.current_measure = 0
+        self.last_finished_measure = 0
 
     def __get_allowed_movements(
             self, current_position: int, end_position: int,
@@ -170,15 +170,15 @@ class Piece:
             elements: List[LineElement]
     ) -> Optional[LineElement]:
         """Compute note that is obtained by the movement and validate it."""
-        current_element = line[self.current_measure]
+        current_element = line[self.last_finished_measure]
         if movement not in current_element.allowed_movements:
             return None
         position = current_element.relative_position + movement
         destination = elements[position]
 
         # Change of direction can not occur after two non-triad members.
-        if self.current_measure > 0:
-            previous_element = line[self.current_measure - 1]
+        if self.last_finished_measure > 0:
+            previous_element = line[self.last_finished_measure - 1]
             previous_movement = (
                 current_element.relative_position
                 - previous_element.relative_position
@@ -199,7 +199,7 @@ class Piece:
         degrees_to_end_note = abs(
             destination.relative_position - line[-1].relative_position
         )
-        measures_left = self.n_measures - self.current_measure - 1
+        measures_left = self.n_measures - self.last_finished_measure - 1
         if degrees_to_end_note > measures_left:
             return None
 
@@ -251,20 +251,33 @@ class Piece:
         :return:
             None
         """
-        if self.current_measure == self.n_measures - 1:
+        if self.last_finished_measure == self.n_measures - 1:
             raise RuntimeError("Attempt to add notes to a finished piece.")
         if not self.check_movements(movements):
             raise ValueError('Passed movements are not permitted.')
         zipped = zip(movements, self.lines, self.line_elements)
         for movement, line, elements in zipped:
-            current_element = line[self.current_measure]
+            current_element = line[self.last_finished_measure]
             position = current_element.relative_position + movement
             next_element = elements[position]
-            line[self.current_measure + 1] = next_element
+            line[self.last_finished_measure + 1] = next_element
             self._piano_roll[
-                next_element.absolute_position, self.current_measure + 1
+                next_element.absolute_position, self.last_finished_measure + 1
             ] = 1
-        self.current_measure += 1
+        self.last_finished_measure += 1
+
+    def reset(self) -> None:
+        """
+        Discard all changes made after initialization.
+
+        :return:
+            None
+        """
+        measures_to_drop = list(range(1, self.n_measures - 1))
+        for line, measure in itertools.product(self.lines, measures_to_drop):
+            line[measure] = None
+        self._piano_roll[:, measures_to_drop] = 0
+        self.last_finished_measure = 0
 
     @property
     def piano_roll(self) -> np.ndarray:

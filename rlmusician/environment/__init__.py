@@ -6,8 +6,8 @@ Author: Nikolay Lysenko
 
 
 from . import environment, piece, scoring
-from .environment import PianoRollEnv
+from .environment import CounterpointEnv
 from .piece import Piece
 
 
-__all__ = ['PianoRollEnv', 'Piece', 'environment', 'piece', 'scoring']
+__all__ = ['CounterpointEnv', 'Piece', 'environment', 'piece', 'scoring']

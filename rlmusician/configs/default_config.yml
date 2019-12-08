@@ -30,6 +30,7 @@ piece:
       volume: 0.2
 environment:
   observation_decay: 0.75
+  reward_for_dead_end: -100
   scoring_coefs:
     noncyclicity: 250
     usage_of_tonic: 30
