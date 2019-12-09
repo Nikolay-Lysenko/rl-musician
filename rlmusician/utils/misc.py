@@ -55,6 +55,8 @@ def convert_to_base(number: int, base: int) -> List[int]:
         list where each element represents a digit in a given system
     """
     digits = []
+    if number == 0:
+        return [0]
     while number > 0:
         remainder = number % base
         digits.append(remainder)

@@ -10,7 +10,7 @@ from typing import Any, Dict, Tuple
 import gym
 import numpy as np
 
-from rlmusician.environment import Piece
+from rlmusician.environment.piece import Piece
 from rlmusician.environment.scoring import evaluate
 from rlmusician.utils import convert_to_base
 
@@ -56,11 +56,8 @@ class CounterpointEnv(gym.Env):
 
         n_actions = len(piece.all_movements) ** len(piece.lines)
         self.action_space = gym.spaces.Discrete(n_actions)
-        base = self.piece.max_skip
-        self.action_to_movements = {
-            i: [x - base for x in convert_to_base(i, base)]
-            for i in range(n_actions)
-        }
+        self.action_to_movements = None
+        self.__set_action_to_movements()
 
         roll_height = piece.highest_row_to_show - piece.lowest_row_to_show + 1
         self.observation_space = gym.spaces.Box(
@@ -69,6 +66,20 @@ class CounterpointEnv(gym.Env):
             shape=(roll_height,),
             dtype=np.float32
         )
+
+    def __set_action_to_movements(self) -> None:
+        """Create mapping from action to line movements."""
+        base = len(self.piece.all_movements)
+        shift = self.piece.max_skip
+        action_to_raw_movements = {
+            i: [x - shift for x in convert_to_base(i, base)]
+            for i in range(self.action_space.n)
+        }
+        action_to_movements = {
+            k: [-shift for _ in range(len(self.piece.lines) - len(v))] + v
+            for k, v in action_to_raw_movements.items()
+        }
+        self.action_to_movements = action_to_movements
 
     @property
     def __decay_coefs(self) -> np.ndarray:
