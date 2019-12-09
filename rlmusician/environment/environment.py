@@ -5,7 +5,6 @@ Author: Nikolay Lysenko
 """
 
 
-import itertools
 from typing import Any, Dict, Tuple
 
 import gym
@@ -13,6 +12,7 @@ import numpy as np
 
 from rlmusician.environment import Piece
 from rlmusician.environment.scoring import evaluate
+from rlmusician.utils import convert_to_base
 
 
 class CounterpointEnv(gym.Env):
@@ -56,6 +56,12 @@ class CounterpointEnv(gym.Env):
 
         n_actions = len(piece.all_movements) ** len(piece.lines)
         self.action_space = gym.spaces.Discrete(n_actions)
+        base = self.piece.max_skip
+        self.action_to_movements = {
+            i: [x - base for x in convert_to_base(i, base)]
+            for i in range(n_actions)
+        }
+
         roll_height = piece.highest_row_to_show - piece.lowest_row_to_show + 1
         self.observation_space = gym.spaces.Box(
             low=0,
@@ -90,8 +96,8 @@ class CounterpointEnv(gym.Env):
             - info: list of next allowed actions
         """
         # Act.
-        # TODO: Convert action to movement.
-        # self.piece.add_measure(movements)
+        movements = self.action_to_movements[action]
+        self.piece.add_measure(movements)
 
         # Compute `observation`.
         right_end = self.piece.last_finished_measure + 1
@@ -99,7 +105,10 @@ class CounterpointEnv(gym.Env):
         observation = np.sum(self.__decay_coefs * ready_piano_roll, axis=1)
 
         # Compute `info`.
-        next_actions = self.__find_next_actions()  # TODO: Implement this.
+        next_actions = [
+            i for i in range(self.action_space.n)
+            if self.piece.check_movements(self.action_to_movements[i])
+        ]
         info = {'next_actions': next_actions}
 
         # Compute `done`.

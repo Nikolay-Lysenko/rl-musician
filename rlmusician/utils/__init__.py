@@ -6,12 +6,7 @@ Author: Nikolay Lysenko
 
 
 from .io import create_midi_from_piano_roll, create_wav_from_events
-from .misc import (
-    apply_rolling_aggregation,
-    map_in_parallel,
-    shift_horizontally,
-    shift_vertically
-)
+from .misc import convert_to_base, map_in_parallel
 from .music_theory import (
     get_positions_from_scale,
     get_tonic_triad_positions,
@@ -20,13 +15,11 @@ from .music_theory import (
 
 
 __all__ = [
-    'apply_rolling_aggregation',
+    'convert_to_base',
     'create_midi_from_piano_roll',
     'create_wav_from_events',
     'get_positions_from_scale',
     'get_tonic_triad_positions',
     'map_in_parallel',
-    'shift_horizontally',
-    'shift_vertically',
     'slice_positions'
 ]
