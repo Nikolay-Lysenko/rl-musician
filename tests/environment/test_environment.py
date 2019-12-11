@@ -111,36 +111,59 @@ class TestCounterpointEnv:
         result = info['next_actions']
         assert result == expected
 
-    # TODO: Implement when `scoring.py` is updated.
-    # @pytest.mark.parametrize(
-    #     "env, actions, expected",
-    #     [
-    #         (
-    #             # `env`
-    #             PianoRollEnv(
-    #                 n_semitones=5,
-    #                 n_roll_steps=5,
-    #                 observation_decay=0.5,
-    #                 n_draws_per_roll_step=2,
-    #                 scoring_coefs={'absence_of_outer_notes': 1},
-    #                 scoring_fn_params={},
-    #                 rendering_params={}
-    #             ),
-    #             # `actions`
-    #             [2] + [0 for _ in range(7)],
-    #             # `expected`
-    #             -1
-    #         )
-    #     ]
-    # )
-    # def test_reward(
-    #         self, env: PianoRollEnv, actions: List[int], expected: float
-    # ) -> None:
-    #     """Test that `step` method returns proper reward."""
-    #     for action in actions:
-    #         observation, reward, done, info = env.step(action)
-    #     assert done
-    #     assert reward == expected
+    @pytest.mark.parametrize(
+        "env, actions, expected",
+        [
+            (
+                # `env`
+                CounterpointEnv(
+                    piece=Piece(
+                        tonic='C',
+                        scale='major',
+                        n_measures=5,
+                        max_skip=2,
+                        line_specifications=[
+                            {
+                                'lowest_note': 'G3',
+                                'highest_note': 'G4',
+                                'start_note': 'C4',
+                                'end_note': 'G4'
+                            },
+                            {
+                                'lowest_note': 'G4',
+                                'highest_note': 'G5',
+                                'start_note': 'C5',
+                                'end_note': 'G5'
+                            },
+                            {
+                                'lowest_note': 'G5',
+                                'highest_note': 'G6',
+                                'start_note': 'G6',
+                                'end_note': 'C6'
+                            },
+                        ],
+                        rendering_params={}
+                    ),
+                    observation_decay=0.75,
+                    reward_for_dead_end=-100,
+                    scoring_coefs={'lines_correlation': 1},
+                    scoring_fn_params={},
+                ),
+                # `actions`
+                [91, 91, 91],
+                # `expected`
+                0.6621
+            )
+        ]
+    )
+    def test_reward(
+            self, env: CounterpointEnv, actions: List[int], expected: float
+    ) -> None:
+        """Test that `step` method returns proper reward."""
+        for action in actions:
+            observation, reward, done, info = env.step(action)
+        assert done
+        assert round(reward, 4) == expected
 
     @pytest.mark.parametrize(
         "env, actions, expected",

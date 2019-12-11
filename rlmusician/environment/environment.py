@@ -5,13 +5,13 @@ Author: Nikolay Lysenko
 """
 
 
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, List, Tuple
 
 import gym
 import numpy as np
 
 from rlmusician.environment.piece import Piece
-from rlmusician.environment.scoring import evaluate
+from rlmusician.environment.evaluation import evaluate
 from rlmusician.utils import convert_to_base
 
 
@@ -82,6 +82,15 @@ class CounterpointEnv(gym.Env):
         self.action_to_movements = action_to_movements
 
     @property
+    def valid_actions(self) -> List[int]:
+        """Get actions that are valid at the current step."""
+        valid_actions = [
+            i for i in range(self.action_space.n)
+            if self.piece.check_movements(self.action_to_movements[i])
+        ]
+        return valid_actions
+
+    @property
     def __decay_coefs(self) -> np.ndarray:
         """Get decay coefficients for passed piano roll's steps."""
         decay_coefs = np.empty((self.piece.last_finished_measure + 1,))
@@ -116,11 +125,7 @@ class CounterpointEnv(gym.Env):
         observation = np.sum(self.__decay_coefs * ready_piano_roll, axis=1)
 
         # Compute `info`.
-        next_actions = [
-            i for i in range(self.action_space.n)
-            if self.piece.check_movements(self.action_to_movements[i])
-        ]
-        info = {'next_actions': next_actions}
+        info = {'next_actions': self.valid_actions}
 
         # Compute `done`.
         finish = self.piece.last_finished_measure == self.piece.n_measures - 2

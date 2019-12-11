@@ -5,9 +5,9 @@ Author: Nikolay Lysenko
 """
 
 
-from . import environment, piece, scoring
+from . import environment, piece, evaluation
 from .environment import CounterpointEnv
 from .piece import Piece
 
 
-__all__ = ['CounterpointEnv', 'Piece', 'environment', 'piece', 'scoring']
+__all__ = ['CounterpointEnv', 'Piece', 'environment', 'piece', 'evaluation.py']

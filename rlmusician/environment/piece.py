@@ -1,6 +1,12 @@
 """
 Define data structure that represents musical piece compliant with some rules.
 
+This data structure contains two nested data structures:
+1) instrumental lines (lists of pitches),
+2) piano roll (`numpy` 2D-array with rows corresponding to notes,
+   columns corresponding to time steps, and cells containing zeros and ones
+   and indicating whether a note is played).
+
 Author: Nikolay Lysenko
 """
 
