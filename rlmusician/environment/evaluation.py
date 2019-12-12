@@ -13,6 +13,32 @@ import numpy as np
 from rlmusician.environment.piece import Piece
 
 
+N_SEMITONES_PER_OCTAVE = 12
+
+
+def evaluate_absence_of_unisons(piece: Piece) -> float:
+    """
+    Evaluate distinguishability of lines based on absence of unisons.
+
+    :param piece:
+        `Piece` instance
+    :return:
+        multiplied by -1 share of unison intervals amongst all intervals
+        from any measures except the first one and the last one
+    """
+    n_unisons = 0
+    for first_line, second_line in itertools.combinations(piece.lines, 2):
+        paired = zip(first_line[1:-1], second_line[1:-1])
+        for first, second in paired:
+            diff = first.absolute_position - second.absolute_position
+            if diff % N_SEMITONES_PER_OCTAVE == 0:
+                n_unisons += 1
+    n_lines = len(piece.lines)
+    n_intervals = n_lines * (n_lines - 1) / 2 * (piece.n_measures - 2)
+    score = -n_unisons / n_intervals
+    return score
+
+
 def evaluate_lines_correlation(piece: Piece) -> float:
     """
     Evaluate independence of lines based on average pairwise correlation.
@@ -20,7 +46,8 @@ def evaluate_lines_correlation(piece: Piece) -> float:
     :param piece:
         `Piece` instance
     :return:
-        negative average correlation between lines rescaled to [0, 1]
+        average correlation between lines multiplied by -1 and then
+        rescaled to be from [0, 1]
     """
     correlations = []
     for first_line, second_line in itertools.combinations(piece.lines, 2):
@@ -40,6 +67,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         registry of scoring functions
     """
     registry = {
+        'absence_of_unisons': evaluate_absence_of_unisons,
         'lines_correlation': evaluate_lines_correlation,
     }
     return registry
