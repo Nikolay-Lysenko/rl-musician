@@ -43,7 +43,9 @@ def map_in_parallel(
     return results
 
 
-def convert_to_base(number: int, base: int) -> List[int]:
+def convert_to_base(
+        number: int, base: int, min_length: Optional[int] = None
+) -> List[int]:
     """
     Convert number to its representation in a given system.
 
@@ -51,15 +53,20 @@ def convert_to_base(number: int, base: int) -> List[int]:
         integer number
     :param base:
         positive integer number to be used as base
+    :param min_length:
+        if result length is less than it, zero padding is added to the left
     :return:
         list where each element represents a digit in a given system
     """
     digits = []
     if number == 0:
-        return [0]
+        digits = [0]
     while number > 0:
         remainder = number % base
         digits.append(remainder)
         number //= base
+    if min_length is not None:
+        padding = [0 for _ in range(max(min_length - len(digits), 0))]
+        digits.extend(padding)
     digits = digits[::-1]
     return digits

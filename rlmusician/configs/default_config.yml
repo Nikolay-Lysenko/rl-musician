@@ -36,6 +36,8 @@ environment:
     lines_correlation: 1
   scoring_fn_params: {}
 agent:
+  hidden_layer_size: 10
+crossentropy:
   population_size: 150
   elite_fraction: 0.1
   n_episodes_per_candidate: 10

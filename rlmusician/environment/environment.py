@@ -71,13 +71,10 @@ class CounterpointEnv(gym.Env):
         """Create mapping from action to line movements."""
         base = len(self.piece.all_movements)
         shift = self.piece.max_skip
-        action_to_raw_movements = {
-            i: [x - shift for x in convert_to_base(i, base)]
-            for i in range(self.action_space.n)
-        }
+        n_lines = len(self.piece.lines)
         action_to_movements = {
-            k: [-shift for _ in range(len(self.piece.lines) - len(v))] + v
-            for k, v in action_to_raw_movements.items()
+            i: [x - shift for x in convert_to_base(i, base, n_lines)]
+            for i in range(self.action_space.n)
         }
         self.action_to_movements = action_to_movements
 

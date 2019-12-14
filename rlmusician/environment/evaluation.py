@@ -74,7 +74,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
 
 
 def evaluate(
-        piece: np.ndarray,
+        piece: Piece,
         scoring_coefs: Dict[str, float],
         scoring_fn_params: Dict[str, Any],
         verbose: bool = False
