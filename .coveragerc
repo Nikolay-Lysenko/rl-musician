@@ -5,7 +5,6 @@ source = rlmusician
 [report]
 omit =
     */__main__.py
-    */actor_model.py
 exclude_lines =
     pragma: no cover
     def __repr__
