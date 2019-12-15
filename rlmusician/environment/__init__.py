@@ -10,4 +10,4 @@ from .environment import CounterpointEnv
 from .piece import Piece
 
 
-__all__ = ['CounterpointEnv', 'Piece', 'environment', 'piece', 'evaluation.py']
+__all__ = ['CounterpointEnv', 'Piece', 'environment', 'piece', 'evaluation']

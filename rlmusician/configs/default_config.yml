@@ -4,18 +4,15 @@ piece:
   n_measures: 32
   max_skip: 2
   line_specifications:
-    - species: first
-      lowest_note: G3
+    - lowest_note: G3
       highest_note: G4
       start_note: C4
       end_note: C4
-    - species: first
-      lowest_note: E4
+    - lowest_note: E4
       highest_note: E5
       start_note: C5
       end_note: G4
-    - species: first
-      lowest_note: G4
+    - lowest_note: G4
       highest_note: G5
       start_note: G5
       end_note: C5
@@ -40,7 +37,7 @@ agent:
 crossentropy:
   population_size: 150
   elite_fraction: 0.1
+  smoothing_coef: 0.25
   n_episodes_per_candidate: 10
   aggregation_fn: mean
-  smoothing_coef: 0.25
   weights_std: 1.0
