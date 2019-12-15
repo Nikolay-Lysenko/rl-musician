@@ -5,7 +5,7 @@ Author: Nikolay Lysenko.
 """
 
 
-from typing import Callable, List, Union
+from typing import Callable, List
 
 import numpy as np
 
@@ -77,9 +77,7 @@ class CounterpointEnvAgent:
         candidates = np.hstack((observation_part, actions_part))
         return candidates
 
-    def set_weights(
-            self, flat_weights: Union[np.ndarray, List[float]]
-    ) -> None:
+    def set_weights(self, flat_weights: np.ndarray) -> None:
         """
         Set weights of model.
 
@@ -88,8 +86,6 @@ class CounterpointEnvAgent:
         :return:
             None
         """
-        if isinstance(flat_weights, list):
-            flat_weights = np.array(flat_weights)
         weights = []
         position = 0
         for layer_shape, layer_size in zip(self.shapes, self.sizes):

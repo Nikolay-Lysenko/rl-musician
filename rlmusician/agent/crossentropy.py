@@ -18,8 +18,8 @@ from rlmusician.utils import map_in_parallel
 
 
 def estimate_at_random_point(
-        target_fn: Callable[[List[float]], float],
-        mean: List[float],
+        target_fn: Callable[[np.ndarray], float],
+        mean: np.ndarray,
         std: float,
         n_trials: int,
         aggregation_fn: Callable[[List[float]], float]
@@ -48,8 +48,8 @@ def estimate_at_random_point(
     """
     # Reseed `np` in order to surely have independent results among processes.
     np.random.seed(int.from_bytes(os.urandom(4), byteorder='little'))
-    epsilons = np.random.randn(len(mean)).tolist()
-    params = [m + std * epsilon for m, epsilon in zip(mean, epsilons)]
+    epsilons = np.random.randn(len(mean))
+    params = mean + std * epsilons
     results = [target_fn(params) for _ in range(n_trials)]
     score = aggregation_fn(results)
     entry = {'params': params, 'score': score}
@@ -57,17 +57,17 @@ def estimate_at_random_point(
 
 
 def optimize_with_cem(
-        target_fn: Callable[[List[float]], float],
+        target_fn: Callable[[np.ndarray], float],
         n_populations: int,
         population_size: int,
         elite_fraction: float,
         smoothing_coef: float,
-        initial_mean: List[int],
+        initial_mean: np.ndarray,
         std: float,
         n_trials_per_candidate: int,
         aggregation_fn: str = 'mean',
         n_processes: Optional[int] = None
-) -> List[float]:
+) -> np.ndarray:
     """
     Optimize with Cross-Entropy Method (CEM).
 
@@ -125,11 +125,11 @@ def optimize_with_cem(
         sorted_entries = sorted(entries, key=lambda x: x['score'])
         top_entries = sorted_entries[-n_top_candidates:]
         top_params = [x['params'] for x in top_entries]
-        top_params = np.array(top_params)
+        top_params = np.vstack(top_params)
         current_mean = (
-            smoothing_coef * np.array(current_mean)
+            smoothing_coef * current_mean
             + (1 - smoothing_coef) * np.mean(top_params, axis=0)
-        ).tolist()
+        )
 
         best_new_entry = top_entries[-1]
         if best_new_entry['score'] > best['score']:
