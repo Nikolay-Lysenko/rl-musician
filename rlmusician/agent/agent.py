@@ -5,12 +5,13 @@ Author: Nikolay Lysenko.
 """
 
 
-from typing import Callable, List
+from typing import Any, Callable, Dict, List
 
 import numpy as np
+from scipy.special import softmax
 
 from rlmusician.environment import CounterpointEnv
-from rlmusician.utils import convert_to_base
+from rlmusician.utils import convert_to_base, map_in_parallel
 
 
 class CounterpointEnvAgent:
@@ -19,7 +20,7 @@ class CounterpointEnvAgent:
     def __init__(
             self,
             model_fn: Callable[..., 'keras.models.Model'],
-            observation_size: int,
+            observation_len: int,
             n_lines: int,
             n_movements_per_line: int,
             hidden_layer_size: int
@@ -29,8 +30,8 @@ class CounterpointEnvAgent:
 
         :param model_fn:
             function that creates actor model
-        :param observation_size:
-            size of observation returned by environment
+        :param observation_len:
+            length of observation returned by environment
         :param n_lines:
             number of lines in a piece to be created within environment
         :param n_movements_per_line:
@@ -39,13 +40,13 @@ class CounterpointEnvAgent:
             size of actor model's hidden layer
         """
         self.model_fn = model_fn
-        self.observation_size = observation_size
+        self.observation_len = observation_len
         self.n_lines = n_lines
         self.n_movements_per_line = n_movements_per_line
         self.hidden_layer_size = hidden_layer_size
 
-        self.input_size = observation_size + n_lines * n_movements_per_line
-        self.model = model_fn(self.input_size, hidden_layer_size)
+        self.input_size = observation_len + n_lines * n_movements_per_line
+        self.model = model_fn((self.input_size,), hidden_layer_size)
         self.shapes = [w.shape for w in self.model.get_weights()]
         self.sizes = [w.size for w in self.model.get_weights()]
         self.n_weights = sum(self.sizes)
@@ -111,8 +112,30 @@ class CounterpointEnvAgent:
         while not done:
             candidates = self.create_candidates(observation, valid_actions)
             probabilities = self.model.predict(candidates)
-            probabilities = 1 / (1 + np.exp(-probabilities))
+            probabilities = softmax(probabilities.reshape((-1,)))
             action = np.random.choice(valid_actions, p=probabilities)
             observation, reward, done, info = env.step(action)
             valid_actions = info['next_actions']
         return reward
+
+
+def __find_n_weights_by_params(agent_params: Dict[str, Any]) -> int:
+    """Run internals for `find_n_weights_by_params`."""
+    agent = CounterpointEnvAgent(**agent_params)
+    n_weights = agent.n_weights
+    return n_weights
+
+
+def find_n_weights_by_params(agent_params: Dict[str, Any]) -> int:
+    """
+    Find number of weights in agent's network by parameters of the agent.
+
+    :param agent_params:
+        arguments that must be passed to create an agent
+    :return:
+        number of weights in agent's actor model
+    """
+    # `tf` has dead lock if parent process launches it before a child process.
+    results = map_in_parallel(__find_n_weights_by_params, [(agent_params,)], 1)
+    n_weights = results[0]
+    return n_weights

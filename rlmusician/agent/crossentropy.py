@@ -22,7 +22,8 @@ def estimate_at_random_point(
         mean: np.ndarray,
         std: float,
         n_trials: int,
-        aggregation_fn: Callable[[List[float]], float]
+        aggregation_fn: Callable[[List[float]], float],
+        target_fn_kwargs: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Generate candidate from given distribution and estimate function at it.
@@ -43,6 +44,8 @@ def estimate_at_random_point(
         name of function that aggregates results from multiple trials into
         a single score of candidate ('min', 'mean', 'median', and 'max'
         are supported)
+    :param target_fn_kwargs:
+        additional keyword arguments for `target_fn`
     :return:
         record with sampled candidate and expected value of `target_fn` at it
     """
@@ -50,7 +53,8 @@ def estimate_at_random_point(
     np.random.seed(int.from_bytes(os.urandom(4), byteorder='little'))
     epsilons = np.random.randn(len(mean))
     params = mean + std * epsilons
-    results = [target_fn(params) for _ in range(n_trials)]
+    target_fn_kwargs = target_fn_kwargs or {}
+    results = [target_fn(params, **target_fn_kwargs) for _ in range(n_trials)]
     score = aggregation_fn(results)
     entry = {'params': params, 'score': score}
     return entry
@@ -64,8 +68,9 @@ def optimize_with_cem(
         smoothing_coef: float,
         initial_mean: np.ndarray,
         std: float,
-        n_trials_per_candidate: int,
+        n_trials: int,
         aggregation_fn: str = 'mean',
+        target_fn_kwargs: Optional[Dict[str, Any]] = None,
         n_processes: Optional[int] = None
 ) -> np.ndarray:
     """
@@ -91,13 +96,15 @@ def optimize_with_cem(
         standard deviation of all multivariate Gaussian distributions
         from which candidates are drawn (for each training step, there is its
         own distribution with its own mean)
-    :param n_trials_per_candidate:
+    :param n_trials:
         number of runs for each candidate evaluation (it makes sense to set it
         to more than 1 only if `target_fn` is stochastic)
     :param aggregation_fn:
         name of function that aggregates results from multiple trials into
         a single score of candidate ('min', 'mean', 'median', and 'max'
         are supported)
+    :param target_fn_kwargs:
+        additional keyword arguments for `target_fn`
     :param n_processes:
         number of processes for parallel candidate evaluation;
         by default, it is set to number of cores
@@ -118,7 +125,7 @@ def optimize_with_cem(
     print("population | avg_score_over_current_top |   global_best_score")
     for i_population in range(n_populations):
         args = [
-            (target_fn, current_mean, std, n_trials_per_candidate, agg_fn)
+            (target_fn, current_mean, std, n_trials, agg_fn, target_fn_kwargs)
             for _ in range(population_size)
         ]
         entries = map_in_parallel(estimate_at_random_point, args, n_processes)

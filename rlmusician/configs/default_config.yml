@@ -38,6 +38,6 @@ crossentropy:
   population_size: 150
   elite_fraction: 0.1
   smoothing_coef: 0.25
-  n_episodes_per_candidate: 10
+  std: 1.0
+  n_trials: 10
   aggregation_fn: mean
-  weights_std: 1.0
