@@ -21,6 +21,9 @@ from rlmusician.agent import (
 from rlmusician.environment import CounterpointEnv, Piece
 
 
+np.seterr(divide='ignore', invalid='ignore')
+
+
 def evaluate_agent_weights(
         flat_weights: np.ndarray,
         piece_params: Dict[str, Any],
@@ -62,7 +65,7 @@ def parse_cli_args() -> argparse.Namespace:
         help='path to configuration file'
     )
     parser.add_argument(
-        '-p', '--populations', type=int, default=100,
+        '-p', '--populations', type=int, default=10,
         help='number of populations for agent training'
     )
     parser.add_argument(

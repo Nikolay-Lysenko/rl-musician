@@ -41,13 +41,14 @@ def create_midi_from_piano_roll(
         'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6,
         'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
     }
-    n_semitones_per_octave = 12
+
     n_rows_below = (
-        n_semitones_per_octave * int(lowest_note[-1])
-        + notes_order[lowest_note[:-1]]
+        len(notes_order) * int(lowest_note[-1]) + notes_order[lowest_note[:-1]]
     )
     n_pypianoroll_pitches = 128
     n_rows_above = n_pypianoroll_pitches - n_rows_below - roll.shape[0]
+
+    roll = np.hstack((roll, np.zeros((roll.shape[0], 1))))
     resized_roll = np.hstack((
         np.zeros((roll.shape[1], n_rows_below)),
         roll.T,

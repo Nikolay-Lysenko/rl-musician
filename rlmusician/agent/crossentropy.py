@@ -26,7 +26,7 @@ def estimate_at_random_point(
         target_fn_kwargs: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
-    Generate candidate from given distribution and estimate function at it.
+    Generate point from given distribution and estimate function at it.
 
     :param target_fn:
         function to be estimated at a random point (it can be stochastic;
@@ -42,12 +42,11 @@ def estimate_at_random_point(
         to more than 1 only if `target_fn` is stochastic)
     :param aggregation_fn:
         name of function that aggregates results from multiple trials into
-        a single score of candidate ('min', 'mean', 'median', and 'max'
-        are supported)
+        a single value ('min', 'mean', 'median', and 'max' are supported)
     :param target_fn_kwargs:
         additional keyword arguments for `target_fn`
     :return:
-        record with sampled candidate and expected value of `target_fn` at it
+        record with sampled point and aggregated value of `target_fn` at it
     """
     # Reseed `np` in order to surely have independent results among processes.
     np.random.seed(int.from_bytes(os.urandom(4), byteorder='little'))
@@ -80,7 +79,7 @@ def optimize_with_cem(
         function to be maximized (it can be stochastic; if so, its
         aggregated value is maximized)
     :param n_populations:
-        number of training step at each of which a pool of candidates is
+        number of training steps at each of which a pool of candidates is
         evaluated, best candidates are selected, and sampling distribution
         is updated based on them
     :param population_size:
@@ -106,7 +105,7 @@ def optimize_with_cem(
     :param target_fn_kwargs:
         additional keyword arguments for `target_fn`
     :param n_processes:
-        number of processes for parallel candidate evaluation;
+        number of processes for parallel evaluation of candidates;
         by default, it is set to number of cores
     :return:
         found optimal parameters

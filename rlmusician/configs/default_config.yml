@@ -8,9 +8,9 @@ piece:
       highest_note: G4
       start_note: C4
       end_note: C4
-    - lowest_note: E4
-      highest_note: E5
-      start_note: C5
+    - lowest_note: C4
+      highest_note: C5
+      start_note: G4
       end_note: G4
     - lowest_note: G4
       highest_note: G5
@@ -27,7 +27,7 @@ piece:
       volume: 0.2
 environment:
   observation_decay: 0.75
-  reward_for_dead_end: -100
+  reward_for_dead_end: -1
   scoring_coefs:
     absence_of_unisons: 1
     lines_correlation: 1
@@ -35,7 +35,7 @@ environment:
 agent:
   hidden_layer_size: 10
 crossentropy:
-  population_size: 150
+  population_size: 100
   elite_fraction: 0.1
   smoothing_coef: 0.25
   std: 1.0

@@ -54,6 +54,8 @@ def evaluate_lines_correlation(piece: Piece) -> float:
         first_pitches = [element.absolute_position for element in first_line]
         second_pitches = [element.absolute_position for element in second_line]
         correlation = np.corrcoef(first_pitches, second_pitches)[0, 1].item()
+        if np.isnan(correlation):  # At least one line is constant.
+            correlation = 1
         correlations.append(correlation)
     score = (1 - sum(correlations) / len(correlations)) / 2
     return score
