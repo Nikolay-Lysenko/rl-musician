@@ -21,9 +21,6 @@ from rlmusician.agent import (
 from rlmusician.environment import CounterpointEnv, Piece
 
 
-np.seterr(divide='ignore', invalid='ignore')
-
-
 def evaluate_agent_weights(
         flat_weights: np.ndarray,
         piece_params: Dict[str, Any],

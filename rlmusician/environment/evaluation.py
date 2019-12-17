@@ -78,7 +78,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
 def evaluate(
         piece: Piece,
         scoring_coefs: Dict[str, float],
-        scoring_fn_params: Dict[str, Any],
+        scoring_fn_params: Dict[str, Dict[str, Any]],
         verbose: bool = False
 ) -> float:
     """
@@ -91,7 +91,7 @@ def evaluate(
     :param scoring_fn_params:
         mapping from scoring function names to their parameters
     :param verbose:
-        if it is set to `True`, scores by all functions are printed separately
+        if it is set to `True`, scores are printed with detailing by functions
     :return:
         overall score of piano roll quality
     """
@@ -99,7 +99,9 @@ def evaluate(
     registry = get_scoring_functions_registry()
     for fn_name, weight in scoring_coefs.items():
         fn = registry[fn_name]
-        curr_score = weight * fn(piece, **scoring_fn_params.get(fn_name, {}))
+        fn_params = scoring_fn_params.get(fn_name, {})
+        with np.errstate(divide='ignore', invalid='ignore'):
+            curr_score = weight * fn(piece, **fn_params)
         if verbose:
             print(f'{fn_name:>25}: {curr_score}')  # pragma: no cover
         score += curr_score
