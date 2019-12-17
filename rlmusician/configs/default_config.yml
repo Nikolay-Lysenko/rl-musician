@@ -41,3 +41,6 @@ crossentropy:
   std: 1.0
   n_trials: 10
   aggregation_fn: mean
+  parallelling_params:
+    n_processes:
+    max_tasks_per_child: 1

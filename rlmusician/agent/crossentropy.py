@@ -70,7 +70,7 @@ def optimize_with_cem(
         n_trials: int,
         aggregation_fn: str = 'mean',
         target_fn_kwargs: Optional[Dict[str, Any]] = None,
-        n_processes: Optional[int] = None
+        parallelling_params: Optional[Dict[str, Any]] = None
 ) -> np.ndarray:
     """
     Optimize with Cross-Entropy Method (CEM).
@@ -104,9 +104,11 @@ def optimize_with_cem(
         are supported)
     :param target_fn_kwargs:
         additional keyword arguments for `target_fn`
-    :param n_processes:
-        number of processes for parallel evaluation of candidates;
-        by default, it is set to number of cores
+    :param parallelling_params:
+        settings of parallel evaluation of candidates;
+        by default, number of processes is set to number of cores
+        and each worker is not replaced with a newer one after some number of
+        tasks are finished
     :return:
         found optimal parameters
     """
@@ -127,7 +129,8 @@ def optimize_with_cem(
             (target_fn, current_mean, std, n_trials, agg_fn, target_fn_kwargs)
             for _ in range(population_size)
         ]
-        entries = map_in_parallel(estimate_at_random_point, args, n_processes)
+        pool_kwargs = parallelling_params or {}
+        entries = map_in_parallel(estimate_at_random_point, args, pool_kwargs)
         sorted_entries = sorted(entries, key=lambda x: x['score'])
         top_entries = sorted_entries[-n_top_candidates:]
         top_params = [x['params'] for x in top_entries]

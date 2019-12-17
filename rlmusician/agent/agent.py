@@ -136,6 +136,10 @@ def find_n_weights_by_params(agent_params: Dict[str, Any]) -> int:
         number of weights in agent's actor model
     """
     # `tf` has dead lock if parent process launches it before a child process.
-    results = map_in_parallel(__find_n_weights_by_params, [(agent_params,)], 1)
+    results = map_in_parallel(
+        __find_n_weights_by_params,
+        [(agent_params,)],
+        {'n_processes': 1}
+    )
     n_weights = results[0]
     return n_weights

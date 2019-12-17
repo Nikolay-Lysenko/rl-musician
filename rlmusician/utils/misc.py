@@ -6,13 +6,13 @@ Author: Nikolay Lysenko
 
 
 import multiprocessing as mp
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 
 def map_in_parallel(
         fn: Callable,
         args: List[Tuple[Any, ...]],
-        n_processes: Optional[int] = None
+        pool_kwargs: Optional[Dict[str, Any]] = None
 ) -> List[Any]:
     """
     Apply function to each tuple of arguments from given list in parallel.
@@ -29,12 +29,17 @@ def map_in_parallel(
         function
     :param args:
         list of tuples of arguments
-    :param n_processes:
-        number of child processes
+    :param pool_kwargs:
+        parameters of pool such as number of processes and maximum number of
+        tasks for a worker before it is replaced with a new one
     :return:
         results of applying the function to the arguments
     """
-    pool = mp.Pool(n_processes)
+    pool_kwargs = pool_kwargs or {}
+    pool = mp.Pool(
+        pool_kwargs.get('n_processes'),
+        maxtasksperchild=pool_kwargs.get('max_tasks_per_child')
+    )
     try:
         results = pool.starmap(fn, args)
     finally:

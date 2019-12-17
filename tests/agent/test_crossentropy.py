@@ -63,7 +63,7 @@ def test_optimize_with_cem(
     result = optimize_with_cem(
         target_fn, n_populations, population_size, elite_fraction,
         smoothing_coef, initial_mean, std, n_trials_per_candidate,
-        n_processes=1
+        parallelling_params={'n_processes': 1}
     )
     error = ((result - optimum) ** 2).sum()
     assert error < error_threshold
