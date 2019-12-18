@@ -7,15 +7,13 @@
 
 ## Overview
 
-As of now, this is a proof-of-concept for music composition by reinforcement learning agents. Here, an agent interacts with [piano roll](https://en.wikipedia.org/wiki/Piano_roll#In_digital_audio_workstations) environment, episode end is submission of current piano roll, and reward is determined by applying evaluation rules to the roll.
+As of now, this is a proof-of-concept for music composition with reinforcement learning solely. Here, an agent writes [first species counterpoint](https://en.wikipedia.org/wiki/Counterpoint#Species_counterpoint) and environment is based on a special data structure that represents musical piece. An action is filling of current [measure](https://en.wikipedia.org/wiki/Bar_(music\)) for all melodic lines simultaneously, an episode is finished when all measures are filled, and reward is determined by applying evaluation rules to the resulting piece.
 
 Comparing to music composition tools such as [MuseNet](https://openai.com/blog/musenet/), reinforcement learning approach (at least in theory) has two advantages:
 * Actual creativity lies not in imitation of famous pieces, but in finding new ways to create something to be called art. Reinforcement learning meets this criterion, but supervised learning doesn't.
-* There are [tuning systems](https://en.wikipedia.org/wiki/Musical_tuning#Tuning_systems) other than [equal temperament](https://en.wikipedia.org/wiki/Equal_temperament) (say, in [microtonal music](https://en.wikipedia.org/wiki/Microtonal_music)) and there can be not enough pieces for some of them. A model can not be trained in a supervised manner without a dataset, but, given evaluation rules, an agent can be trained even for an absolutely new tuning system.
+* There are [tuning systems](https://en.wikipedia.org/wiki/Musical_tuning#Tuning_systems) other than [equal temperament](https://en.wikipedia.org/wiki/Equal_temperament) (say, in [microtonal music](https://en.wikipedia.org/wiki/Microtonal_music)) and there can be not enough pieces for some of them. A model cannot be trained in a supervised manner without a dataset, but, given some rules, an agent can be trained and evaluated even for an absolutely new tuning system.
 
-Currently, the implementation of environment supports only equal temperament, but this limitation may be eliminated in the future.
-
-To find more details, look at [a draft of a paper](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/docs/paper/paper.pdf).
+To find more details, look at [a draft of a paper](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/docs/paper/paper.pdf). However, it describes v0.1.2 and so it is outdated since v0.2.0 release.
 
 ## Installation
 
