@@ -53,18 +53,19 @@ class TestCounterpointEnvAgent:
             ),
         ]
     )
-    def test_create_candidates(
+    def test_represent_actions(
             self, n_lines: int, n_movements_per_line: int,
             observation: np.ndarray, actions: List[int], expected: np.ndarray
     ) -> None:
-        """Test `create_candidates` method."""
+        """Test `represent_actions` method."""
         dummy_model = create_actor_model((10,), 5)
         agent = CounterpointEnvAgent(
             lambda x, y: dummy_model,
             len(observation),
             n_lines,
             n_movements_per_line,
-            hidden_layer_size=0
+            hidden_layer_size=0,
+            softmax_temperature=1
         )
-        result = agent.create_candidates(observation, actions)
+        result = agent.represent_actions(observation, actions)
         np.testing.assert_equal(result, expected)

@@ -34,6 +34,7 @@ environment:
   scoring_fn_params: {}
 agent:
   hidden_layer_size: 10
+  softmax_temperature: 1
 crossentropy:
   population_size: 100
   elite_fraction: 0.1
