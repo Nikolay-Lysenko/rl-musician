@@ -109,6 +109,38 @@ def test_evaluate_absence_of_unisons(
             # `expected`
             0.6621
         ),
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale='major',
+                n_measures=5,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'G3',
+                        'highest_note': 'G4',
+                        'start_note': 'C4',
+                        'end_note': 'G4'
+                    },
+                    {
+                        'lowest_note': 'G4',
+                        'highest_note': 'G5',
+                        'start_note': 'C5',
+                        'end_note': 'C5'
+                    },
+                ],
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [
+                [2, 0],
+                [0, 0],
+                [2, 0],
+            ],
+            # `expected`
+            0
+        ),
     ]
 )
 def test_evaluate_lines_correlation(

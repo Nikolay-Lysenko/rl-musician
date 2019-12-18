@@ -153,7 +153,35 @@ class TestCounterpointEnv:
                 [91, 91, 91],
                 # `expected`
                 0.6621
-            )
+            ),
+            (
+                # `env`
+                CounterpointEnv(
+                    piece=Piece(
+                        tonic='C',
+                        scale='major',
+                        n_measures=5,
+                        max_skip=2,
+                        line_specifications=[
+                            {
+                                'lowest_note': 'A3',
+                                'highest_note': 'G4',
+                                'start_note': 'C4',
+                                'end_note': 'C4'
+                            },
+                        ],
+                        rendering_params={}
+                    ),
+                    observation_decay=0.75,
+                    reward_for_dead_end=-100,
+                    scoring_coefs={'lines_correlation': 1},
+                    scoring_fn_params={},
+                ),
+                # `actions`
+                [1, 1],
+                # `expected`
+                -100
+            ),
         ]
     )
     def test_reward(
