@@ -205,7 +205,7 @@ class Piece:
         degrees_to_end_note = abs(
             destination.relative_position - line[-1].relative_position
         )
-        measures_left = self.n_measures - self.last_finished_measure - 1
+        measures_left = self.n_measures - self.last_finished_measure - 2
         if degrees_to_end_note > measures_left:
             return None
 
