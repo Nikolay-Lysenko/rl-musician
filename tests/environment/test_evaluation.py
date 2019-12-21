@@ -10,12 +10,52 @@ from typing import List
 import pytest
 
 from rlmusician.environment.evaluation import (
+    evaluate_autocorrelation,
     evaluate_absence_of_pitch_class_clashes,
     evaluate_independence_of_motion,
-    evaluate_lines_correlation,
-    evaluate_autocorrelation
+    evaluate_lines_correlation
 )
 from rlmusician.environment.piece import Piece
+
+
+@pytest.mark.parametrize(
+    "piece, all_movements, max_lag, expected",
+    [
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale='major',
+                n_measures=9,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'C4',
+                        'highest_note': 'E4',
+                        'start_note': 'C4',
+                        'end_note': 'C4'
+                    }
+                ],
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [[1], [-1], [1], [-1], [1], [-1], [1]],
+            # `max_lag`
+            3,
+            # `expected`
+            0
+        ),
+    ]
+)
+def test_evaluate_autocorrelation(
+        piece: Piece, all_movements: List[List[int]], max_lag: int,
+        expected: float
+) -> None:
+    """Test `evaluate_autocorrelation` function."""
+    for movements in all_movements:
+        piece.add_measure(movements)
+    result = evaluate_autocorrelation(piece, max_lag)
+    assert round(result, 4) == expected
 
 
 @pytest.mark.parametrize(
@@ -249,41 +289,4 @@ def test_evaluate_lines_correlation(
     for movements in all_movements:
         piece.add_measure(movements)
     result = evaluate_lines_correlation(piece)
-    assert round(result, 4) == expected
-
-
-@pytest.mark.parametrize(
-    "piece, all_movements, expected",
-    [
-        (
-            # `piece`
-            Piece(
-                tonic='C',
-                scale='major',
-                n_measures=9,
-                max_skip=2,
-                line_specifications=[
-                    {
-                        'lowest_note': 'C4',
-                        'highest_note': 'E4',
-                        'start_note': 'C4',
-                        'end_note': 'C4'
-                    }
-                ],
-                rendering_params={}
-            ),
-            # `all_movements`,
-            [[1], [-1], [1], [-1], [1], [-1], [1]],
-            # `expected`
-            0
-        ),
-    ]
-)
-def test_evaluate_autocorrelation(
-        piece: Piece, all_movements: List[List[int]], expected: float
-) -> None:
-    """Test `evaluate_autocorrelation` function."""
-    for movements in all_movements:
-        piece.add_measure(movements)
-    result = evaluate_autocorrelation(piece)
     assert round(result, 4) == expected

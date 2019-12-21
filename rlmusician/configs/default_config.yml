@@ -29,11 +29,13 @@ environment:
   observation_decay: 0.75
   reward_for_dead_end: -1
   scoring_coefs:
+    autocorrelation: 5
     absence_of_pitch_class_clashes: 1
     independence_of_motion: 1
     lines_correlation: 1
-    autocorrelation: 1
   scoring_fn_params:
+    autocorrelation:
+      max_lag: 8
     independence_of_motion:
       parallel_coef: -1
       similar_coef: -0.5

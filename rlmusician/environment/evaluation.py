@@ -6,7 +6,7 @@ Author: Nikolay Lysenko
 
 
 import itertools
-import math
+import warnings
 from typing import Any, Callable, Dict
 
 import numpy as np
@@ -15,6 +15,41 @@ from rlmusician.environment.piece import Piece
 
 
 N_SEMITONES_PER_OCTAVE = 12
+
+
+def evaluate_autocorrelation(piece: Piece, max_lag: int = 8) -> float:
+    """
+    Evaluate non-triviality of a piece based on autocorrelation.
+
+    :param piece:
+        `Piece` instance
+    :param max_lag:
+        maximum lag to consider
+    :return:
+        multiplied by -1 and then rescaled to be from [0, 1]
+        maximum over all lags average row-wise absolute autocorrelation
+    """
+    lag_scores = []
+    lags = range(2, max_lag + 1)
+    for lag in lags:
+        first = piece.piano_roll[:, :-lag]
+        second = piece.piano_roll[:, lag:]
+        corr_matrix = np.corrcoef(first, second)
+        offset = corr_matrix.shape[0] // 2
+        row_wise_correlations = [
+            np.abs(corr_matrix[i, i + offset]) for i in range(offset)
+        ]
+        # Here, `nan` values can occur for pitches that are out of scale
+        # (it is correct to ignore them), constantly played pitches (it is
+        # correct to ignore them too and also they are extremely rare),
+        # and pitches that are played in `first` only or in `second` only
+        # (it is not clear, is it correct to ignore such pitches or not).
+        lag_score = np.nanmean(row_wise_correlations)
+        if np.isnan(lag_score):
+            lag_score = 0  # Do not allow this lag to affect results.
+        lag_scores.append(lag_score)
+    score = 1 - max(lag_scores)
+    return score
 
 
 def evaluate_absence_of_pitch_class_clashes(
@@ -124,33 +159,6 @@ def evaluate_lines_correlation(piece: Piece) -> float:
     return score
 
 
-def evaluate_autocorrelation(piece: Piece) -> float:
-    """
-    Evaluate non-triviality of a piece based on autocorrelation.
-
-    :param piece:
-        `Piece` instance
-    :return:
-        multiplied by -1 and then rescaled to be from [0, 1]
-        maximum over all lags from 2 to half of measures number
-        average row-wise absolute autocorrelation
-    """
-    lag_scores = []
-    lags = range(2, math.floor(piece.n_measures / 2))
-    for lag in lags:
-        first = piece.piano_roll[:, :-lag]
-        second = piece.piano_roll[:, lag:]
-        corr_matrix = np.corrcoef(first, second)
-        offset = corr_matrix.shape[0] // 2
-        row_wise_correlations = [
-            np.abs(corr_matrix[i, i + offset]) for i in range(offset)
-        ]
-        lag_score = np.nanmean(row_wise_correlations)  # Ignore unused pitches.
-        lag_scores.append(lag_score)
-    score = 1 - max(lag_scores)
-    return score
-
-
 def get_scoring_functions_registry() -> Dict[str, Callable]:
     """
     Get mapping from names of scoring functions to scoring functions.
@@ -159,10 +167,10 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         registry of scoring functions
     """
     registry = {
+        'autocorrelation': evaluate_autocorrelation,
         'absence_of_pitch_class_clashes': evaluate_absence_of_pitch_class_clashes,
         'independence_of_motion': evaluate_independence_of_motion,
         'lines_correlation': evaluate_lines_correlation,
-        'autocorrelation': evaluate_autocorrelation,
     }
     return registry
 
@@ -192,7 +200,8 @@ def evaluate(
     for fn_name, weight in scoring_coefs.items():
         fn = registry[fn_name]
         fn_params = scoring_fn_params.get(fn_name, {})
-        with np.errstate(divide='ignore', invalid='ignore'):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
             curr_score = weight * fn(piece, **fn_params)
         if verbose:
             print(f'{fn_name:>30}: {curr_score}')  # pragma: no cover
