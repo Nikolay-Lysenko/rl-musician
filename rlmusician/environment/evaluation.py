@@ -16,26 +16,85 @@ from rlmusician.environment.piece import Piece
 N_SEMITONES_PER_OCTAVE = 12
 
 
-def evaluate_absence_of_unisons(piece: Piece) -> float:
+def evaluate_absence_of_pitch_class_clashes(
+        piece: Piece, pure_clash_coef: float = 3
+) -> float:
     """
-    Evaluate distinguishability of lines based on absence of unisons.
+    Evaluate distinguishability of lines based on absence of clashes.
+
+    Here, pitch class clashes are divided into two groups:
+    1) pure clashes where exactly the same pitch is played in two lines,
+    2) unison intervals where pitch class is the same,
+       but pitches are different.
 
     :param piece:
         `Piece` instance
+    :param pure_clash_coef:
+        coefficient of pure clashes penalization relative to unison intervals
     :return:
-        multiplied by -1 share of unison intervals amongst all intervals
-        from any measures except the first one and the last one
+        normalized and multiplied by -1 weighted count of clashing intervals
+        amongst all intervals from any measures except the first one
+        and the last one
     """
+    n_clashes = 0
     n_unisons = 0
     for first_line, second_line in itertools.combinations(piece.lines, 2):
         paired = zip(first_line[1:-1], second_line[1:-1])
         for first, second in paired:
             diff = first.absolute_position - second.absolute_position
-            if diff % N_SEMITONES_PER_OCTAVE == 0:
+            if diff == 0:
+                n_clashes += 1
+            elif diff % N_SEMITONES_PER_OCTAVE == 0:
                 n_unisons += 1
     n_lines = len(piece.lines)
     n_intervals = n_lines * (n_lines - 1) / 2 * (piece.n_measures - 2)
-    score = -n_unisons / n_intervals
+    clash_score = pure_clash_coef * n_clashes / n_intervals
+    unison_score = n_unisons / n_intervals
+    score = -(clash_score + unison_score)
+    return score
+
+
+def evaluate_independence_of_motion(
+        piece: Piece, parallel_coef: float, similar_coef: float,
+        oblique_coef: float, contrary_coef: float
+) -> float:
+    """
+    Evaluate independence of lines based on their motion.
+
+    :param piece:
+        `Piece` instance
+    :param parallel_coef:
+        coefficient for parallel motion
+    :param similar_coef:
+        coefficient for similar, but not parallel motion
+    :param oblique_coef:
+        coefficient for oblique motion
+    :param contrary_coef:
+        coefficient for contrary motion
+    :return:
+        normalized weighted sum of each motion scores
+    """
+    score = 0
+    for first_line, second_line in itertools.combinations(piece.lines, 2):
+        prev_first = first_line[0]
+        prev_second = second_line[0]
+        paired = zip(first_line[1:], second_line[1:])
+        for first, second in paired:
+            first_diff = first.relative_position - prev_first.relative_position
+            second_diff = second.relative_position - prev_second.relative_position
+            if first_diff == second_diff:
+                score += parallel_coef
+            elif first_diff * second_diff > 0:
+                score += similar_coef
+            elif first_diff * second_diff == 0:
+                score += oblique_coef
+            else:
+                score += contrary_coef
+            prev_first = first
+            prev_second = second
+    n_lines = len(piece.lines)
+    n_intervals = n_lines * (n_lines - 1) / 2 * (piece.n_measures - 1)
+    score /= n_intervals
     return score
 
 
@@ -61,6 +120,18 @@ def evaluate_lines_correlation(piece: Piece) -> float:
     return score
 
 
+def evaluate_variance(piece: Piece) -> float:
+    """
+    Evaluate non-triviality of a piece based on variance.
+
+    :param piece:
+        `Piece` instance
+    :return:
+        averaged over all notes variance of their usage in time
+    """
+    return np.mean(np.var(piece.piano_roll, axis=1)).item()
+
+
 def get_scoring_functions_registry() -> Dict[str, Callable]:
     """
     Get mapping from names of scoring functions to scoring functions.
@@ -69,8 +140,10 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         registry of scoring functions
     """
     registry = {
-        'absence_of_unisons': evaluate_absence_of_unisons,
+        'absence_of_pitch_class_clashes': evaluate_absence_of_pitch_class_clashes,
+        'independence_of_motion': evaluate_independence_of_motion,
         'lines_correlation': evaluate_lines_correlation,
+        'variance': evaluate_variance,
     }
     return registry
 

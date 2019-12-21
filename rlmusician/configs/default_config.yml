@@ -29,9 +29,16 @@ environment:
   observation_decay: 0.75
   reward_for_dead_end: -1
   scoring_coefs:
-    absence_of_unisons: 1
+    absence_of_pitch_class_clashes: 1
+    independence_of_motion: 1
     lines_correlation: 1
-  scoring_fn_params: {}
+    variance: 1
+  scoring_fn_params:
+    independence_of_motion:
+      parallel_coef: -1
+      similar_coef: -0.5
+      oblique_coef: 0
+      contrary_coef: 1
 agent:
   hidden_layer_size: 10
   softmax_temperature: 1
