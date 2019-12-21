@@ -37,9 +37,9 @@ def map_in_parallel(
     """
     pool_kwargs = pool_kwargs or {}
     pool_kwargs['processes'] = pool_kwargs.get('n_processes')
-    pool_kwargs.pop('n_processes', None)
     pool_kwargs['maxtasksperchild'] = pool_kwargs.get('max_tasks_per_child')
-    pool_kwargs.pop('max_tasks_per_child', None)
+    old_keys = ['n_processes', 'max_tasks_per_child']
+    pool_kwargs = {k: v for k, v in pool_kwargs.items() if k not in old_keys}
     pool = mp.Pool(**pool_kwargs)
     try:
         results = pool.starmap(fn, args)

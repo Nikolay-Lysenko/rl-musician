@@ -176,6 +176,6 @@ def evaluate(
         with np.errstate(divide='ignore', invalid='ignore'):
             curr_score = weight * fn(piece, **fn_params)
         if verbose:
-            print(f'{fn_name:>25}: {curr_score}')  # pragma: no cover
+            print(f'{fn_name:>30}: {curr_score}')  # pragma: no cover
         score += curr_score
     return score
