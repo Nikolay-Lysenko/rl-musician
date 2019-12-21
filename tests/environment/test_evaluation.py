@@ -13,7 +13,7 @@ from rlmusician.environment.evaluation import (
     evaluate_absence_of_pitch_class_clashes,
     evaluate_independence_of_motion,
     evaluate_lines_correlation,
-    evaluate_variance
+    evaluate_autocorrelation
 )
 from rlmusician.environment.piece import Piece
 
@@ -260,30 +260,30 @@ def test_evaluate_lines_correlation(
             Piece(
                 tonic='C',
                 scale='major',
-                n_measures=2,
+                n_measures=9,
                 max_skip=2,
                 line_specifications=[
                     {
                         'lowest_note': 'C4',
                         'highest_note': 'E4',
-                        'start_note': 'E4',
+                        'start_note': 'C4',
                         'end_note': 'C4'
                     }
                 ],
                 rendering_params={}
             ),
             # `all_movements`,
-            [],
+            [[1], [-1], [1], [-1], [1], [-1], [1]],
             # `expected`
-            0.1
+            0
         ),
     ]
 )
-def test_evaluate_variance(
+def test_evaluate_autocorrelation(
         piece: Piece, all_movements: List[List[int]], expected: float
 ) -> None:
-    """Test `evaluate_variance` function."""
+    """Test `evaluate_autocorrelation` function."""
     for movements in all_movements:
         piece.add_measure(movements)
-    result = evaluate_variance(piece)
+    result = evaluate_autocorrelation(piece)
     assert round(result, 4) == expected

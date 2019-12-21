@@ -32,7 +32,7 @@ environment:
     absence_of_pitch_class_clashes: 1
     independence_of_motion: 1
     lines_correlation: 1
-    variance: 1
+    autocorrelation: 1
   scoring_fn_params:
     independence_of_motion:
       parallel_coef: -1

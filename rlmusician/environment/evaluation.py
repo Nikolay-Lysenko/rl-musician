@@ -6,6 +6,7 @@ Author: Nikolay Lysenko
 
 
 import itertools
+import math
 from typing import Any, Callable, Dict
 
 import numpy as np
@@ -61,6 +62,9 @@ def evaluate_independence_of_motion(
     """
     Evaluate independence of lines based on their motion.
 
+    To see definitions of motion types, look here:
+    https://en.wikipedia.org/wiki/Contrapuntal_motion
+
     :param piece:
         `Piece` instance
     :param parallel_coef:
@@ -72,7 +76,7 @@ def evaluate_independence_of_motion(
     :param contrary_coef:
         coefficient for contrary motion
     :return:
-        normalized weighted sum of each motion scores
+        normalized weighted sum of scores granted for each movement
     """
     score = 0
     for first_line, second_line in itertools.combinations(piece.lines, 2):
@@ -105,8 +109,8 @@ def evaluate_lines_correlation(piece: Piece) -> float:
     :param piece:
         `Piece` instance
     :return:
-        average correlation between lines multiplied by -1 and then
-        rescaled to be from [0, 1]
+        multiplied by -1 and then rescaled to be from [0, 1]
+        average correlation between lines
     """
     correlations = []
     for first_line, second_line in itertools.combinations(piece.lines, 2):
@@ -120,16 +124,31 @@ def evaluate_lines_correlation(piece: Piece) -> float:
     return score
 
 
-def evaluate_variance(piece: Piece) -> float:
+def evaluate_autocorrelation(piece: Piece) -> float:
     """
-    Evaluate non-triviality of a piece based on variance.
+    Evaluate non-triviality of a piece based on autocorrelation.
 
     :param piece:
         `Piece` instance
     :return:
-        averaged over all notes variance of their usage in time
+        multiplied by -1 and then rescaled to be from [0, 1]
+        maximum over all lags from 2 to half of measures number
+        average row-wise absolute autocorrelation
     """
-    return np.mean(np.var(piece.piano_roll, axis=1)).item()
+    lag_scores = []
+    lags = range(2, math.floor(piece.n_measures / 2))
+    for lag in lags:
+        first = piece.piano_roll[:, :-lag]
+        second = piece.piano_roll[:, lag:]
+        corr_matrix = np.corrcoef(first, second)
+        offset = corr_matrix.shape[0] // 2
+        row_wise_correlations = [
+            np.abs(corr_matrix[i, i + offset]) for i in range(offset)
+        ]
+        lag_score = np.nanmean(row_wise_correlations)  # Ignore unused pitches.
+        lag_scores.append(lag_score)
+    score = 1 - max(lag_scores)
+    return score
 
 
 def get_scoring_functions_registry() -> Dict[str, Callable]:
@@ -143,7 +162,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         'absence_of_pitch_class_clashes': evaluate_absence_of_pitch_class_clashes,
         'independence_of_motion': evaluate_independence_of_motion,
         'lines_correlation': evaluate_lines_correlation,
-        'variance': evaluate_variance,
+        'autocorrelation': evaluate_autocorrelation,
     }
     return registry
 
