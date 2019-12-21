@@ -140,9 +140,9 @@ def optimize_with_cem(
             + (1 - smoothing_coef) * np.mean(top_params, axis=0)
         )
 
-        best_new_entry = top_entries[-1]
-        if best_new_entry['score'] > best['score']:
-            best = best_new_entry
+        new_best = top_entries[-1]
+        if new_best['score'] > best['score']:
+            best = new_best
         top_scores = [x['score'] for x in top_entries]
         avg_top_score = np.mean(top_scores)
         res = f"{i_population:>10} | {avg_top_score:>26} | {best['score']:>19}"

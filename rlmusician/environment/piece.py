@@ -65,7 +65,7 @@ class Piece:
         :param n_measures:
             duration of piece in measures
         :param max_skip:
-            maximum allowed skip (in scale degrees) between conjugate notes
+            maximum allowed skip (in scale degrees) between consecutive notes
             from the same line
         :param line_specifications:
             parameters of lines

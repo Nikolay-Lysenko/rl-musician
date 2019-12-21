@@ -71,14 +71,14 @@ class CounterpointEnvAgent:
         """
         actions_part_width = self.n_lines * self.n_movements_per_line
         actions_part = np.zeros((len(actions), actions_part_width))
-        shifts = [i * self.n_movements_per_line for i in range(self.n_lines)]
+        offsets = [i * self.n_movements_per_line for i in range(self.n_lines)]
         for row_number, action in enumerate(actions):
             raw_encoded_action = convert_to_base(
                 action, self.n_movements_per_line, self.n_lines
             )
             encoded_action = [
-                idx + shift
-                for idx, shift in zip(raw_encoded_action, shifts)
+                idx + offset
+                for idx, offset in zip(raw_encoded_action, offsets)
             ]
             actions_part[row_number, encoded_action] = 1
         observation_part = np.tile(observation, (len(actions), 1))
@@ -127,14 +127,18 @@ class CounterpointEnvAgent:
         return reward
 
 
-def __find_n_weights_by_params(agent_params: Dict[str, Any]) -> int:
+def __find_n_weights_by_params(
+        agent_params: Dict[str, Any]
+) -> int:  # pragma: no cover
     """Run internals for `find_n_weights_by_params`."""
     agent = CounterpointEnvAgent(**agent_params)
     n_weights = agent.n_weights
     return n_weights
 
 
-def find_n_weights_by_params(agent_params: Dict[str, Any]) -> int:
+def find_n_weights_by_params(
+        agent_params: Dict[str, Any]
+) -> int:  # pragma: no cover
     """
     Find number of weights in agent's network by parameters of the agent.
 

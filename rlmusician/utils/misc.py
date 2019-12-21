@@ -36,10 +36,11 @@ def map_in_parallel(
         results of applying the function to the arguments
     """
     pool_kwargs = pool_kwargs or {}
-    pool = mp.Pool(
-        pool_kwargs.get('n_processes'),
-        maxtasksperchild=pool_kwargs.get('max_tasks_per_child')
-    )
+    pool_kwargs['processes'] = pool_kwargs.get('n_processes')
+    pool_kwargs.pop('n_processes', None)
+    pool_kwargs['maxtasksperchild'] = pool_kwargs.get('max_tasks_per_child')
+    pool_kwargs.pop('max_tasks_per_child', None)
+    pool = mp.Pool(**pool_kwargs)
     try:
         results = pool.starmap(fn, args)
     finally:
@@ -55,7 +56,7 @@ def convert_to_base(
     Convert number to its representation in a given system.
 
     :param number:
-        integer number
+        positive integer number to be converted
     :param base:
         positive integer number to be used as base
     :param min_length:

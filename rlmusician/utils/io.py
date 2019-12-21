@@ -66,7 +66,7 @@ def create_midi_from_piano_roll(
 
 def create_wav_from_events(events_path: str, output_path: str) -> None:
     """
-    Create WAV file.
+    Create WAV file based on `sinethesizer` TSV file.
 
     :param events_path:
         path to TSV file with track represented as `sinethesizer` events

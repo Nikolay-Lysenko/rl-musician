@@ -82,7 +82,7 @@ def evaluate(
         verbose: bool = False
 ) -> float:
     """
-    Evaluate piano roll.
+    Evaluate piece.
 
     :param piece:
         `Piece` instance
@@ -93,7 +93,7 @@ def evaluate(
     :param verbose:
         if it is set to `True`, scores are printed with detailing by functions
     :return:
-        overall score of piano roll quality
+        weighted sum of scores returned by various scoring functions
     """
     score = 0
     registry = get_scoring_functions_registry()

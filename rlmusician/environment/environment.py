@@ -70,10 +70,10 @@ class CounterpointEnv(gym.Env):
     def __set_action_to_movements(self) -> None:
         """Create mapping from action to line movements."""
         base = len(self.piece.all_movements)
-        shift = self.piece.max_skip
+        offset = self.piece.max_skip
         n_lines = len(self.piece.lines)
         action_to_movements = {
-            i: [x - shift for x in convert_to_base(i, base, n_lines)]
+            i: [x - offset for x in convert_to_base(i, base, n_lines)]
             for i in range(self.action_space.n)
         }
         self.action_to_movements = action_to_movements

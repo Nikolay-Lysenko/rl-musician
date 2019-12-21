@@ -74,7 +74,7 @@ def parse_cli_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    """Run all."""
+    """Parse CLI arguments, train agent, and test it."""
     cli_args = parse_cli_args()
 
     default_config_path = 'configs/default_config.yml'
