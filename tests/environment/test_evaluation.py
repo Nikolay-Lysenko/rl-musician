@@ -45,6 +45,30 @@ from rlmusician.environment.piece import Piece
             # `expected`
             0
         ),
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale='major',
+                n_measures=4,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'C4',
+                        'highest_note': 'E4',
+                        'start_note': 'E4',
+                        'end_note': 'C4'
+                    }
+                ],
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [[0], [-2]],
+            # `max_lag`
+            2,
+            # `expected`
+            1
+        ),
     ]
 )
 def test_evaluate_autocorrelation(
