@@ -1,5 +1,8 @@
 """
-Define actor model (i.e., model that maps observation to action probabilities).
+Define actor model.
+
+Here, actor model maps a pair of an observation and an encoded action to
+score of this action.
 
 Author: Nikolay Lysenko
 """
@@ -37,19 +40,19 @@ def import_keras_silently() -> None:
 
 
 def create_actor_model(
-        observation_shape: Tuple[int, int], n_actions: int
+        input_shape: Tuple[int], hidden_layer_size: int
 ) -> 'keras.models.Model':
     """
-    Create simple actor network for `PianoRollEnv`.
+    Create simple actor model for `CounterpointEnv`.
 
-    :param observation_shape:
-        shape of observation
-    :param n_actions:
-        number of actions available to the agent
+    :param input_shape:
+        shape of input without the first dimension (reserved for batch size)
+    :param hidden_layer_size:
+        number of hidden units
     :return:
-        actor network that maps observation to action
+        actor model as a neural network with one hidden layer
     """
-    # Here, all `keras`-related stuff is imported by child processes only.
+    # Avoid mandatory importing `keras`-related stuff in the main process.
     import warnings
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
@@ -58,8 +61,9 @@ def create_actor_model(
         from keras.layers import Dense, Input
         mute_tensorflow()
 
-    observed_input = Input(shape=observation_shape, name='input')
-    output = Dense(n_actions, activation='softmax')(observed_input)
-    model = Model(inputs=observed_input, outputs=output)
+    inp = Input(shape=input_shape, name='input')
+    hidden = Dense(hidden_layer_size, activation='relu', name='hidden')(inp)
+    output = Dense(1)(hidden)
+    model = Model(inputs=inp, outputs=output)
     model.compile(optimizer='sgd', loss='mse')  # Arbitrary unused values.
     return model

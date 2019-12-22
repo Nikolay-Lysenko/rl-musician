@@ -17,7 +17,7 @@ with open(os.path.join(current_dir, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='rl-musician',
-    version='0.1.2',
+    version='0.2.0',
     description=description,
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -25,7 +25,12 @@ setup(
     author='Nikolay Lysenko',
     author_email='nikolay-lysenco@yandex.ru',
     license='MIT',
-    keywords='ai_music algorithmic_composition reinforcement_learning',
+    keywords=[
+        'ai_music',
+        'algorithmic_composition',
+        'counterpoint',
+        'reinforcement_learning'
+    ],
     packages=find_packages(),
     package_data={
         'rlmusician': [
@@ -38,13 +43,14 @@ setup(
         'gym',
         'keras',
         'numpy',
-        'pypianoroll',
+        'pretty-midi',
         'PyYAML',
         'sinethesizer',
+        'scipy',
         'tensorflow'
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Artistic Software',
         'License :: OSI Approved :: MIT License',
