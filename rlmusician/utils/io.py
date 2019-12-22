@@ -37,6 +37,7 @@ def create_midi_from_piece(
     :return:
         None
     """
+    numeration_shift = pretty_midi.note_name_to_number('A0')
     pretty_midi_instrument = pretty_midi.Instrument(program=instrument)
     for line in piece.lines:
         for measure, element in enumerate(line):
@@ -44,7 +45,7 @@ def create_midi_from_piece(
             end_time = start_time + measure_in_seconds
             note = pretty_midi.Note(
                 velocity=velocity,
-                pitch=element.absolute_position,
+                pitch=element.absolute_position + numeration_shift,
                 start=start_time,
                 end=end_time
             )
