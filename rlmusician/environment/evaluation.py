@@ -7,9 +7,11 @@ Author: Nikolay Lysenko
 
 import itertools
 import warnings
+from collections import Counter
 from typing import Any, Callable, Dict
 
 import numpy as np
+from scipy.stats import entropy
 
 from rlmusician.environment.piece import Piece
 
@@ -19,7 +21,7 @@ N_SEMITONES_PER_OCTAVE = 12
 
 def evaluate_autocorrelation(piece: Piece, max_lag: int = 8) -> float:
     """
-    Evaluate non-triviality of a piece based on autocorrelation.
+    Evaluate non-triviality of a piece based on pitch-wise autocorrelation.
 
     :param piece:
         `Piece` instance
@@ -27,7 +29,7 @@ def evaluate_autocorrelation(piece: Piece, max_lag: int = 8) -> float:
         maximum lag to consider
     :return:
         multiplied by -1 and then rescaled to be from [0, 1]
-        maximum over all lags average row-wise absolute autocorrelation
+        maximum over all lags average pitch-wise absolute autocorrelation
     """
     lag_scores = []
     lags = range(2, max_lag + 1)
@@ -49,6 +51,32 @@ def evaluate_autocorrelation(piece: Piece, max_lag: int = 8) -> float:
             lag_score = 0  # Do not allow this lag to affect results.
         lag_scores.append(lag_score)
     score = 1 - max(lag_scores)
+    return score
+
+
+def evaluate_entropy(piece: Piece) -> float:
+    """
+    Evaluate non-triviality of a piece based on entropy of pitch distribution.
+
+    :param piece:
+        `Piece` instance
+    :return:
+        normalized average over all lines entropy of pitches distribution
+    """
+    scores = []
+    for line, elements in zip(piece.lines, piece.line_elements):
+        positions = [element.relative_position for element in line]
+        counter = Counter(positions)
+        distribution = [
+            counter[element.relative_position] / piece.n_measures
+            for element in elements
+        ]
+        raw_entropy = entropy(distribution)
+        max_entropy_distribution = [1 / len(elements) for _ in elements]
+        denominator = entropy(max_entropy_distribution)
+        normalized_entropy = raw_entropy / denominator
+        scores.append(normalized_entropy)
+    score = sum(scores) / len(scores)
     return score
 
 
@@ -95,7 +123,7 @@ def evaluate_independence_of_motion(
         oblique_coef: float, contrary_coef: float
 ) -> float:
     """
-    Evaluate independence of lines based on their motion.
+    Evaluate distinguishability of lines based on their motion.
 
     To see definitions of motion types, look here:
     https://en.wikipedia.org/wiki/Contrapuntal_motion
@@ -139,7 +167,7 @@ def evaluate_independence_of_motion(
 
 def evaluate_lines_correlation(piece: Piece) -> float:
     """
-    Evaluate independence of lines based on average pairwise correlation.
+    Evaluate distinguishability of lines based on average pairwise correlation.
 
     :param piece:
         `Piece` instance

@@ -11,6 +11,7 @@ import pytest
 
 from rlmusician.environment.evaluation import (
     evaluate_autocorrelation,
+    evaluate_entropy,
     evaluate_absence_of_pitch_class_clashes,
     evaluate_independence_of_motion,
     evaluate_lines_correlation
@@ -79,6 +80,65 @@ def test_evaluate_autocorrelation(
     for movements in all_movements:
         piece.add_measure(movements)
     result = evaluate_autocorrelation(piece, max_lag)
+    assert round(result, 4) == expected
+
+
+@pytest.mark.parametrize(
+    "piece, all_movements, expected",
+    [
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale='major',
+                n_measures=5,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'C4',
+                        'highest_note': 'G4',
+                        'start_note': 'C4',
+                        'end_note': 'G4'
+                    }
+                ],
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [[1], [1], [1]],
+            # `expected`
+            1
+        ),
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale='major',
+                n_measures=5,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'C5',
+                        'highest_note': 'G5',
+                        'start_note': 'C5',
+                        'end_note': 'C5'
+                    }
+                ],
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [[0], [0], [0]],
+            # `expected`
+            0
+        ),
+    ]
+)
+def test_evaluate_entropy(
+        piece: Piece, all_movements: List[List[int]], expected: float
+) -> None:
+    """Test `evaluate_entropy` function."""
+    for movements in all_movements:
+        piece.add_measure(movements)
+    result = evaluate_entropy(piece)
     assert round(result, 4) == expected
 
 

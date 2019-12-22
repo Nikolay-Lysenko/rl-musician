@@ -29,7 +29,8 @@ environment:
   observation_decay: 0.75
   reward_for_dead_end: -1
   scoring_coefs:
-    autocorrelation: 5
+    autocorrelation: 3
+    entropy: 3
     absence_of_pitch_class_clashes: 1
     independence_of_motion: 1
     lines_correlation: 1

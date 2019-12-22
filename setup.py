@@ -46,10 +46,11 @@ setup(
         'pypianoroll',
         'PyYAML',
         'sinethesizer',
+        'scipy',
         'tensorflow'
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Artistic Software',
         'License :: OSI Approved :: MIT License',
