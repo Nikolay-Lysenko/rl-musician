@@ -7,34 +7,102 @@ Author: Nikolay Lysenko
 
 from typing import List
 
-import numpy as np
 import pytest
 
+from rlmusician.environment import Piece
 from rlmusician.utils import (
-    create_midi_from_piano_roll, create_wav_from_events
+    create_events_from_piece, create_midi_from_piece, create_wav_from_events
 )
 
 
 @pytest.mark.parametrize(
-    "roll, lowest_note",
+    "piece, all_movements, measure_in_seconds, volume, expected",
     [
         (
-            np.array([
-                [1, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 1, 1, 1, 0],
-            ]),
-            'F#4'
+            # `piece`
+            Piece(
+                tonic='C',
+                scale='major',
+                n_measures=5,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'C5',
+                        'highest_note': 'G5',
+                        'start_note': 'C5',
+                        'end_note': 'C5'
+                    }
+                ],
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [[0], [0], [0]],
+            # `measure_in_seconds`
+            1,
+            # `volume`
+            0.2,
+            # `expected`
+            'default_timbre\t0\t1\tC5\t0.2\t0\t\n'
         )
     ]
 )
-def test_create_midi_from_piano_roll(
-        path_to_tmp_file: str, roll: np.ndarray, lowest_note: str
+def test_create_events_from_piece(
+        path_to_tmp_file: str, piece: Piece, all_movements: List[List[int]],
+        measure_in_seconds: int, volume: float, expected: str
 ) -> None:
-    """Test `create_midi_from_piano_roll` function."""
-    create_midi_from_piano_roll(
-        roll, path_to_tmp_file, lowest_note,
-        tempo=120, instrument=0, velocity=100
+    """Test `create_events_from_piece` function."""
+    for movements in all_movements:
+        piece.add_measure(movements)
+    create_events_from_piece(
+        piece,
+        path_to_tmp_file,
+        measure_in_seconds=measure_in_seconds,
+        timbre='default_timbre',
+        volume=volume
+    )
+    with open(path_to_tmp_file) as in_file:
+        header = in_file.readline()
+        result = in_file.readline()
+        assert result == expected
+
+
+@pytest.mark.parametrize(
+    "piece, all_movements",
+    [
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale='major',
+                n_measures=5,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'C5',
+                        'highest_note': 'G5',
+                        'start_note': 'C5',
+                        'end_note': 'C5'
+                    }
+                ],
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [[0], [0], [0]]
+        )
+    ]
+)
+def test_create_midi_from_piece(
+        path_to_tmp_file: str, piece: Piece, all_movements: List[List[int]]
+) -> None:
+    """Test `create_midi_from_piece` function."""
+    for movements in all_movements:
+        piece.add_measure(movements)
+    create_midi_from_piece(
+        piece,
+        path_to_tmp_file,
+        measure_in_seconds=1,
+        instrument=0,
+        velocity=100
     )
 
 

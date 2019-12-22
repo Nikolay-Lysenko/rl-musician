@@ -17,13 +17,13 @@ import os
 from typing import Any, Dict, List, NamedTuple, Optional
 
 import numpy as np
-from sinethesizer.io.piano_roll_to_tsv import write_roll_to_tsv_file
 from sinethesizer.io.utils import (
     get_list_of_notes, get_note_to_position_mapping
 )
 
 from rlmusician.utils import (
-    create_midi_from_piano_roll,
+    create_events_from_piece,
+    create_midi_from_piece,
     create_wav_from_events,
     get_positions_from_scale,
     get_tonic_triad_positions,
@@ -309,30 +309,14 @@ class Piece:
         roll_path = os.path.join(nested_dir, 'piano_roll.tsv')
         np.savetxt(roll_path, self.piano_roll, fmt='%i', delimiter='\t')
 
-        lowest_note = get_list_of_notes()[self.lowest_row_to_show]
-        measure_in_seconds = self.rendering_params['measure_in_seconds']
-        n_seconds_per_minute = 60
-        tempo_bpm = n_seconds_per_minute / measure_in_seconds
-
         midi_path = os.path.join(nested_dir, 'music.mid')
         midi_params = self.rendering_params['midi']
-        create_midi_from_piano_roll(
-            self.piano_roll,
-            midi_path,
-            lowest_note,
-            tempo_bpm,
-            **midi_params
-        )
+        measure = self.rendering_params['measure_in_seconds']
+        create_midi_from_piece(self, midi_path, measure, **midi_params)
 
         events_path = os.path.join(nested_dir, 'sinethesizer_events.tsv')
         events_params = self.rendering_params['sinethesizer']
-        events_params['step_in_seconds'] = measure_in_seconds
-        write_roll_to_tsv_file(
-            self.piano_roll,
-            events_path,
-            lowest_note,
-            **events_params
-        )
+        create_events_from_piece(self, events_path, measure, **events_params)
 
         wav_path = os.path.join(nested_dir, 'music.wav')
         create_wav_from_events(events_path, wav_path)

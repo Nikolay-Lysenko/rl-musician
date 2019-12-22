@@ -43,7 +43,7 @@ setup(
         'gym',
         'keras',
         'numpy',
-        'pypianoroll',
+        'pretty-midi',
         'PyYAML',
         'sinethesizer',
         'scipy',
