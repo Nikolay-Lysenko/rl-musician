@@ -196,6 +196,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
     """
     registry = {
         'autocorrelation': evaluate_autocorrelation,
+        'entropy': evaluate_entropy,
         'absence_of_pitch_class_clashes': evaluate_absence_of_pitch_class_clashes,
         'independence_of_motion': evaluate_independence_of_motion,
         'lines_correlation': evaluate_lines_correlation,
