@@ -88,7 +88,27 @@ def test_create_events_from_piece(
             ),
             # `all_movements`,
             [[0], [0], [0]]
-        )
+        ),
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale='major',
+                n_measures=5,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'C5',
+                        'highest_note': 'G5',
+                        'start_note': 'C5',
+                        'end_note': 'C5'
+                    }
+                ],
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [[0], [0]]
+        ),
     ]
 )
 def test_create_midi_from_piece(

@@ -41,6 +41,8 @@ def create_midi_from_piece(
     pretty_midi_instrument = pretty_midi.Instrument(program=instrument)
     for line in piece.lines:
         for measure, element in enumerate(line):
+            if element is None:  # Dead end occurred during piece creation.
+                continue
             start_time = measure * measure_in_seconds
             end_time = start_time + measure_in_seconds
             note = pretty_midi.Note(
