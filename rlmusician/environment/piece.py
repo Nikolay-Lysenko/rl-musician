@@ -17,9 +17,7 @@ import os
 from typing import Any, Dict, List, NamedTuple, Optional
 
 import numpy as np
-from sinethesizer.io.utils import (
-    get_list_of_notes, get_note_to_position_mapping
-)
+from sinethesizer.io.utils import get_note_to_position_mapping
 
 from rlmusician.utils import (
     create_events_from_piece,
@@ -61,11 +59,12 @@ class Piece:
         :param tonic:
             tonic pitch class represented by letter (like C or A#)
         :param scale:
-            scale (currently, 'major' and 'minor' are supported)
+            scale (currently, 'major', 'natural_minor', and 'harmonic_minor'
+            are supported)
         :param n_measures:
             duration of piece in measures
         :param max_skip:
-            maximum allowed skip (in scale degrees) between consecutive notes
+            maximum allowed skip (in scale degrees) between successive notes
             from the same line
         :param line_specifications:
             parameters of lines

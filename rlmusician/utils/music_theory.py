@@ -42,13 +42,15 @@ def get_positions_from_scale(tonic: str, scale: str) -> List[int]:
     :param tonic:
         tonic pitch class represented by letter (like C or A#)
     :param scale:
-        scale (currently, 'major' and 'minor' are supported)
+        scale (currently, 'major', 'natural_minor', and 'harmonic_minor' are
+        supported)
     :return:
         sorted list of all pitch positions from the specified scale
     """
     patterns = {
         'major': [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
-        'minor': [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0]
+        'natural_minor': [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0],
+        'harmonic_minor': [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1],
     }
     pattern = patterns[scale]
     positions_from_scale = get_positions_by_relation_to_tonic(tonic, pattern)
@@ -62,13 +64,15 @@ def get_tonic_triad_positions(tonic: str, scale: str) -> List[int]:
     :param tonic:
         tonic pitch class represented by letter (like C or A#)
     :param scale:
-        scale (currently, 'major' and 'minor' are supported)
+        scale (currently, 'major', 'natural_minor', and 'harmonic_minor' are
+        supported)
     :return:
         sorted list of positions from tonic triad
     """
     patterns = {
         'major': [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],
-        'minor': [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0]
+        'natural_minor': [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+        'harmonic_minor': [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
     }
     pattern = patterns[scale]
     tonic_triad_positions = get_positions_by_relation_to_tonic(tonic, pattern)
