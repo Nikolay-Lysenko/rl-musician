@@ -7,7 +7,7 @@
 
 ## Overview
 
-As of now, this is a proof-of-concept for music composition with reinforcement learning solely. Here, an agent writes [first species counterpoint](https://en.wikipedia.org/wiki/Counterpoint#Species_counterpoint) and environment is based on a special data structure that represents musical piece. An action is filling of current [measure](https://en.wikipedia.org/wiki/Bar_(music\)) for all melodic lines simultaneously, an episode is finished when all measures are filled one by one, and reward is determined by applying evaluation rules to the resulting piece.
+As of now, this is a proof-of-concept for music composition with reinforcement learning solely. Here, an agent writes [first species counterpoint](https://en.wikipedia.org/wiki/Counterpoint#Species_counterpoint) and environment is based on a special data structure that represents musical piece. An action is filling of current [measure](https://en.wikipedia.org/wiki/Bar_\(music\)) for all melodic lines simultaneously, an episode is finished when all measures are filled one by one, and reward is determined by applying evaluation rules to the resulting piece.
 
 Comparing to music composition tools such as [MuseNet](https://openai.com/blog/musenet/), reinforcement learning approach (at least in theory) has two advantages:
 * Actual creativity lies not in imitation of famous pieces, but in finding new ways to create something to be called art. Reinforcement learning meets this criterion, but supervised learning doesn't.
