@@ -30,13 +30,16 @@ environment:
   reward_for_dead_end: -1
   scoring_coefs:
     autocorrelation: 3
-    entropy: 3
+    climax_explicity: 2
     absence_of_pitch_class_clashes: 1
     independence_of_motion: 1
     lines_correlation: 1
   scoring_fn_params:
     autocorrelation:
       max_lag: 8
+    climax_explicity:
+      shortage_penalty: 0.3
+      duplication_penalty: 0.5
     independence_of_motion:
       parallel_coef: -1
       similar_coef: -0.5

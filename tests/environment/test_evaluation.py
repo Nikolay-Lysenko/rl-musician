@@ -14,7 +14,8 @@ from rlmusician.environment.evaluation import (
     evaluate_entropy,
     evaluate_absence_of_pitch_class_clashes,
     evaluate_independence_of_motion,
-    evaluate_lines_correlation
+    evaluate_lines_correlation,
+    evaluate_climax_explicity
 )
 from rlmusician.environment.piece import Piece
 
@@ -373,4 +374,58 @@ def test_evaluate_lines_correlation(
     for movements in all_movements:
         piece.add_measure(movements)
     result = evaluate_lines_correlation(piece)
+    assert round(result, 4) == expected
+
+
+@pytest.mark.parametrize(
+    "piece, all_movements, shortage_penalty, duplication_penalty, expected",
+    [
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale='major',
+                n_measures=5,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'G3',
+                        'highest_note': 'G4',
+                        'start_note': 'G4',
+                        'end_note': 'C4'
+                    },
+                    {
+                        'lowest_note': 'G4',
+                        'highest_note': 'G5',
+                        'start_note': 'C5',
+                        'end_note': 'C5'
+                    },
+                ],
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [
+                [-1, 1],
+                [-1, -1],
+                [-1, 1],
+            ],
+            # `shortage_penalty`
+            0.3,
+            # `duplication_penalty`
+            0.5,
+            # `expected`
+            0.3
+        )
+    ]
+)
+def test_evaluate_climax_explicity(
+        piece: Piece, all_movements: List[List[int]],
+        shortage_penalty: float, duplication_penalty: float, expected: float
+) -> None:
+    """Test `evaluate_climax_explicity` function."""
+    for movements in all_movements:
+        piece.add_measure(movements)
+    result = evaluate_climax_explicity(
+        piece, shortage_penalty, duplication_penalty
+    )
     assert round(result, 4) == expected

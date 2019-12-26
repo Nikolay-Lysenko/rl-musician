@@ -187,6 +187,44 @@ def evaluate_lines_correlation(piece: Piece) -> float:
     return score
 
 
+def evaluate_climax_explicity(
+        piece: Piece,
+        shortage_penalty: float = 0.3, duplication_penalty: float = 0.5
+) -> float:
+    """
+    Evaluate goal-orientedness of lines motion based on climax explicity.
+
+    :param piece:
+        `Piece` instance
+    :param shortage_penalty:
+        penalty for each scale degree between declared highest pitch of a line
+        and actual highest pitch of this line
+    :param duplication_penalty:
+        penalty for each non-first occurrence of line's highest pitch within
+        this line
+    :return:
+        one minus all applicable penalties
+    """
+    scores = []
+    for line, all_elements in zip(piece.lines, piece.line_elements):
+        declared_max_position = len(all_elements) - 1
+        current_max_position = line[0].relative_position
+        current_n_duplications = 0
+        for element in line[1:]:
+            if element.relative_position == current_max_position:
+                current_n_duplications += 1
+            elif element.relative_position > current_max_position:
+                current_max_position = element.relative_position
+                current_n_duplications = 0
+        shortage = declared_max_position - current_max_position
+        shortage_term = shortage_penalty * shortage
+        duplication_term = duplication_penalty * current_n_duplications
+        score = 1 - shortage_term - duplication_term
+        scores.append(score)
+    score = sum(scores) / len(scores)
+    return score
+
+
 def get_scoring_functions_registry() -> Dict[str, Callable]:
     """
     Get mapping from names of scoring functions to scoring functions.
@@ -200,6 +238,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         'absence_of_pitch_class_clashes': evaluate_absence_of_pitch_class_clashes,
         'independence_of_motion': evaluate_independence_of_motion,
         'lines_correlation': evaluate_lines_correlation,
+        'climax_explicity': evaluate_climax_explicity,
     }
     return registry
 
