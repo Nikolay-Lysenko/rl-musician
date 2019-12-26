@@ -144,7 +144,7 @@ class TestCounterpointEnvAgent:
                         rendering_params={}
                     ),
                     observation_decay=0.75,
-                    reward_for_dead_end=-100,
+                    reward_for_dead_end=-100.0,
                     scoring_coefs={'lines_correlation': 1},
                     scoring_fn_params={},
                 ),
