@@ -118,7 +118,7 @@ def evaluate_absence_of_pitch_class_clashes(
     return score
 
 
-def evaluate_independence_of_motion(
+def evaluate_motion_by_types(
         piece: Piece, parallel_coef: float, similar_coef: float,
         oblique_coef: float, contrary_coef: float
 ) -> float:
@@ -235,8 +235,8 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
     registry = {
         'autocorrelation': evaluate_autocorrelation,
         'entropy': evaluate_entropy,
-        'absence_of_pitch_class_clashes': evaluate_absence_of_pitch_class_clashes,
-        'independence_of_motion': evaluate_independence_of_motion,
+        'pitch_class_clashes': evaluate_absence_of_pitch_class_clashes,
+        'types_of_motion': evaluate_motion_by_types,
         'lines_correlation': evaluate_lines_correlation,
         'climax_explicity': evaluate_climax_explicity,
     }

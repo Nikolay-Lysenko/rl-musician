@@ -30,21 +30,22 @@ environment:
   reward_for_dead_end: -1
   scoring_coefs:
     autocorrelation: 3
-    climax_explicity: 2
-    absence_of_pitch_class_clashes: 1
-    independence_of_motion: 1
+    pitch_class_clashes: 2
+    entropy: 1
+    types_of_motion: 1
     lines_correlation: 1
+    climax_explicity: 1
   scoring_fn_params:
     autocorrelation:
       max_lag: 8
-    climax_explicity:
-      shortage_penalty: 0.3
-      duplication_penalty: 0.5
-    independence_of_motion:
+    types_of_motion:
       parallel_coef: -1
       similar_coef: -0.5
       oblique_coef: 0
       contrary_coef: 1
+    climax_explicity:
+      shortage_penalty: 0.3
+      duplication_penalty: 0.5
 agent:
   hidden_layer_size: 10
   softmax_temperature: 1

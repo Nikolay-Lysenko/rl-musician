@@ -13,7 +13,7 @@ from rlmusician.environment.evaluation import (
     evaluate_autocorrelation,
     evaluate_entropy,
     evaluate_absence_of_pitch_class_clashes,
-    evaluate_independence_of_motion,
+    evaluate_motion_by_types,
     evaluate_lines_correlation,
     evaluate_climax_explicity
 )
@@ -278,15 +278,15 @@ def test_evaluate_absence_of_pitch_class_clashes(
         ),
     ]
 )
-def test_evaluate_independence_of_motion(
+def test_evaluate_motion_by_types(
         piece: Piece, all_movements: List[List[int]], parallel_coef: float,
         similar_coef: float, oblique_coef: float, contrary_coef: float,
         expected: float
 ) -> None:
-    """Test `evaluate_independence_of_motion` function."""
+    """Test `evaluate_motion_by_types` function."""
     for movements in all_movements:
         piece.add_measure(movements)
-    result = evaluate_independence_of_motion(
+    result = evaluate_motion_by_types(
         piece, parallel_coef, similar_coef, oblique_coef, contrary_coef
     )
     assert result == expected
