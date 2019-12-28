@@ -31,6 +31,7 @@ environment:
   scoring_coefs:
     autocorrelation: 3
     pitch_class_clashes: 2
+    looped_pitches: 1
     entropy: 1
     types_of_motion: 1
     lines_correlation: 1
@@ -38,6 +39,8 @@ environment:
   scoring_fn_params:
     autocorrelation:
       max_lag: 8
+    looped_pitches:
+      max_n_repetitions: 2
     types_of_motion:
       parallel_coef: -1
       similar_coef: -0.5

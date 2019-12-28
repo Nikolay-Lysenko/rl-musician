@@ -80,6 +80,35 @@ def evaluate_entropy(piece: Piece) -> float:
     return score
 
 
+def evaluate_absence_of_looped_pitches(
+        piece: Piece, max_n_repetitions: int = 2
+) -> float:
+    """
+    Evaluate non-triviality of a piece based on absence of looped pitches.
+
+    :param piece:
+        `Piece` instance
+    :param max_n_repetitions:
+        maximum number of repetitions of the same pitch in a row that is not
+        penalized
+    :return:
+        multiplied by -1 number of repetitions that exceed limit
+    """
+    score = 0
+    for line in piece.lines:
+        previous_pitch = line[0].absolute_position
+        n_repetitions = 1
+        for element in line[1:]:
+            current_pitch = element.absolute_position
+            if current_pitch == previous_pitch:
+                n_repetitions += 1
+            else:
+                score -= max(n_repetitions - max_n_repetitions, 0)
+                previous_pitch = current_pitch
+                n_repetitions = 1
+    return score
+
+
 def evaluate_absence_of_pitch_class_clashes(
         piece: Piece, pure_clash_coef: float = 3
 ) -> float:
@@ -235,6 +264,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
     registry = {
         'autocorrelation': evaluate_autocorrelation,
         'entropy': evaluate_entropy,
+        'looped_pitches': evaluate_absence_of_looped_pitches,
         'pitch_class_clashes': evaluate_absence_of_pitch_class_clashes,
         'types_of_motion': evaluate_motion_by_types,
         'lines_correlation': evaluate_lines_correlation,
