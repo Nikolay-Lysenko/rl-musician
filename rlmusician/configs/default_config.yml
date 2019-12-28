@@ -1,7 +1,7 @@
 piece:
   tonic: C
   scale: major
-  n_measures: 32
+  n_measures: 24
   max_skip: 2
   line_specifications:
     - lowest_note: G3
@@ -14,7 +14,7 @@ piece:
       end_note: G4
     - lowest_note: G4
       highest_note: G5
-      start_note: G5
+      start_note: E5
       end_note: C5
   rendering_params:
     dir: rlmusician_data
@@ -27,7 +27,7 @@ piece:
       volume: 0.2
 environment:
   observation_decay: 0.75
-  reward_for_dead_end: -1
+  reward_for_dead_end: -3
   scoring_coefs:
     autocorrelation: 3
     pitch_class_clashes: 2
@@ -51,12 +51,12 @@ environment:
       duplication_penalty: 0.5
 agent:
   hidden_layer_size: 10
-  softmax_temperature: 1
+  softmax_temperature: 0.1
 crossentropy:
   population_size: 100
   elite_fraction: 0.1
   smoothing_coef: 0.25
-  std: 1.0
+  std: 0.25
   n_trials: 10
   aggregation_fn: mean
   parallelling_params:
