@@ -43,7 +43,33 @@ from rlmusician.utils import (
             0.2,
             # `expected`
             'default_timbre\t0\t1\tC5\t0.2\t0\t\n'
-        )
+        ),
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale='major',
+                n_measures=5,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'C5',
+                        'highest_note': 'G5',
+                        'start_note': 'C5',
+                        'end_note': 'C5'
+                    }
+                ],
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [[0], [0]],
+            # `measure_in_seconds`
+            1,
+            # `volume`
+            0.2,
+            # `expected`
+            'default_timbre\t0\t1\tC5\t0.2\t0\t\n'
+        ),
     ]
 )
 def test_create_events_from_piece(

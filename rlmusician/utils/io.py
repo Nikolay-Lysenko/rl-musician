@@ -97,6 +97,8 @@ def create_events_from_piece(
     events = []
     for line in piece.lines:
         for measure, element in enumerate(line):
+            if element is None:  # Dead end occurred during piece creation.
+                continue
             start_time = measure * measure_in_seconds
             duration = measure_in_seconds
             note = all_notes[element.absolute_position]
