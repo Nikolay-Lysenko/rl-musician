@@ -1,7 +1,7 @@
 piece:
   tonic: C
   scale: major
-  n_measures: 24
+  n_measures: 16
   max_skip: 2
   line_specifications:
     - lowest_note: G3
@@ -18,7 +18,7 @@ piece:
       end_note: C5
   rendering_params:
     dir: rlmusician_data
-    measure_in_seconds: 0.5
+    measure_in_seconds: 0.7
     midi:
       instrument: 0
       velocity: 100
