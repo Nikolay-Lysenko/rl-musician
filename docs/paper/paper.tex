@@ -16,7 +16,7 @@
 
 \title{RL-Musician: A Tool for Music Composition with Reinforcement Learning}
 
-\date{November 2, 2019}
+\date{January 11, 2020}
 
 \author{
   Nikolay~Lysenko\\
@@ -30,10 +30,12 @@
 \maketitle
 
 \begin{abstract}
-The notion of creativity is wider than generating something inspired by reference pieces of art. It also includes generation of something that meets criteria of being an art, but is not backed by existing pieces. On the one hand, supervised machine learning is limited by the former scope, because it requires a dataset. Reinforcement learning can be applied instead if the goal is to reveal more aspects of creativity. On the other hand, numerous recent advances in music generation are achieved with supervisedly trained neural networks. In this paper, a method that involves both reinforcement learning and neural networks is developed for automated music composition. An agent with shallow neural network as actor model is trained to compose musical pieces by interacting with a piano roll environment. The environment scores submitted pieces based on some hand-written evaluational rules derived from music theory. Cross-entropy method is used for training instead of gradient-based methods and so no datasets are needed.
+In this paper, automatic composition of first species counterpoint is framed as an optimization problem close to reinforcement learning. An agent with shallow neural network as actor model composes polyphonic pieces sequentially one measure (bar) per time step. Once a specified number of measures is added, resulting piece is evaluated based on some hand-written rules derived from music theory. Cross-entropy method is used for searching weights of actor model that result in maximum expected score of a piece.
+
+Although current setup of the problem may seem simplistic, it is a step in a promising direction. Numerous recent advances in music generation are achieved with supervisedly trained neural networks and reinforcement learning is not used there as a standalone paradigm. Since collections of existing pieces are involved as datasets, results are "inspired" by these reference pieces. However, the notion of creativity is wider -- it also includes generation of something that meets criteria of being an art, but is not backed by existing pieces. Thus, new aspects of creativity can be revealed by further research of pure reinforcement learning approaches.
 \end{abstract}
 
-\keywords{algorithmic composition \and music generation \and reinforcement learning}
+\keywords{algorithmic composition \and music generation \and reinforcement learning \and species counterpoint}
 
 
 \section{Introduction}
@@ -45,9 +47,17 @@ Currently, there are no perfect tools for algorithmic composition. Plenty of var
 
 In this paper, a new approach to music composition is suggested. Although it is quite straightforward, to the best of the author's knowledge it is not described anywhere, so the first contribution is its rigorous definition. The second contribution\footnote{As of now, it is in progress.} is proper setup and tuning of the parameters. It is often the case that accurately tuned simple methods outperform complex methods \cite{dacrema2019are} and, in addition, they are more transparent and less demanding.
 
-Brief outline of the approach is as follows. There is an environment with 2D table representing piano roll which means that rows of the table correspond to notes and columns of the table correspond to time steps. A cell of the table contains 1 if the note is sounding at this step and 0 otherwise. An agent observes vector in which for every row there is an exponential moving average over all time steps up to the current time step (inclusively). An action of the agent is playing a note at the current time step. After certain number of actions are done, a movement to the next time step happens. When the last time step of the piano roll is reached, episode is ended and the agent receives reward based on evaluation of created composition. Trainable parameters of the agent are weights of a neural network used as a so called actor model, i.e., a model that maps observation to probabilities of actions. These parameters are trained with cross-entropy method \cite{rubinstein1997optimization} (alternatively, they can be trained with genetic algorithms, ant colony algorithms, or evolutionary strategies \cite{salimans2017evolution}).
+The approach relates to a well-known framework for simplified music composition called species counterpoint. It is often used by beginning composers in order to practice in voice leading and polyphony. From automatic composition point of view, species counterpoint is interesting due to two its properties:
+\begin{itemize}
+	\item There are rules prescribing what to do and what not to do. So there are less degrees of freedom and the problem is computationally more feasible.
+	\item There are clear hints of what is better to avoid and what should be added. So formal rules for automatic evaluation of resulting piece can be introduced.
+\end{itemize}
 
-Obviously, the approach belongs to reinforcement learning, because there is an environment, but a dataset is absent. Nevertheless, there are strong connections with supervised deep learning. From generation of new pieces point of view, actor model returns probabilities of next notes given current state. This is similar to sampling new sequences from a next-step prediction model trained with maximum likelihood method on a dataset of existing sequences.
+The word "species" in the name of the framework indicates that there are some types -- each of them has its own rhythmic pattern. Here, first species counterpoint is covered. This type has trivial rhythmic structure such that only whole (semibreve) notes can be used and every note must be placed in a beginning of a measure. Thus, interaction between rhythm and tonality is eliminated and the problem becomes even more simpler. 
+
+Brief outline of the setup is as follows. There is an environment that keeps a piece in progress and the piece consists of a fixed number of measures. Each measure must be either empty (if it is not filled yet) or containing exactly one note per a melodic line. Initially, only the first measure and the last measure are filled with user-defined values. At a particular time step of an episode, an agent observes vector in which for every pitch there is an exponential moving average over all measures up to the current one (exclusively) of binary indicators whether this pitch is played at corresponding measure. An action of the agent is filling of the current measure, i.e., adding a pitch to each of the melodic lines. When the last measure is reached, episode is ended and the agent receives reward based on evaluation of created composition. Trainable parameters of the agent are weights of a neural network used as a so called actor model. These parameters are trained with cross-entropy method \cite{rubinstein1997optimization} (alternatively, they can be trained with genetic algorithms, ant colony algorithms, or evolutionary strategies \cite{salimans2017evolution}).
+
+Obviously, the approach belongs to reinforcement learning, because there is an environment, but a dataset is absent. Nevertheless, there are some connections with supervised deep learning. From generation of new pieces point of view, actor model returns probabilities of next sonorities (chords) given current state. This is similar to sampling new sequences from a next-step prediction model trained with maximum likelihood method on a dataset of existing sequences.
 
 More details on the methodology are provided in Section \ref{sec:methodology}, but here it is appropriate to discuss its advantages. The reasons for not involving supervised training at all are as follows:
 \begin{itemize}
@@ -55,7 +65,7 @@ More details on the methodology are provided in Section \ref{sec:methodology}, b
 	\item There are tuning systems other than equal temperament (for instance, in microtonal music). For some of them it may be impossible to collect dataset large enough to allow training models in a supervised fashion. However, developers of a tuning system should know some underlying principles and so (at least, in theory) it is possible to create evaluational rules and train an agent based on them.
 \end{itemize}
 
-Actually, results reported at this draft version are far from using above advantages at full scale. The current study is rather a proof-of-concept, but this proof-of-concept is easily extendable and ideas on how it can be improved are listed in Section \ref{sec:conclusion}.
+Actually, results reported at this draft version are far from using above advantages at full scale (in particular, first species counterpoint is too limiting). The current study is rather a proof-of-concept, but this proof-of-concept is easily extendable and ideas on how it can be improved are listed in Section \ref{sec:conclusion}.
 
 
 \section{Background and Related Work}
@@ -70,7 +80,7 @@ Reinforcement learning can be applied to algorithmic composition either as a sta
 
 For example, reinforcement learning can be used for altering weights of recurrent neural networks trained to generate music sequentially \cite{jaques2016generating, kotecha2018bach}. The goal is to make generated pieces more structured and conformed with music theory rules. To define an environment, let its state be composed of recurrent neural networks states and previously played notes, let an action be an output for current time step and let reward depend on both evaluational rules and probability of output according to initial RNN. Rewards are granted immediately after a step and so DQN (Deep Q-Networks \cite{mnih2013playing}) are preferred as a training algorithm.
 
-Usually, softmax activation function is used in the last layer of generative RNN. However, it is possible to generalize it with Boltzmann softmax which is a family of activation functions parametrized by one parameter called temperature and denoted as $t$. Depending on temperature, output distribution can vary from atomic distribution concentrated at the most probable action ($t = 0$) to distribution returned with softmax activation ($t = 1$) and to uniform distribution ($t \to +\infty$). In \cite{kumar2019polyphonic}, Boltzmann softmax is used and also input vector is extended by introducing an additional part indicating origination of initial input (so called plan). An environment is defined so that state is a pair of temperature and plan, actions are changes in either temperature or plan, and reward depends on evaluation of produced with these settings piece.
+Usually, softmax activation function is used in the last layer of generative RNN. However, it is a common practice in reinforcement learning domain to generalize it with Boltzmann softmax which is a family of activation functions parametrized by one parameter called temperature and denoted as $t$. Depending on temperature, output distribution can vary from atomic distribution concentrated at the most probable action ($t = 0$) to distribution returned with softmax activation ($t = 1$) and to uniform distribution ($t \to +\infty$). In \cite{kumar2019polyphonic}, Boltzmann softmax is used and also input vector is extended by introducing an additional part indicating origination of initial input (so called plan). An environment is defined so that state is a pair of temperature and plan, actions are changes in either temperature or plan, and reward depends on evaluation of produced with these settings piece.
 
 Since algorithmic composition can be framed as training of a generative model, it sounds natural to try one of the most salient examples of generative models -- generative adversarial networks (GANs) \cite{goodfellow2014gan}. However, widespread notations for music assume sequences of discrete values but classical GANs work well only with continuous data, because gradient of discrete-valued functions is uninformative. Techniques originating from reinforcement learning can be used to overcome this obstacle \cite{yu2016seqgan,hjelm2017boundary}. Namely, generator is trained with policy gradient method \cite{williams1992simple}. Such methodology is applied to various tasks and music composition is amongst them \cite{limaguimaraes2017objective}.
 
@@ -109,63 +119,69 @@ In context of reinforcement learning, cross-entropy method is used for searching
 \subsection{Setup}
 \label{subsec:setup}
 
-For this study, piano roll is chosen as music representation format, but there are some subtleties.
+%pieces are phrases.
+%define rules of motion.
 
-Here, each row of a table does not correspond to a particular note or pitch. Relative axis is used instead of absolute axis. All that is important is that each row is one semitone higher than the row right below it. Thus, a musical piece is given only up to transposition and user-defined value for a pivot note is required to define absolute pitches. Similarly, duration of one time step is not defined by piano roll format and must be set externally too.
+There are $l$ melodic lines (usually, $l$ is 2 or 3). Each line is a list of pitches from a diatonic scale (i.e., only 7 notes per octave can be used). Line must have only small intervals between its successive elements in order to be perceived as a single line and not as a heterogeneous collection of sounds. Suppose that maximum allowed interval is $s$ scale degrees. If so, there are no more than $(2s + 1)^l$ options to fill the next measure given current measure. Actually, the number is smaller, because some options are filtered out by counterpoint rules.
 
-Another nuance is that there are no attempts to resolve ambiguity for successive cells of the same pitch. If values of 1 are contained by $l$ successive cells of the same pitch, this line can be played either as one sound event that lasts $l$ time steps or as $l$ sound events that last one time step each or as $k$, $1 < k < l$, sound events of varying duration. Piano roll format does not specify it and evaluation of a roll is independent of ways to resolve it.
+%For this study, piano roll is chosen as music representation format, but there are some subtleties.
+
+%Here, each row of a table does not correspond to a particular note or pitch. Relative axis is used instead of absolute axis. All that is important is that each row is one semitone higher than the row right below it. Thus, a musical piece is given only up to transposition and user-defined value for a pivot note is required to define absolute pitches. Similarly, duration of one time step is not defined by piano roll format and must be set externally too.
+
+%Another nuance is that there are no attempts to resolve ambiguity for successive cells of the same pitch. If values of 1 are contained by $l$ successive cells of the same pitch, this line can be played either as one sound event that lasts $l$ time steps or as $l$ sound events that last one time step each or as $k$, $1 < k < l$, sound events of varying duration. Piano roll format does not specify it and evaluation of a roll is independent of ways to resolve it.
 
 Denote number of rows as $n$ and number of time steps as $m$ and let piano roll be represented as matrix $R$ of size $n \times m$. Suppose that current time step is $t$, $1 \le t \le m$. Then observation is defined as:
 $$v = \sum_{i = 1}^t \beta^{t - i} R_{\cdot i},$$
 where $\beta$ is a hyperparameter related to exponential decay, $0 < \beta < 1$.
 
-It is important to distinguish between time steps of piano roll (columns of $R$) and time steps of an episode (moments when actions are taken by an agent). For a particular piano roll's time step $t$ there are $a$ episode time steps where $a$ is a hyperparameter. At each of these episode time steps, a cell from the $t$-th column may be filled with 1 or nothing may happen (if a cell that already contains 1 is chosen for action).
+%It is important to distinguish between time steps of piano roll (columns of $R$) and time steps of an episode (moments when actions are taken by an agent). For a particular piano roll's time step $t$ there are $a$ episode time steps where $a$ is a hyperparameter. At each of these episode time steps, a cell from the $t$-th column may be filled with 1 or nothing may happen (if a cell that already contains 1 is chosen for action).
 
-Agent takes action by drawing it from probability distribution returned by its actor model. An actor model can be any function that takes observation as input and returns probability distribution over cells from the current time step. Here, shallow neural network is used as actor model. Its weights can be viewed as something that defines transition matrix for a Markov chain from which sequence of piano roll's states is generated.
+%Agent takes action by drawing it from probability distribution returned by its actor model. An actor model can be any function that takes observation as input and returns probability distribution over cells from the current time step. Here, shallow neural network is used as actor model. Its weights can be viewed as something that defines transition matrix for a Markov chain from which sequence of piano roll's states is generated.
 
-An episode starts with a piano roll that contains only zeros. Initial observation is zero vector of size $n \times 1$. An episode is being run until final piano roll's time step is reached. Then created piano roll is evaluated and resulting score is returned as reward for the episode.
+%An episode starts with a piano roll that contains only zeros. Initial observation is zero vector of size $n \times 1$. An episode is being run until final piano roll's time step is reached. Then created piano roll is evaluated and resulting score is returned as reward for the episode.
 
 \subsection{Evaluational Rules}
 \label{subsec:setup}
 
-Eight properties of a final piano roll are evaluated at the current revision of the study.
+Seven properties of a final piano roll are evaluated at the current revision of the study.
 
 \begin{itemize}
-	\item \textbf{Consonances.} Speaking formally, total reward for consonances is:
-	$$\sum_{t = 1}^m \sum_{i, j = 1}^n [i > j]R_{it} R_{jt} c((i - j) \bmod 12),$$
-	where square brackets are Iverson brackets and $c$ is a function that maps interval in semitones into measure of its consonance, $c: \{0, \dots, 11\} \to \mathbb{R}$.
-	The interpretation is as follows. Since $R_{it} \in \{0, 1\}$, only pairs of sounding cells from the same column affect the total sum. Value of each non-zero term depends on interval between the two corresponding pitches. The more consonant the interval is, the higher the value should be. Function $c$ must be chosen in a way providing that. However, there is an exception -- here, $c(0) = 0$ although intervals of whole number of octaves are perfectly consonant. This is done in order to prevent doubling the same melody in different octaves. 
-	\item \textbf{Absence of notes not from the specified scale.} Mode (major or minor) and position of a row with the tonic are set by a user before training. The same negative penalty is assigned to each sounding cell of a pitch that does not belong to the specified scale and then these penalties are summed.
-	\item \textbf{Usage of the tonic.} A positive reward is assigned to a roll as a whole if share of columns where the lowest sounding note belongs to the tonic pitch class lies within a specified interval.  
-	\item \textbf{Conjunct motion.} A positive reward is granted for every sounding cell such that the previous cell of the same pitch is not sounding, but there is a sounding cell of close enough pitch in the previous column.
-	\item \textbf{Contrary motion.} A positive reward is granted for every column such that there are both a sounding cell of pitch lower than that of the closest to it sounding cell from the previous column and a sounding cell of pitch higher than that of the closest to it sounding cell from the previous column.
-	\item \textbf{Lines.} Ideally, a created composition should be decomposable into melodic lines. To have $k$ melodic lines, it is necessary (but not sufficient) that exactly $k$ cells are sounding in every column. So below penalty may be used as a proxy for scoring presence of desired number of melodic lines:
-	$$-\sum_{t = 1}^m \left| k - \sum_{i=1}^n R_{it} \right|.$$  
-    \item \textbf{Noncyclicity.} Pieces where the same sequence of sound events is repeated over and over again should be penalized or, as a matter of choice, pieces should be rewarded for their noncyclicity. Here, the latter approach is used. The reward is implemented as minimum number of positive cells over differences between piano roll and its shifted version for all shift values from 1 up to a certain value (currently, it is equal to 8). To be more precise, this score is also clipped from above in order to prevent rewarding of placing extra sounding cells. In literature, scores based on autocorrelation are sometimes used as alternative way to push results away from degenerate states.
-    \item \textbf{Absence of pitches played for a long time.} Partial case of a degenerate roll is a roll with some pitches that are constantly sounding. A negative penalty is assigned to every sounding cell such that cells of the same pitch are sounding in all $l$ previous columns where $l$ is a hyperparameter.
+	\item \textbf{Autocorrelation.} Pieces where the same sequence of sound events is repeated over and over again are worse than pieces with no repetitions.
+	\item \textbf{Entropy of pitch distribution.}
+	\item \textbf{Absence of looped pitches.} A pitch may be rearticulated, but not more than once in a row. 
+	\item \textbf{Absence of clashes.} 
+	\item \textbf{Motion.} 
+	\item \textbf{Correlation between lines.}
+    \item \textbf{Explicity of climax.}
 \end{itemize}
+
+It can be seen that the first three properties deal with non-triviality of results, next three properties deal with independence (distinguishability) of lines and the last property deals with melodic quality of each separate line.
+
+Reward is a weighted sum of above seven scores. 
 
 
 \section{Experimental Results}
 \label{sec:results}
 
-A software implementation of the above methodology in Python programming language is available on GitHub\footnote{\url{https://github.com/Nikolay-Lysenko/rl-musician}}. The code has built-in documentation, is covered with unit tests, and is released as a package on PyPI\footnote{\url{https://pypi.org/project/rl-musician/0.1.2/}}. All important settings are placed to a separate configuration file and so it is easy to experiment with them.
+A software implementation of the above methodology in Python programming language is available on GitHub\footnote{\url{https://github.com/Nikolay-Lysenko/rl-musician}}. The code has built-in documentation, is covered with unit tests, and is released as a package on PyPI\footnote{\url{https://pypi.org/project/rl-musician/0.2.0/}}. All important settings are placed to a separate configuration file and so it is easy to experiment with them.
 
-The implementation relies on some open-source tools \cite{brockman2016openai,chollet2015keras,oliphant2006guide,raffel2014intuitive,dong2018pypianoroll}.
+The implementation relies on some open-source tools \cite{brockman2016openai,chollet2015keras,oliphant2006guide,raffel2014intuitive}.
 
-To use less computation time, size of piano roll was chosen as follows: $n = 25$ (two octaves and one more note) and $m = 33$ (recall that the last time step is silent by design, so only 32 time steps are filled). Training an agent from scratch on a CPU of a regular laptop takes less than an hour with these settings.
+%different runs are variations of the same piece.
 
-As for human evaluation, created pieces lack rhythmic and tonal structure. Such drawback can be expected a priori, because there are no evaluational rules for structure-related properties. On the other hand, pieces are quite ear-pleasant. Thus, current version of the tool may be used by a human composer as an auxiliary source of inspiration. In particular, generated short parts further can be inserted into a longer piece.
+%To use less computation time, size of piano roll was chosen as follows: $n = 25$ (two octaves and one more note) and $m = 33$ (recall that the last time step is silent by design, so only 32 time steps are filled). Training an agent from scratch on a CPU of a regular laptop takes less than an hour with these settings.
+
+% As for human evaluation, created pieces lack rhythmic and tonal structure. Such drawback can be expected a priori, because there are no evaluational rules for structure-related properties. On the other hand, pieces are quite ear-pleasant. Thus, current version of the tool may be used by a human composer as an auxiliary source of inspiration. In particular, generated short parts further can be inserted into a longer piece.
 
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-This paper studies capabilities of reinforcement learning for music composition without usage of existing pieces. Here, music composition is framed as optimization problem where the goal is to find values of generative model's parameters maximizing average score of pieces generated with them. It is found that some progress can be made in this direction.
+This paper studies capabilities of reinforcement learning for music composition without usage of existing pieces. Here, music composition is framed as optimization problem where the goal is to find values of generative model's parameters maximizing expected score of pieces generated with them. It is found that some progress can be made in this direction.
 
-However, it is also found that vast majority of computational resources and engineering efforts are now spent on preventing an agent from taking actions that are discouraged by music theory. It is much easier to impose known constraints in program code than to learn them from environment responses. So it seems very promising to exclude discouraged actions and then focus training on things of higher level such as rhythm dynamic, presence of motiffs, proper final, and so on.
+%However, it is also found that vast majority of computational resources and engineering efforts are now spent on preventing an agent from taking actions that are discouraged by music theory. It is much easier to impose known constraints in program code than to learn them from environment responses. So it seems very promising to exclude discouraged actions and then focus training on things of higher level such as rhythm dynamic, presence of motiffs, proper final, and so on.
 
-If setup becomes more complicated after above modifications, it might be worth trying to use LSTM neural network as actor model and evolutionary strategies as training algorithm.
+%If setup becomes more complicated after above modifications, it might be worth trying to use LSTM neural network as actor model and evolutionary strategies as training algorithm.
 
 
 \bibliographystyle{unsrt}  
