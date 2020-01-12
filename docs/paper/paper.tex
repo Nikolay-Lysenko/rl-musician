@@ -119,45 +119,47 @@ In context of reinforcement learning, cross-entropy method is used for searching
 \subsection{Setup}
 \label{subsec:setup}
 
-%pieces are phrases.
-%define rules of motion.
+To start with, define representation of a musical piece. Suppose that counterpoint is written in $l$ melodic lines (parts, voices), where $l$ is usually 2 or 3. Suppose also that a diatonic scale (like C-major or A-minor) is chosen. Let each line be a list of pitches from the scale (i.e., only 7 notes per octave can be used and chromaticism is prohibited). Set length of all lines to the same number $m$, where $m$ is usually between 8 and 24. From music point of view, this means that a piece to be created is rather a phrase that can be inserted into a longer composition. Such limitation goes back to species counterpoint, because it is designed exactly for writing short phrases. This way or that, define a piece as a matrix $P$ of size $l \times m$ where element $P_{ij}$ is a pitch played in $i$-th line in $j$-th measure.
 
-There are $l$ melodic lines (usually, $l$ is 2 or 3). Each line is a list of pitches from a diatonic scale (i.e., only 7 notes per octave can be used). Line must have only small intervals between its successive elements in order to be perceived as a single line and not as a heterogeneous collection of sounds. Suppose that maximum allowed interval is $s$ scale degrees. If so, there are no more than $(2s + 1)^l$ options to fill the next measure given current measure. Actually, the number is smaller, because some options are filtered out by counterpoint rules.
+%Duration of a measure is not defined by this format and it must be set externally.
 
-%For this study, piano roll is chosen as music representation format, but there are some subtleties.
+Every line must have only small intervals between its successive elements in order to be perceived as a single line and not as a heterogeneous collection of sounds. Suppose that maximum allowed melodic interval is $s$ scale degrees (here, $s = 2$). If so, there are no more than $(2s + 1)^l$ options to fill the next measure given current measure. Actually, the number is smaller, because some options are filtered out by counterpoint rules. The rules enforced in this study are as follows:
+\begin{itemize}
+	\item Only pitches from tonic triad (i.e., tonic, mediant, and dominant) can be rearticulated (repeated);
+	\item If a line has submediant followed by leading tone, tonic must be used after leading tone; similarly, if a line has leading tone followed by submediant, dominant must be used after submediant;
+	\item If a melodic interval between two successive pitches from the same line is larger than second (i.e., if there is a skip), the second pitch must be from tonic triad;
+	\item For every pitch, there must be a way to reach the final pitch of this line with step motion (the final measure is filled initially with user-defined sonority);
+	\item All harmonic intervals between two simultaneously sounding pitches from different lines must be consonant.
+\end{itemize}
 
-%Here, each row of a table does not correspond to a particular note or pitch. Relative axis is used instead of absolute axis. All that is important is that each row is one semitone higher than the row right below it. Thus, a musical piece is given only up to transposition and user-defined value for a pivot note is required to define absolute pitches. Similarly, duration of one time step is not defined by piano roll format and must be set externally too.
+Above rules are absolute and an agent can not break them, because it selects pitches for the next measure only from options that are filtered according to them. If a set of such options is empty, episode terminates and an agent receives negative reward for dead end.
 
-%Another nuance is that there are no attempts to resolve ambiguity for successive cells of the same pitch. If values of 1 are contained by $l$ successive cells of the same pitch, this line can be played either as one sound event that lasts $l$ time steps or as $l$ sound events that last one time step each or as $k$, $1 < k < l$, sound events of varying duration. Piano roll format does not specify it and evaluation of a roll is independent of ways to resolve it.
-
-Denote number of rows as $n$ and number of time steps as $m$ and let piano roll be represented as matrix $R$ of size $n \times m$. Suppose that current time step is $t$, $1 \le t \le m$. Then observation is defined as:
+If the set of options is not empty, agent needs an observation. Observation is provided in terms of so called piano roll format. Denote size of pitch range available to the agent as $n$ and let the piece be represented also as a matrix $R$ of size $n \times m$ where $R_{ij}$ is 1 if $i$-th pitch is played in any line in $j$-th measure and 0 otherwise. Denote current measure as $t$, $1 \le t \le m$. Then observation is defined as vector $v$ of length $n$:
 $$v = \sum_{i = 1}^t \beta^{t - i} R_{\cdot i},$$
 where $\beta$ is a hyperparameter related to exponential decay, $0 < \beta < 1$.
 
-%It is important to distinguish between time steps of piano roll (columns of $R$) and time steps of an episode (moments when actions are taken by an agent). For a particular piano roll's time step $t$ there are $a$ episode time steps where $a$ is a hyperparameter. At each of these episode time steps, a cell from the $t$-th column may be filled with 1 or nothing may happen (if a cell that already contains 1 is chosen for action).
+For each option, agent concatenates observation $v$ with vector $c$ of length $(2s + 1)l$ encoding this option. Exactly one element is 1 and others are 0 amongst the first $(2s + 1)$ elements of $c$; position of the non-zero element corresponds to movement of the first line; the same encoding procedure is valid for other blocks of size $(2s + 1)$ and lines corresponding to them. Concatenation of $v$ and $c$ is passed as input to so called actor model which is a shallow neural network returning a single real-valued score. After these scores are collected for all options, Boltzmann softmax is applied to them in order to convert them to probabilities of actions. An action is drawn from this distribution and the agents takes it.
 
-%Agent takes action by drawing it from probability distribution returned by its actor model. An actor model can be any function that takes observation as input and returns probability distribution over cells from the current time step. Here, shallow neural network is used as actor model. Its weights can be viewed as something that defines transition matrix for a Markov chain from which sequence of piano roll's states is generated.
-
-%An episode starts with a piano roll that contains only zeros. Initial observation is zero vector of size $n \times 1$. An episode is being run until final piano roll's time step is reached. Then created piano roll is evaluated and resulting score is returned as reward for the episode.
+Remember that episode starts with the first measure and the last measure already filled. The agent fills empty measures one-by-one according to described above procedure. When the final measure is reached, episode ends, created piece is evaluated and the agent receives reward.
 
 \subsection{Evaluational Rules}
 \label{subsec:setup}
 
-Seven properties of a final piano roll are evaluated at the current revision of the study.
+At the current revision of the study, seven properties of a final piece are evaluated separately and total reward is a weighted sum of these seven scores.
 
 \begin{itemize}
-	\item \textbf{Autocorrelation.} Pieces where the same sequence of sound events is repeated over and over again are worse than pieces with no repetitions.
-	\item \textbf{Entropy of pitch distribution.}
-	\item \textbf{Absence of looped pitches.} A pitch may be rearticulated, but not more than once in a row. 
-	\item \textbf{Absence of clashes.} 
-	\item \textbf{Motion.} 
-	\item \textbf{Correlation between lines.}
-    \item \textbf{Explicity of climax.}
+	\item \textbf{Autocorrelation.} Pieces where the same sequence of sound events is repeated over and over again are worse than pieces with no repetitions. To reflect this in reward, this score is used:
+	$$1 - \max_k \{|\mathrm{Autocorr}_k(R)| : 2 \le k \le 8\},$$
+	where $R$ is piano roll representation of the piece and $\mathrm{Autocorr}_k$ is autocorrelation function for lag $k$ (for matrix $R$ its autocorrelation is average autocorrelation of its rows).
+	\item \textbf{Entropy of pitch distribution.} To encourage usage of all pitches from a range corresponding to a line, there is a score equal to average over all lines actual entropy of pitch distribution within the line normalized by entropy of uniform distribution on the same set of pitches.
+	\item \textbf{Absence of looped pitches.} A pitch may be rearticulated, but not more than once in a row. Every excessive occurrence of the same pitch within a line adds constant negative reward.
+	\item \textbf{Absence of pitch or pitch class clashes.} According to species counterpoint methodology, lines must be as distinguishable from each other as possible. In particular, this implies that the same pitches or the same pitch classes should not sound simultaneously in different lines. What is more, unison or octave harmonic intervals are too stable and so they create illusion of false finish if they occur in intermediate measures. To take into account these considerations, there is a negative reward proportional to share of intervals with both pitches belonging to the same pitch class amongst all intervals between two simultaneously sounding pitches. Also there is extra negative reward proportional to share of unison intervals.
+	\item \textbf{Motion.} For every pair of lines every motion between two successive measures adds a reward that depends on a type of motion. Since contrary motion makes lines more distinguishable, reward for it is positive. Reward for oblique motion is zero, reward for similar motion is slightly negative and reward for parallel motion is negative, because parallel motion makes lines sounding like copies of each other.
+	\item \textbf{Correlation between lines.} Consider each line as a sequence of real numbers equal to pitch positions within a range of available pitches. Then half of difference of 1 and average over all pairs of lines correlation between two lines is returned as a reward for independence of lines. 
+    \item \textbf{Explicity of climax.} Music theory suggests that good melodies must have goal-oriented motion and that such goal-orientedness may be achieved by having exactly one climax point. For each line, negative rewards are granted for each duplication of climax point and for not so high climax point. 
 \end{itemize}
 
-It can be seen that the first three properties deal with non-triviality of results, next three properties deal with independence (distinguishability) of lines and the last property deals with melodic quality of each separate line.
-
-Reward is a weighted sum of above seven scores. 
+It can be seen that the first three properties deal with non-triviality of results, next three properties deal with independence (distinguishability) of lines and the last property deals with melodic quality of each separate line. 
 
 
 \section{Experimental Results}
@@ -168,6 +170,7 @@ A software implementation of the above methodology in Python programming languag
 The implementation relies on some open-source tools \cite{brockman2016openai,chollet2015keras,oliphant2006guide,raffel2014intuitive}.
 
 %different runs are variations of the same piece.
+%pitch class clashes occur.
 
 %To use less computation time, size of piano roll was chosen as follows: $n = 25$ (two octaves and one more note) and $m = 33$ (recall that the last time step is silent by design, so only 32 time steps are filled). Training an agent from scratch on a CPU of a regular laptop takes less than an hour with these settings.
 
