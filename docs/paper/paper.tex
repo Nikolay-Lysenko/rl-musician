@@ -47,7 +47,7 @@ Currently, there are no perfect tools for algorithmic composition. Plenty of var
 
 In this paper, a new approach to music composition is suggested. Although it is quite straightforward, to the best of the author's knowledge it is not described anywhere, so the first contribution is its rigorous definition. The second contribution\footnote{As of now, it is in progress.} is proper setup and tuning of the parameters. It is often the case that accurately tuned simple methods outperform complex methods \cite{dacrema2019are} and, in addition, they are more transparent and less demanding.
 
-The approach relates to a well-known framework for simplified music composition called species counterpoint. It is often used by beginning composers in order to practice in voice leading and polyphony. From automatic composition point of view, species counterpoint is interesting due to two its properties:
+The approach relates to a well-known framework for simplified music composition called species counterpoint. It is often used by beginning composers in order to practice in voice leading (also known as part writing) and polyphony. From automatic composition point of view, species counterpoint is interesting due to two its properties:
 \begin{itemize}
 	\item There are rules prescribing what to do and what not to do. So there are less degrees of freedom and the problem is computationally more feasible.
 	\item There are clear hints of what is better to avoid and what should be added. So formal rules for automatic evaluation of resulting piece can be introduced.
@@ -123,12 +123,18 @@ To start with, define representation of a musical piece. Suppose that counterpoi
 
 %Duration of a measure is not defined by this format and it must be set externally.
 
-Every line must have only small intervals between its successive elements in order to be perceived as a single line and not as a heterogeneous collection of sounds. Suppose that maximum allowed melodic interval is $s$ scale degrees (here, $s = 2$). If so, there are no more than $(2s + 1)^l$ options to fill the next measure given current measure. Actually, the number is smaller, because some options are filtered out by counterpoint rules. The rules enforced in this study are as follows:
+Every line must have only small intervals between its successive elements in order to be perceived as a single line and not as a heterogeneous collection of sounds. Suppose that maximum allowed melodic interval is $s$ scale degrees (here, $s = 2$). If so, there are no more than $(2s + 1)^l$ options to fill the next measure given current measure. Actually, the number is smaller, because some options are filtered out by counterpoint rules. The rules enforced in this study can be either rules of voice leading (part writing) or rules of harmony.
+
+Here, five rules of voice leading are imposed:
 \begin{itemize}
-	\item Only pitches from tonic triad (i.e., tonic, mediant, and dominant) can be rearticulated (repeated);
-	\item If a line has submediant followed by leading tone, tonic must be used after leading tone; similarly, if a line has leading tone followed by submediant, dominant must be used after submediant;
-	\item If a melodic interval between two successive pitches from the same line is larger than second (i.e., if there is a skip), the second pitch must be from tonic triad;
-	\item For every pitch, there must be a way to reach the final pitch of this line with step motion (the final measure is filled initially with user-defined sonority);
+	\item Only pitches from tonic triad (i.e., tonic, mediant, and dominant) can be rearticulated (repeated), because only they are stable;
+	\item If a line has submediant followed by leading tone, tonic must be used after leading tone, because there is strong attraction to it; similarly, if a line has leading tone followed by submediant, dominant must be used after submediant;
+	\item If a melodic interval between two successive pitches from the same line is larger than second (i.e., if there is a skip), the second pitch must be from tonic triad, because skip creates enough tension and something stable is needed;
+	\item Movement in the opposite direction must happen immediately after a skip in order to resolve tension associated with the skip;
+	\item For every pitch, there must be a way to reach the final pitch of this line with step motion (the final measure is filled initially with user-defined sonority), because resolution must be present during last measures.
+\end{itemize}
+In addition, there is one rule of harmony:
+\begin{itemize}
 	\item All harmonic intervals between two simultaneously sounding pitches from different lines must be consonant.
 \end{itemize}
 
@@ -138,7 +144,7 @@ If the set of options is not empty, agent needs an observation. Observation is p
 $$v = \sum_{i = 1}^t \beta^{t - i} R_{\cdot i},$$
 where $\beta$ is a hyperparameter related to exponential decay, $0 < \beta < 1$.
 
-For each option, agent concatenates observation $v$ with vector $c$ of length $(2s + 1)l$ encoding this option. Exactly one element is 1 and others are 0 amongst the first $(2s + 1)$ elements of $c$; position of the non-zero element corresponds to movement of the first line; the same encoding procedure is valid for other blocks of size $(2s + 1)$ and lines corresponding to them. Concatenation of $v$ and $c$ is passed as input to so called actor model which is a shallow neural network returning a single real-valued score. After these scores are collected for all options, Boltzmann softmax is applied to them in order to convert them to probabilities of actions. An action is drawn from this distribution and the agents takes it.
+For each option, agent concatenates observation $v$ with vector $c$ of length $(2s + 1)l$ encoding this option. Exactly one element is 1 and others are 0 amongst the first $(2s + 1)$ elements of $c$; position of the non-zero element corresponds to movement of the first line; the same encoding procedure is valid for other blocks of size $(2s + 1)$ and lines corresponding to them. Concatenation of $v$ and $c$ is passed as input to so called actor model which is a shallow neural network returning a single real-valued score. After these scores are collected for all valid options, Boltzmann softmax is applied to them in order to convert them to probabilities of actions. An action is drawn from this distribution and the agents takes it.
 
 Remember that episode starts with the first measure and the last measure already filled. The agent fills empty measures one-by-one according to described above procedure. When the final measure is reached, episode ends, created piece is evaluated and the agent receives reward.
 
@@ -150,9 +156,9 @@ At the current revision of the study, seven properties of a final piece are eval
 \begin{itemize}
 	\item \textbf{Autocorrelation.} Pieces where the same sequence of sound events is repeated over and over again are worse than pieces with no repetitions. To reflect this in reward, this score is used:
 	$$1 - \max_k \{|\mathrm{Autocorr}_k(R)| : 2 \le k \le 8\},$$
-	where $R$ is piano roll representation of the piece and $\mathrm{Autocorr}_k$ is autocorrelation function for lag $k$ (for matrix $R$ its autocorrelation is average autocorrelation of its rows).
+	where $R$ is piano roll representation of the piece, $\mathrm{Autocorr}_k$ is autocorrelation function for lag $k$ (for matrix $R$ its autocorrelation is average autocorrelation of its rows) and maximum lag to consider is set to 8 based on common sense.
 	\item \textbf{Entropy of pitch distribution.} To encourage usage of all pitches from a range corresponding to a line, there is a score equal to average over all lines actual entropy of pitch distribution within the line normalized by entropy of uniform distribution on the same set of pitches.
-	\item \textbf{Absence of looped pitches.} A pitch may be rearticulated, but not more than once in a row. Every excessive occurrence of the same pitch within a line adds constant negative reward.
+	\item \textbf{Absence of looped pitches.} A stable pitch may be rearticulated, but not more than once in a row. Every excessive occurrence of the same pitch within a line adds constant negative reward.
 	\item \textbf{Absence of pitch or pitch class clashes.} According to species counterpoint methodology, lines must be as distinguishable from each other as possible. In particular, this implies that the same pitches or the same pitch classes should not sound simultaneously in different lines. What is more, unison or octave harmonic intervals are too stable and so they create illusion of false finish if they occur in intermediate measures. To take into account these considerations, there is a negative reward proportional to share of intervals with both pitches belonging to the same pitch class amongst all intervals between two simultaneously sounding pitches. Also there is extra negative reward proportional to share of unison intervals.
 	\item \textbf{Motion.} For every pair of lines every motion between two successive measures adds a reward that depends on a type of motion. Since contrary motion makes lines more distinguishable, reward for it is positive. Reward for oblique motion is zero, reward for similar motion is slightly negative and reward for parallel motion is negative, because parallel motion makes lines sounding like copies of each other.
 	\item \textbf{Correlation between lines.} Consider each line as a sequence of real numbers equal to pitch positions within a range of available pitches. Then half of difference of 1 and average over all pairs of lines correlation between two lines is returned as a reward for independence of lines. 
@@ -179,6 +185,8 @@ The implementation relies on some open-source tools \cite{brockman2016openai,cho
 
 \section{Conclusion}
 \label{sec:conclusion}
+
+%feature representation.
 
 This paper studies capabilities of reinforcement learning for music composition without usage of existing pieces. Here, music composition is framed as optimization problem where the goal is to find values of generative model's parameters maximizing expected score of pieces generated with them. It is found that some progress can be made in this direction.
 
