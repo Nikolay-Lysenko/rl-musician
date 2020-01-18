@@ -14,11 +14,15 @@ Author: Nikolay Lysenko
 import datetime
 import itertools
 import os
-from typing import Any, Dict, List, NamedTuple, Optional
+from typing import Any, Dict, List, NamedTuple
 
 import numpy as np
 from sinethesizer.io.utils import get_note_to_position_mapping
 
+from rlmusician.environment.rules import (
+    get_voice_leading_rules_registry,
+    get_harmony_rules_registry
+)
 from rlmusician.utils import (
     create_events_from_piece,
     create_midi_from_piece,
@@ -38,11 +42,22 @@ class LineElement(NamedTuple):
     absolute_position: int
     relative_position: int
     is_from_tonic_triad: bool
-    allowed_movements: List[int]
+    permitted_movements: List[int]
 
 
 class Piece:
     """Musical piece compliant with some rules of counterpoint writing."""
+
+    names_of_voice_leading_rules = [
+        'rearticulation',
+        'skip_goal',
+        'turn_after_skip',
+        'two_unstable',
+        'step_motion_to_end'
+    ]
+    names_of_harmony_rules = [
+        'consonance'
+    ]
 
     def __init__(
             self,
@@ -90,26 +105,25 @@ class Piece:
         self.lines = []
         self.line_elements = []
         self.line_mappings = []
+        self.passed_movements = []
         for specs in line_specifications:
             self.lines.append([None for _ in range(self.n_measures)])
+            self.passed_movements.append([])
             self.__define_elements(specs)
             self.__update_range_to_show(specs)
             self.__add_end_note(specs['start_note'], 'start')
             self.__add_end_note(specs['end_note'], 'end')
         self.last_finished_measure = 0
 
-    def __get_allowed_movements(
+    def __get_permitted_movements(
             self, current_position: int, end_position: int,
-            is_from_tonic_triad: bool
     ) -> List[int]:
-        """Get all possible shifts in scale degrees from current position."""
-        allowed_movements = [
+        """Get intervals in scale degrees that do not go beyond the range."""
+        permitted_movements = [
             movement for movement in self.all_movements
             if 0 <= current_position + movement < end_position
-            # Only pitches from tonic triad may be rearticulated.
-            and (movement != 0 or is_from_tonic_triad)
         ]
-        return allowed_movements
+        return permitted_movements
 
     def __define_elements(self, specs: Dict[str, Any]) -> None:
         """Define list of pitches that can be used within a line."""
@@ -125,15 +139,15 @@ class Piece:
         elements = []
         mapping = {}
         for pitch_number, absolute_position in enumerate(sliced_positions):
-            is_from_triad = absolute_position in self.tonic_triad_positions
-            allowed_movements = self.__get_allowed_movements(
-                pitch_number, len(sliced_positions), is_from_triad
+            permitted_movements = self.__get_permitted_movements(
+                pitch_number, len(sliced_positions)
             )
+            is_from_triad = absolute_position in self.tonic_triad_positions
             element = LineElement(
                 absolute_position,
                 pitch_number,
                 is_from_triad,
-                allowed_movements
+                permitted_movements
             )
             elements.append(element)
             mapping[absolute_position] = pitch_number
@@ -170,57 +184,61 @@ class Piece:
         self.lines[-1][column] = element
         self._piano_roll[absolute_position, column] = 1
 
-    def __compute_destination(
-            self, movement: int, line: List[Optional[LineElement]],
-            elements: List[LineElement]
-    ) -> Optional[LineElement]:
-        """Compute note that is obtained by the movement and validate it."""
-        current_element = line[self.last_finished_measure]
-        if movement not in current_element.allowed_movements:
-            return None
-        position = current_element.relative_position + movement
-        destination = elements[position]
+    def __finalize_if_needed(self) -> None:
+        """Add movements to final pitches if the piece is finished."""
+        if self.last_finished_measure == self.n_measures - 2:
+            for line, past_movements in zip(self.lines, self.passed_movements):
+                last_position = line[-1].relative_position
+                last_but_one_position = line[-2].relative_position
+                past_movements.append(last_position - last_but_one_position)
+            self.last_finished_measure += 1
 
-        # Change of direction can not occur after two non-triad members.
-        if self.last_finished_measure > 0:
-            previous_element = line[self.last_finished_measure - 1]
-            previous_movement = (
-                current_element.relative_position
-                - previous_element.relative_position
-            )
-            improper_change_of_direction = min(
-                not previous_element.is_from_tonic_triad,
-                not current_element.is_from_tonic_triad,
-                previous_movement * movement < 0
-            )
-            if improper_change_of_direction:
-                return None
+    def __find_destinations(self, movements: List[int]) -> List[LineElement]:
+        """Find sonority that is added by movements."""
+        destination_sonority = []
+        zipped = zip(self.lines, self.line_elements, movements)
+        for line, line_elements, movement in zipped:
+            current_element = line[self.last_finished_measure]
+            next_position = current_element.relative_position + movement
+            next_element = line_elements[next_position]
+            destination_sonority.append(next_element)
+        return destination_sonority
 
-        # Skip must lead to a tonic triad member.
-        if abs(movement) > 1 and not destination.is_from_tonic_triad:
-            return None
-
-        # There must be a way to reach end note with step motion.
-        degrees_to_end_note = abs(
-            destination.relative_position - line[-1].relative_position
+    def __check_voice_leading_rules(self, movements: List[int]) -> bool:
+        """Check compliance with rules of voice leading."""
+        voice_leading_registry = get_voice_leading_rules_registry()
+        zipped = zip(
+            self.lines,
+            self.line_elements,
+            movements,
+            self.passed_movements
         )
-        measures_left = self.n_measures - self.last_finished_measure - 2
-        if degrees_to_end_note > measures_left:
-            return None
+        for line, line_elements, movement, previous_movements in zipped:
+            last_pitch = line[self.last_finished_measure]
+            if movement not in last_pitch.permitted_movements:
+                return False
+            params = {
+                'line': line,
+                'line_elements': line_elements,
+                'movement': movement,
+                'previous_movements': previous_movements,
+                'measure': self.last_finished_measure
+            }
+            for rule_name in self.names_of_voice_leading_rules:
+                rule_fn = voice_leading_registry[rule_name]
+                is_compliant = rule_fn(**params)
+                if not is_compliant:
+                    return False
+        return True
 
-        return destination
-
-    @staticmethod
-    def __check_is_it_consonant(chord: List[LineElement]) -> bool:
-        """Check that all intervals from a chord are consonant."""
-        n_semitones_to_consonance = {
-            0: True, 1: False, 2: False, 3: True, 4: True, 5: True,
-            6: False, 7: True, 8: True, 9: True, 10: False, 11: False
-        }
-        for first, second in itertools.combinations(chord, 2):
-            interval = first.absolute_position - second.absolute_position
-            interval %= len(n_semitones_to_consonance)
-            if not n_semitones_to_consonance[interval]:
+    def __check_harmony_rules(self, movements: List[int]) -> bool:
+        """Check compliance with rules of harmony."""
+        harmony_registry = get_harmony_rules_registry()
+        destination_sonority = self.__find_destinations(movements)
+        for rule_name in self.names_of_harmony_rules:
+            rule_fn = harmony_registry[rule_name]
+            is_compliant = rule_fn(destination_sonority)
+            if not is_compliant:
                 return False
         return True
 
@@ -231,21 +249,18 @@ class Piece:
         :param movements:
             list of shifts in scale degrees for each line
         :return:
-            `True` if movements are permitted, `False` else
+            `True` if movements are in accordance with rules, `False` else
         """
         if len(movements) != len(self.lines):
             raise ValueError(
                 f"Wrong number of lines: {len(movements)}, "
                 f"expected: {len(self.lines)}."
             )
-        destinations = []
-        zipped = zip(movements, self.lines, self.line_elements)
-        for movement, line, elements in zipped:
-            result = self.__compute_destination(movement, line, elements)
-            if result is None:
-                return False
-            destinations.append(result)
-        return self.__check_is_it_consonant(destinations)
+        if not self.__check_voice_leading_rules(movements):
+            return False
+        if not self.__check_harmony_rules(movements):
+            return False
+        return True
 
     def add_measure(self, movements: List[int]) -> None:
         """
@@ -259,17 +274,17 @@ class Piece:
         if self.last_finished_measure == self.n_measures - 1:
             raise RuntimeError("Attempt to add notes to a finished piece.")
         if not self.check_movements(movements):
-            raise ValueError('Passed movements are not permitted.')
-        zipped = zip(movements, self.lines, self.line_elements)
-        for movement, line, elements in zipped:
-            current_element = line[self.last_finished_measure]
-            position = current_element.relative_position + movement
-            next_element = elements[position]
+            raise ValueError('Suggested movements break some rules.')
+        next_sonority = self.__find_destinations(movements)
+        for line, next_element in zip(self.lines, next_sonority):
             line[self.last_finished_measure + 1] = next_element
             self._piano_roll[
                 next_element.absolute_position, self.last_finished_measure + 1
             ] = 1
+        for movement, past_movements in zip(movements, self.passed_movements):
+            past_movements.append(movement)
         self.last_finished_measure += 1
+        self.__finalize_if_needed()
 
     def reset(self) -> None:
         """

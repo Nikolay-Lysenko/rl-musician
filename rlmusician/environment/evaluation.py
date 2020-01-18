@@ -171,23 +171,18 @@ def evaluate_motion_by_types(
         normalized weighted sum of scores granted for each movement
     """
     score = 0
-    for first_line, second_line in itertools.combinations(piece.lines, 2):
-        prev_first = first_line[0]
-        prev_second = second_line[0]
-        paired = zip(first_line[1:], second_line[1:])
-        for first, second in paired:
-            first_diff = first.relative_position - prev_first.relative_position
-            second_diff = second.relative_position - prev_second.relative_position
-            if first_diff == second_diff:
+    pairs = itertools.combinations(piece.passed_movements, 2)
+    for first_movements, second_movements in pairs:
+        paired = zip(first_movements, second_movements)
+        for first_movement, second_movement in paired:
+            if first_movement == second_movement:
                 score += parallel_coef
-            elif first_diff * second_diff > 0:
+            elif first_movement * second_movement > 0:
                 score += similar_coef
-            elif first_diff * second_diff == 0:
+            elif first_movement * second_movement == 0:
                 score += oblique_coef
             else:
                 score += contrary_coef
-            prev_first = first
-            prev_second = second
     n_lines = len(piece.lines)
     n_intervals = n_lines * (n_lines - 1) / 2 * (piece.n_measures - 1)
     score /= n_intervals

@@ -335,11 +335,11 @@ def test_evaluate_absence_of_pitch_class_clashes(
             # `similar_coef`
             -0.5,
             # `oblique_coef`
-            0,
+            -0.1,
             # `contrary_coef`
             1,
             # `expected`
-            -0.125
+            -0.15
         ),
     ]
 )

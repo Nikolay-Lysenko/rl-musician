@@ -5,9 +5,16 @@ Author: Nikolay Lysenko
 """
 
 
-from . import environment, piece, evaluation
+from . import environment, evaluation, piece, rules
 from .environment import CounterpointEnv
 from .piece import Piece
 
 
-__all__ = ['CounterpointEnv', 'Piece', 'environment', 'piece', 'evaluation']
+__all__ = [
+    'CounterpointEnv',
+    'Piece',
+    'environment',
+    'evaluation',
+    'piece',
+    'rules'
+]

@@ -125,20 +125,20 @@ class CounterpointEnv(gym.Env):
         info = {'next_actions': self.valid_actions}
 
         # Compute `done`.
-        finish = self.piece.last_finished_measure == self.piece.n_measures - 2
+        finish = self.piece.last_finished_measure == self.piece.n_measures - 1
         no_more_actions = len(info['next_actions']) == 0
         done = finish or no_more_actions
 
         # Compute `reward`.
-        if no_more_actions:
-            reward = self.reward_for_dead_end
-        elif done:
+        if finish:
             reward = evaluate(
                 self.piece,
                 self.scoring_coefs,
                 self.scoring_fn_params,
                 self.verbose
             )
+        elif no_more_actions:
+            reward = self.reward_for_dead_end
         else:
             reward = 0
 

@@ -13,7 +13,7 @@ import pytest
 from rlmusician.environment import Piece
 
 
-class TestPianoRollEnv:
+class TestPiece:
     """Tests for `Piece` class."""
 
     @pytest.mark.parametrize(
@@ -246,6 +246,42 @@ class TestPianoRollEnv:
                 # `expected`
                 [True, False, False, False]
             ),
+            (
+                # `tonic`
+                'C',
+                # `scale`
+                'major',
+                # `n_measures`
+                10,
+                # `max_skip`
+                5,
+                # `line_specifications`
+                [
+                    {
+                        'lowest_note': 'G3',
+                        'highest_note': 'G4',
+                        'start_note': 'C4',
+                        'end_note': 'C4'
+                    },
+                    {
+                        'lowest_note': 'C4',
+                        'highest_note': 'C6',
+                        'start_note': 'C5',
+                        'end_note': 'G4'
+                    },
+                ],
+                # `previous_movements`
+                [[1, 4]],
+                # `candidate_movements`
+                [
+                    [-1, -1],
+                    [1, -2],
+                    [1, 1],
+                    [1, -1],
+                ],
+                # `expected`
+                [True, False, False, False]
+            ),
         ]
     )
     def test_check_movements(
@@ -305,7 +341,6 @@ class TestPianoRollEnv:
                     [0, -1],
                     [-2, 1],
                     [1, 1],
-                    [-1, 1]
                 ],
                 # `expected_positions`
                 [
@@ -353,8 +388,8 @@ class TestPianoRollEnv:
         piece = Piece(
             tonic, scale, n_measures, max_skip, line_specifications, {}
         )
-        for mov in movements:
-            piece.add_measure(mov)
+        for movement in movements:
+            piece.add_measure(movement)
         relative_positions = [
             [element.relative_position for element in line]
             for line in piece.lines
