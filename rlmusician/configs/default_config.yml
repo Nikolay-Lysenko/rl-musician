@@ -36,6 +36,7 @@ environment:
     types_of_motion: 1
     lines_correlation: 1
     climax_explicity: 1
+    number_of_skips: 1
   scoring_fn_params:
     autocorrelation:
       max_lag: 8
@@ -49,6 +50,9 @@ environment:
     climax_explicity:
       shortage_penalty: 0.3
       duplication_penalty: 0.5
+    number_of_skips:
+      min_n_skips: 1
+      max_n_skips: 3
 agent:
   hidden_layer_size: 10
   softmax_temperature: 0.1

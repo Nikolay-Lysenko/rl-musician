@@ -16,7 +16,8 @@ from rlmusician.environment.evaluation import (
     evaluate_absence_of_pitch_class_clashes,
     evaluate_motion_by_types,
     evaluate_lines_correlation,
-    evaluate_climax_explicity
+    evaluate_climax_explicity,
+    evaluate_number_of_skips
 )
 from rlmusician.environment.piece import Piece
 
@@ -494,3 +495,55 @@ def test_evaluate_climax_explicity(
         piece, shortage_penalty, duplication_penalty
     )
     assert round(result, 4) == expected
+
+
+@pytest.mark.parametrize(
+    "piece, all_movements, min_n_skips, max_n_skips, expected",
+    [
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale='major',
+                n_measures=5,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'G3',
+                        'highest_note': 'G4',
+                        'start_note': 'C4',
+                        'end_note': 'G4'
+                    },
+                    {
+                        'lowest_note': 'G4',
+                        'highest_note': 'G5',
+                        'start_note': 'C5',
+                        'end_note': 'C5'
+                    },
+                ],
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [
+                [2, 0],
+                [0, 0],
+                [2, 0],
+            ],
+            # `min_n_skips`
+            1,
+            # `max_n_skips`
+            2,
+            # `expected`
+            0.5
+        ),
+    ]
+)
+def test_evaluate_number_of_skips(
+        piece: Piece, all_movements: List[List[int]],
+        min_n_skips: int, max_n_skips: int, expected: float
+) -> None:
+    """Test `evaluate_number_of_skips` function."""
+    for movements in all_movements:
+        piece.add_measure(movements)
+    result = evaluate_number_of_skips(piece, min_n_skips, max_n_skips)
+    assert result == expected

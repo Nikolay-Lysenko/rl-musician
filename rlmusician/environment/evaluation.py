@@ -249,6 +249,32 @@ def evaluate_climax_explicity(
     return score
 
 
+def evaluate_number_of_skips(
+        piece: Piece, min_n_skips: int = 1, max_n_skips: int = 3
+) -> float:
+    """
+    Evaluate interestingness of lines based on number of skips in them.
+
+    :param piece:
+        Piece` instance
+    :param min_n_skips:
+        minimum number of skips for a line to be interesting
+    :param max_n_skips:
+        maximum number of skips for a line to be still coherent
+    :return:
+        share of lines where number of skips lies within specified range
+    """
+    scores = []
+    for movements in piece.passed_movements:
+        n_skips = 0
+        for movement in movements:
+            if abs(movement) > 1:
+                n_skips += 1
+        scores.append(1 if min_n_skips <= n_skips <= max_n_skips else 0)
+    score = sum(scores) / len(scores)
+    return score
+
+
 def get_scoring_functions_registry() -> Dict[str, Callable]:
     """
     Get mapping from names of scoring functions to scoring functions.
@@ -264,6 +290,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         'types_of_motion': evaluate_motion_by_types,
         'lines_correlation': evaluate_lines_correlation,
         'climax_explicity': evaluate_climax_explicity,
+        'number_of_skips': evaluate_number_of_skips,
     }
     return registry
 
