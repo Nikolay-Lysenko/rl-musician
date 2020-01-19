@@ -177,6 +177,27 @@ def check_consonance_of_sonority(sonority: List['LineElement']) -> bool:
     return True
 
 
+def check_absence_of_large_intervals(
+        sonority: List['LineElement'], max_interval: int = 9
+) -> bool:
+    """
+    Check that there are no large intervals between adjacent pitches.
+
+    :param sonority:
+        list of simultaneously sounding pitches
+    :param max_interval:
+        maximum allowed interval in scale degrees between two adjacent pitches
+    :return:
+        indicator whether a sonority has no excessive intervals
+    """
+    if len(sonority) == 1:
+        return True
+    positions = sorted(x.relative_position for x in sonority)
+    adjacent_pairs = zip(positions, positions[1:])
+    intervals = [y - x for x, y in adjacent_pairs]
+    return max(intervals) <= max_interval
+
+
 def get_harmony_rules_registry() -> Dict[str, Callable]:
     """
     Get mapping from names to functions checking harmony rules.
@@ -185,6 +206,7 @@ def get_harmony_rules_registry() -> Dict[str, Callable]:
         registry of functions checking harmony rules
     """
     registry = {
-        'consonance': check_consonance_of_sonority
+        'consonance': check_consonance_of_sonority,
+        'absence_of_large_intervals': check_absence_of_large_intervals
     }
     return registry

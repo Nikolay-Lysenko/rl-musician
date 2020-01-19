@@ -56,7 +56,8 @@ class Piece:
         'step_motion_to_end'
     ]
     names_of_harmony_rules = [
-        'consonance'
+        'consonance',
+        'absence_of_large_intervals'
     ]
 
     def __init__(
