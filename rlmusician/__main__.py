@@ -62,7 +62,7 @@ def parse_cli_args() -> argparse.Namespace:
         help='path to configuration file'
     )
     parser.add_argument(
-        '-p', '--populations', type=int, default=10,
+        '-p', '--populations', type=int, default=15,
         help='number of populations for agent training'
     )
     parser.add_argument(

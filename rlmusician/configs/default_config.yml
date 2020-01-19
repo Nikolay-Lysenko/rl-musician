@@ -2,44 +2,38 @@ piece:
   tonic: C
   scale: major
   n_measures: 16
-  max_skip: 2
+  max_skip: 3
   line_specifications:
-    - lowest_note: G3
-      highest_note: G4
-      start_note: C4
-      end_note: C4
     - lowest_note: C4
-      highest_note: C5
+      highest_note: E5
       start_note: G4
-      end_note: G4
+      end_note: C4
     - lowest_note: G4
-      highest_note: G5
-      start_note: E5
+      highest_note: C6
+      start_note: C5
       end_note: C5
   rendering_params:
     dir: rlmusician_data
-    measure_in_seconds: 0.7
+    measure_in_seconds: 1.0
     midi:
       instrument: 0
       velocity: 100
     sinethesizer:
       timbre: default_timbre
-      volume: 0.2
+      volume: 0.3
 environment:
   observation_decay: 0.75
   reward_for_dead_end: -3
   scoring_coefs:
-    autocorrelation: 3
-    pitch_class_clashes: 2
+    climax_explicity: 3
+    pitch_class_clashes: 3
     looped_pitches: 1
-    entropy: 1
     types_of_motion: 1
-    lines_correlation: 1
-    climax_explicity: 1
     number_of_skips: 1
   scoring_fn_params:
-    autocorrelation:
-      max_lag: 8
+    climax_explicity:
+      shortage_penalty: 0.3
+      duplication_penalty: 0.5
     looped_pitches:
       max_n_repetitions: 2
     types_of_motion:
@@ -47,9 +41,6 @@ environment:
       similar_coef: -0.5
       oblique_coef: 0
       contrary_coef: 1
-    climax_explicity:
-      shortage_penalty: 0.3
-      duplication_penalty: 0.5
     number_of_skips:
       min_n_skips: 1
       max_n_skips: 3
