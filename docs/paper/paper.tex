@@ -178,12 +178,103 @@ A software implementation of the above methodology in Python programming languag
 
 The implementation relies on some open-source tools \cite{brockman2016openai,chollet2015keras,oliphant2006guide,raffel2014intuitive}.
 
+In this section, results are reported for experiments with 2 melodic lines and 16 measures starting from (G4, C5) and ending with (C4, C5). It is found that scores for autocorrelation and entropy of pitch distribution are redundant. Non-degenerate pieces are produced even without them. So only six properties are evaluated. There are weighted so that explicity of climax and absence of pitch class clashes have 3 times more impact than any other property.
+
+In Table \ref{table:scores}, scores of a typical piece created by an agent trained for 20 populations, are compared with two benchmarks. The first one is simple baseline -- it is score of a piece created by an agent with weights that are the best amongst 100 random weights. The second one are scores for a piece manually created by the author.
+
+\begin{table}[h!]
+	\caption{Scores of sample pieces}
+	\label{table:scores}
+	\begin{center}
+		\begin{tabular}{|l|c|c|c|c|}
+			\hline
+			& Baseline & Agent & Human & Maximum\\
+			\hline
+			Absence of looped pitches & & & 0 & 0\\
+			\hline
+			Absence of pitch or pitch class clashes & & & -0.643 & 0\\
+			\hline
+			Motions & & & 0.1 & 1\\
+			\hline
+			Correlation between lines & & & 0.278 & 1\\
+			\hline
+			Explicity of climax & & & 3 & 3\\
+			\hline
+			Number of skips & & & 1 & 1\\
+			\hline
+			Total reward & & & 3.735 & 6\\
+			\hline
+		\end{tabular}
+	\end{center}
+\end{table}
+
+It can be seen that .
 %different runs are variations of the same piece.
 %pitch class clashes occur.
 
-%To use less computation time, size of piano roll was chosen as follows: $n = 25$ (two octaves and one more note) and $m = 33$ (recall that the last time step is silent by design, so only 32 time steps are filled). Training an agent from scratch on a CPU of a regular laptop takes less than an hour with these settings.
+As for subjective evaluation of music quality, it is not correct to compare the selected piece created by an agent with the piece created by the author. The problem is that reward encourages to follow counterpointal rules but, from a modern listener point of view, breaking these rules does not necessarily sound unaesthetically. As a result, subjective perception of a resulting piece is not aligned with objective function used during optimization.
 
-% As for human evaluation, created pieces lack rhythmic and tonal structure. Such drawback can be expected a priori, because there are no evaluational rules for structure-related properties. On the other hand, pieces are quite ear-pleasant. Thus, current version of the tool may be used by a human composer as an auxiliary source of inspiration. In particular, generated short parts further can be inserted into a longer piece.
+Table \ref{table:piece} contains the created by an agent piece for which above scores are granted.
+
+\begin{table}[h!]
+	\caption{A piece composed by an agent}
+	\label{table:piece}
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+		\end{tabular}
+	\end{center}
+\end{table}
 
 
 \section{Conclusion}
@@ -193,10 +284,6 @@ The implementation relies on some open-source tools \cite{brockman2016openai,cho
 %music theory: penalize downward skips and overlapping motion.
 
 This paper studies capabilities of reinforcement learning for music composition without usage of existing pieces. Here, music composition is framed as optimization problem where the goal is to find values of generative model's parameters maximizing expected score of pieces generated with them. It is found that some progress can be made in this direction.
-
-%However, it is also found that vast majority of computational resources and engineering efforts are now spent on preventing an agent from taking actions that are discouraged by music theory. It is much easier to impose known constraints in program code than to learn them from environment responses. So it seems very promising to exclude discouraged actions and then focus training on things of higher level such as rhythm dynamic, presence of motiffs, proper final, and so on.
-
-%If setup becomes more complicated after above modifications, it might be worth trying to use LSTM neural network as actor model and evolutionary strategies as training algorithm.
 
 
 \bibliographystyle{unsrt}  
