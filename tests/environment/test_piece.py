@@ -259,8 +259,8 @@ class TestPiece:
                 [
                     {
                         'lowest_note': 'G3',
-                        'highest_note': 'G4',
-                        'start_note': 'C4',
+                        'highest_note': 'G5',
+                        'start_note': 'G4',
                         'end_note': 'C4'
                     },
                     {
@@ -271,13 +271,13 @@ class TestPiece:
                     },
                 ],
                 # `previous_movements`
-                [[1, 4]],
+                [[0, 4]],
                 # `candidate_movements`
                 [
                     [-1, -1],
                     [1, -2],
                     [1, 1],
-                    [1, -1],
+                    [0, -1],
                 ],
                 # `expected`
                 [True, False, False, False]
