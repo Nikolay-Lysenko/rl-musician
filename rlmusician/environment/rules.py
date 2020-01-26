@@ -178,7 +178,8 @@ def check_consonance_of_sonority(sonority: List['LineElement']) -> bool:
 
 
 def check_absence_of_large_intervals(
-        sonority: List['LineElement'], max_interval: int = 16
+        sonority: List['LineElement'],
+        max_interval: int = 16  # NB: Changing this value may break tests.
 ) -> bool:
     """
     Check that there are no large intervals between adjacent pitches.
