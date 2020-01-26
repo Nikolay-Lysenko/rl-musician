@@ -5,7 +5,7 @@ piece:
   max_skip: 3
   line_specifications:
     - lowest_note: C4
-      highest_note: E5
+      highest_note: C5
       start_note: G4
       end_note: C4
     - lowest_note: G4
@@ -27,6 +27,7 @@ environment:
   scoring_coefs:
     climax_explicity: 3
     pitch_class_clashes: 3
+    lines_correlation: 1
     looped_pitches: 1
     types_of_motion: 1
     number_of_skips: 1
