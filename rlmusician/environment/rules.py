@@ -178,7 +178,7 @@ def check_consonance_of_sonority(sonority: List['LineElement']) -> bool:
 
 
 def check_absence_of_large_intervals(
-        sonority: List['LineElement'], max_interval: int = 9
+        sonority: List['LineElement'], max_interval: int = 16
 ) -> bool:
     """
     Check that there are no large intervals between adjacent pitches.
@@ -186,13 +186,13 @@ def check_absence_of_large_intervals(
     :param sonority:
         list of simultaneously sounding pitches
     :param max_interval:
-        maximum allowed interval in scale degrees between two adjacent pitches
+        maximum allowed interval in semitones between two adjacent pitches
     :return:
         indicator whether a sonority has no excessive intervals
     """
     if len(sonority) == 1:
         return True
-    positions = sorted(x.relative_position for x in sonority)
+    positions = sorted(x.absolute_position for x in sonority)
     adjacent_pairs = zip(positions, positions[1:])
     intervals = [y - x for x, y in adjacent_pairs]
     return max(intervals) <= max_interval
