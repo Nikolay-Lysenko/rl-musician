@@ -16,7 +16,7 @@
 
 \title{RL-Musician: A Tool for Music Composition with Reinforcement Learning}
 
-\date{January 11, 2020}
+\date{January 26, 2020}
 
 \author{
   Nikolay~Lysenko\\
@@ -190,31 +190,27 @@ In Table \ref{table:scores}, scores of a typical piece created by an agent train
 			\hline
 			& Baseline & Agent & Human & Maximum\\
 			\hline
-			Absence of looped pitches & & & 0 & 0\\
+			Absence of looped pitches & -1 & 0 & 0 & 0\\
 			\hline
-			Absence of pitch or pitch class clashes & & & -0.643 & 0\\
+			Absence of pitch or pitch class clashes & -0.429 & -0.429 & -0.643 & 0\\
 			\hline
-			Motions & & & 0.1 & 1\\
+			Motion & -0.1 & 0.367 & 0.1 & 1\\
 			\hline
-			Correlation between lines & & & 0.278 & 1\\
+			Correlation between lines & 0.552 & 0.599 & 0.278 & 1\\
 			\hline
-			Explicity of climax & & & 3 & 3\\
+			Explicity of climax & 0.9 & 1.65 & 3 & 3\\
 			\hline
-			Number of skips & & & 1 & 1\\
+			Number of skips & 0 & 1 & 1 & 1\\
 			\hline
-			Total reward & & & 3.735 & 6\\
+			Total reward & -0.076 & 3.187 & 3.735 & 6\\
 			\hline
 		\end{tabular}
 	\end{center}
 \end{table}
 
-It can be seen that .
-%different runs are variations of the same piece.
-%pitch class clashes occur.
+It can be seen that the agent's piece is better than the manually created piece by all metrics except explicity of climax. Since climax is higher than start note, both lines are assumed to have upward motion but the agent wrongly trades off climax score for contrary motion and lower lines correlation.
 
-As for subjective evaluation of music quality, it is not correct to compare the selected piece created by an agent with the piece created by the author. The problem is that reward encourages to follow counterpointal rules but, from a modern listener point of view, breaking these rules does not necessarily sound unaesthetically. As a result, subjective perception of a resulting piece is not aligned with objective function used during optimization.
-
-Table \ref{table:piece} contains the created by an agent piece for which above scores are granted.
+Table \ref{table:piece} contains the created by the agent piece for which above scores are granted.
 
 \begin{table}[h!]
 	\caption{A piece composed by an agent}
@@ -222,7 +218,31 @@ Table \ref{table:piece} contains the created by an agent piece for which above s
 	\begin{center}
 		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
 			\hline
+			& & & & & & & C6 & & & & & & & & \\
+			\hline
+			& & & & & & B5 & & & & & & & & & \\
+			\hline
 			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & A5 & & & & A5 & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & G5 & & & & G5 & & G5 & G5 & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & F5 & & & & & & & & & & & & \\
+			\hline
+			& & E5 & & & & & & & & & & E5 & & & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& D5 & & & & & & & & & & & & & D5 & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			C5 & & & & & & & & & & & & & C5 & & C5 \\
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
@@ -232,49 +252,29 @@ Table \ref{table:piece} contains the created by an agent piece for which above s
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
-			& & & & & & & & & & & & & & & \\
+			G4 & & & & & & & & & & & & & & & \\
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
-			& & & & & & & & & & & & & & & \\
+			& F4 & & & & & & & & & & & & & & \\
+			\hline
+			& & E4 & & & E4 & & E4 & & & E4 & & & E4 & & \\
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
-			& & & & & & & & & & & & & & & \\
+			& & & D4 & & & D4 & & D4 & & & D4 & & & D4 & \\
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
+			& & & & C4 & & & & & C4 & & & C4 & & & C4 \\
 			\hline
 		\end{tabular}
 	\end{center}
 \end{table}
+
+As for subjective evaluation of music quality, it is not correct to compare the selected piece created by the agent with the piece created by the author. The problem is that reward encourages to follow counterpointal rules but, from a modern listener point of view, breaking these rules does not necessarily sound unaesthetically. That being said, subjective perception of a resulting piece is not aligned with fitness function used during optimization. However, it must be noted that the piece shown above looks like overfitted to the given fitness function. It is not a problem associated with training, it is a flaw in problem setup.
+
+Numerous experiments revealed another important issue. Actually, different runs of a trained agent produce variations of the same piece. Although there might be significant differences in scores (in particular, because some scoring functions are discrete), there are no significant differences from music point of view.
 
 
 \section{Conclusion}
@@ -284,6 +284,14 @@ Table \ref{table:piece} contains the created by an agent piece for which above s
 %music theory: penalize downward skips and overlapping motion.
 
 This paper studies capabilities of reinforcement learning for music composition without usage of existing pieces. Here, music composition is framed as optimization problem where the goal is to find values of generative model's parameters maximizing expected score of pieces generated with them. It is found that some progress can be made in this direction.
+
+The list of suggested further improvements is as follows:
+\begin{itemize}
+	\item \textbf{Reflect more knowledge from music theory in filtering rules and evaluational rules.} For example, overlapping motion should be discouraged. Also downward skips can be penalized in order to have upward skips before climax and downward stepwise motion after it.
+	\item \textbf{Promote variety in fitness function.} Now, fitness function just averages rewards for several episodes. However, a new term can be added to this average. This term must reflect how different created pieces are from each other.
+	\item \textbf{Revise feature representation for actor model.} Probably, procedure of next measure generation should be changed. Currently, it is assumed that shallow neural network is able to act based on relatively raw feature representation. To make it less raw, some features inspired by music theory may be engineered.
+	\item \textbf{Abstract away all rules and focus only on essentials of music.} Tonal music introduces attraction between pitches. Depending on this attraction and degree of consonance/dissonance, tension increases or dissipates. Moments of time when level of tension changes may be rhythmically accented or unaccented. Close but not exact alignment between rhythmical accent and resolution results in aesthetic and interesting music. Taking into account voice leading constraints, optimization problem can be set up based on above considerations.
+\end{itemize}
 
 
 \bibliographystyle{unsrt}  
