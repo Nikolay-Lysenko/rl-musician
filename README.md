@@ -13,7 +13,7 @@ Comparing to music composition tools such as [MuseNet](https://openai.com/blog/m
 * Actual creativity lies not in imitation of famous pieces, but in finding new ways to create something to be called art. Reinforcement learning meets this criterion, but supervised learning doesn't.
 * There are [tuning systems](https://en.wikipedia.org/wiki/Musical_tuning#Tuning_systems) other than [equal temperament](https://en.wikipedia.org/wiki/Equal_temperament) (say, in [microtonal music](https://en.wikipedia.org/wiki/Microtonal_music)) and there can be not enough examples for some of them. A model cannot be trained in a supervised manner without a dataset, but, given some rules, an agent can be trained and evaluated even for an absolutely new tuning system.
 
-To find more details, look at [a draft of a paper](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/docs/paper/paper.pdf). However, it describes v0.1.2 and so it is outdated since v0.2.0 release.
+To find more details, look at [a draft of a paper](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/docs/paper/paper.pdf).
 
 ## Installation
 
