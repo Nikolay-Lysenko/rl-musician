@@ -42,23 +42,11 @@ class LineElement(NamedTuple):
     absolute_position: int
     relative_position: int
     is_from_tonic_triad: bool
-    permitted_movements: List[int]
+    feasible_movements: List[int]
 
 
 class Piece:
     """Musical piece compliant with some rules of counterpoint writing."""
-
-    names_of_voice_leading_rules = [
-        'rearticulation',
-        'skip_goal',
-        'turn_after_skip',
-        'two_unstable',
-        'step_motion_to_end'
-    ]
-    names_of_harmony_rules = [
-        'consonance',
-        'absence_of_large_intervals'
-    ]
 
     def __init__(
             self,
@@ -67,6 +55,8 @@ class Piece:
             n_measures: int,
             max_skip: int,
             line_specifications: List[Dict[str, Any]],
+            voice_leading_rules: Dict[str, Any],
+            harmony_rules: Dict[str, Any],
             rendering_params: Dict[str, Any]
     ):
         """
@@ -84,6 +74,10 @@ class Piece:
             from the same line
         :param line_specifications:
             parameters of lines
+        :param voice_leading_rules:
+            names of applicable voice leading rules and their parameters
+        :param harmony_rules:
+            names of applicable harmony rules and their parameters
         :param rendering_params:
             settings of saving piece to TSV, MIDI, and WAV files
         """
@@ -92,6 +86,10 @@ class Piece:
         self.n_measures = n_measures
         self.max_skip = max_skip
         self.line_specifications = line_specifications
+        self.names_of_voice_leading_rules = voice_leading_rules['names']
+        self.voice_leading_rules_params = voice_leading_rules['params']
+        self.names_of_harmony_rules = harmony_rules['names']
+        self.harmony_rules_params = harmony_rules['params']
         self.rendering_params = rendering_params
 
         self.positions_from_scale = get_positions_from_scale(tonic, scale)
@@ -116,15 +114,15 @@ class Piece:
             self.__add_end_note(specs['end_note'], 'end')
         self.last_finished_measure = 0
 
-    def __get_permitted_movements(
+    def __get_feasible_movements(
             self, current_position: int, end_position: int,
     ) -> List[int]:
         """Get intervals in scale degrees that do not go beyond the range."""
-        permitted_movements = [
+        feasible_movements = [
             movement for movement in self.all_movements
             if 0 <= current_position + movement < end_position
         ]
-        return permitted_movements
+        return feasible_movements
 
     def __define_elements(self, specs: Dict[str, Any]) -> None:
         """Define list of pitches that can be used within a line."""
@@ -140,7 +138,7 @@ class Piece:
         elements = []
         mapping = {}
         for pitch_number, absolute_position in enumerate(sliced_positions):
-            permitted_movements = self.__get_permitted_movements(
+            feasible_movements = self.__get_feasible_movements(
                 pitch_number, len(sliced_positions)
             )
             is_from_triad = absolute_position in self.tonic_triad_positions
@@ -148,7 +146,7 @@ class Piece:
                 absolute_position,
                 pitch_number,
                 is_from_triad,
-                permitted_movements
+                feasible_movements
             )
             elements.append(element)
             mapping[absolute_position] = pitch_number
@@ -216,9 +214,9 @@ class Piece:
         )
         for line, line_elements, movement, previous_movements in zipped:
             last_pitch = line[self.last_finished_measure]
-            if movement not in last_pitch.permitted_movements:
+            if movement not in last_pitch.feasible_movements:
                 return False
-            params = {
+            inputs = {
                 'line': line,
                 'line_elements': line_elements,
                 'movement': movement,
@@ -227,7 +225,8 @@ class Piece:
             }
             for rule_name in self.names_of_voice_leading_rules:
                 rule_fn = voice_leading_registry[rule_name]
-                is_compliant = rule_fn(**params)
+                fn_params = self.voice_leading_rules_params.get(rule_name, {})
+                is_compliant = rule_fn(**inputs, **fn_params)
                 if not is_compliant:
                     return False
         return True
@@ -238,19 +237,20 @@ class Piece:
         destination_sonority = self.__find_destinations(movements)
         for rule_name in self.names_of_harmony_rules:
             rule_fn = harmony_registry[rule_name]
-            is_compliant = rule_fn(destination_sonority)
+            rule_fn_params = self.harmony_rules_params.get(rule_name, {})
+            is_compliant = rule_fn(destination_sonority, **rule_fn_params)
             if not is_compliant:
                 return False
         return True
 
     def check_movements(self, movements: List[int]) -> bool:
         """
-        Check whether suggested movements are compliant with some rules.
+        Check whether suggested movements are compliant with the rules.
 
         :param movements:
             list of shifts in scale degrees for each line
         :return:
-            `True` if movements are in accordance with rules, `False` else
+            `True` if movements are in accordance with the rules, `False` else
         """
         if len(movements) != len(self.lines):
             raise ValueError(
