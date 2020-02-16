@@ -141,6 +141,27 @@ class TestCounterpointEnvAgent:
                                 'end_note': 'C5'
                             },
                         ],
+                        voice_leading_rules={
+                            'names': [
+                                'rearticulation',
+                                'destination_of_skip',
+                                'turn_after_skip',
+                                'VI_VII_resolution',
+                                'step_motion_to_end'
+                            ],
+                            'params': {}
+                        },
+                        harmony_rules={
+                            'names': [
+                                'consonance',
+                                'absence_of_large_intervals'
+                            ],
+                            'params': {
+                                'absence_of_large_intervals': {
+                                    'max_n_semitones': 16
+                                }
+                            }
+                        },
                         rendering_params={}
                     ),
                     observation_decay=0.75,
