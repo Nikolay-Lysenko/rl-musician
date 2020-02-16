@@ -33,6 +33,20 @@ from rlmusician.utils import (
                         'end_note': 'C5'
                     }
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -59,6 +73,20 @@ from rlmusician.utils import (
                         'end_note': 'C5'
                     }
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -110,6 +138,20 @@ def test_create_events_from_piece(
                         'end_note': 'C5'
                     }
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -130,6 +172,20 @@ def test_create_events_from_piece(
                         'end_note': 'C5'
                     }
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
                 rendering_params={}
             ),
             # `all_movements`,

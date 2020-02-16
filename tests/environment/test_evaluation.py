@@ -40,6 +40,20 @@ from rlmusician.environment.piece import Piece
                         'end_note': 'C4'
                     }
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -64,6 +78,20 @@ from rlmusician.environment.piece import Piece
                         'end_note': 'C4'
                     }
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -104,6 +132,20 @@ def test_evaluate_autocorrelation(
                         'end_note': 'G4'
                     }
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -126,6 +168,20 @@ def test_evaluate_autocorrelation(
                         'end_note': 'C5'
                     }
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -163,6 +219,20 @@ def test_evaluate_entropy(
                         'end_note': 'C4'
                     }
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -187,6 +257,20 @@ def test_evaluate_entropy(
                         'end_note': 'C4'
                     }
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -239,6 +323,27 @@ def test_evaluate_absence_of_looped_pitches(
                         'end_note': 'C6'
                     },
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -273,6 +378,27 @@ def test_evaluate_absence_of_looped_pitches(
                         'end_note': 'G4'
                     },
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -323,6 +449,27 @@ def test_evaluate_absence_of_pitch_class_clashes(
                         'end_note': 'C5'
                     },
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -388,6 +535,27 @@ def test_evaluate_motion_by_types(
                         'end_note': 'C6'
                     },
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -420,6 +588,27 @@ def test_evaluate_motion_by_types(
                         'end_note': 'C5'
                     },
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -467,6 +656,27 @@ def test_evaluate_lines_correlation(
                         'end_note': 'C5'
                     },
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
                 rendering_params={}
             ),
             # `all_movements`,
@@ -521,6 +731,27 @@ def test_evaluate_climax_explicity(
                         'end_note': 'C5'
                     },
                 ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                harmony_rules={
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
                 rendering_params={}
             ),
             # `all_movements`,

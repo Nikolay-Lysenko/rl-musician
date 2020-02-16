@@ -148,9 +148,9 @@ def get_voice_leading_rules_registry() -> Dict[str, Callable]:
     """
     registry = {
         'rearticulation': check_stability_of_rearticulated_pitch,
-        'skip_goal': check_that_skip_leads_to_stable_pitch,
+        'destination_of_skip': check_that_skip_leads_to_stable_pitch,
         'turn_after_skip': check_that_skip_is_followed_by_opposite_step_motion,
-        'two_unstable': check_resolution_of_submediant_and_leading_tone,
+        'VI_VII_resolution': check_resolution_of_submediant_and_leading_tone,
         'step_motion_to_end': check_step_motion_to_final_pitch
     }
     return registry
@@ -178,15 +178,14 @@ def check_consonance_of_sonority(sonority: List['LineElement']) -> bool:
 
 
 def check_absence_of_large_intervals(
-        sonority: List['LineElement'],
-        max_interval: int = 16  # NB: Changing this value may break tests.
+        sonority: List['LineElement'], max_n_semitones: int = 16
 ) -> bool:
     """
     Check that there are no large intervals between adjacent pitches.
 
     :param sonority:
         list of simultaneously sounding pitches
-    :param max_interval:
+    :param max_n_semitones:
         maximum allowed interval in semitones between two adjacent pitches
     :return:
         indicator whether a sonority has no excessive intervals
@@ -195,8 +194,8 @@ def check_absence_of_large_intervals(
         return True
     positions = sorted(x.absolute_position for x in sonority)
     adjacent_pairs = zip(positions, positions[1:])
-    intervals = [y - x for x, y in adjacent_pairs]
-    return max(intervals) <= max_interval
+    intervals_in_semitones = [y - x for x, y in adjacent_pairs]
+    return max(intervals_in_semitones) <= max_n_semitones
 
 
 def get_harmony_rules_registry() -> Dict[str, Callable]:

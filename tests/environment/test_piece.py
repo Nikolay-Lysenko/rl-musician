@@ -17,7 +17,8 @@ class TestPiece:
     """Tests for `Piece` class."""
 
     @pytest.mark.parametrize(
-        "tonic, scale, n_measures, max_skip, line_specifications, match",
+        "tonic, scale, n_measures, max_skip, line_specifications, "
+        "voice_leading_rules, harmony_rules, match",
         [
             (
                 # `tonic`
@@ -37,6 +38,19 @@ class TestPiece:
                         'end_note': 'C4'
                     }
                 ],
+                # `voice_leading_rules`
+                {
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                # `harmony_rules`
+                {'names': [], 'params': {}},
                 # `match`
                 "No pitches from .*"
             ),
@@ -58,6 +72,19 @@ class TestPiece:
                         'end_note': 'C4'
                     }
                 ],
+                # `voice_leading_rules`
+                {
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                # `harmony_rules`
+                {'names': [], 'params': {}},
                 # `match`
                 ".* does not belong to .*"
             ),
@@ -79,6 +106,19 @@ class TestPiece:
                         'end_note': 'D4'
                     }
                 ],
+                # `voice_leading_rules`
+                {
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                # `harmony_rules`
+                {'names': [], 'params': {}},
                 # `match`
                 ".* is not a tonic triad member for .*"
             ),
@@ -86,16 +126,20 @@ class TestPiece:
     )
     def test_improper_initialization(
             self, tonic: str, scale: str, n_measures: int, max_skip: int,
-            line_specifications: List[Dict[str, Any]], match: str
+            line_specifications: List[Dict[str, Any]],
+            voice_leading_rules: Dict[str, Any], harmony_rules: Dict[str, Any],
+            match: str
     ) -> None:
         """Test that initialization with invalid values is prohibited."""
         with pytest.raises(ValueError, match=match):
             _ = Piece(
-                tonic, scale, n_measures, max_skip, line_specifications, {}
+                tonic, scale, n_measures, max_skip, line_specifications,
+                voice_leading_rules, harmony_rules, rendering_params={}
             )
 
     @pytest.mark.parametrize(
-        "tonic, scale, n_measures, max_skip, line_specifications, rng, roll",
+        "tonic, scale, n_measures, max_skip, line_specifications, "
+        "voice_leading_rules, harmony_rules, rng, roll",
         [
             (
                 # `tonic`
@@ -121,6 +165,29 @@ class TestPiece:
                         'end_note': 'A3'
                     },
                 ],
+                # `voice_leading_rules`
+                {
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                # `harmony_rules`
+                {
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
                 # `rng`,
                 (34, 46),
                 # `roll`
@@ -144,12 +211,14 @@ class TestPiece:
     )
     def test_initialization(
             self, tonic: str, scale: str, n_measures: int, max_skip: int,
-            line_specifications: List[Dict[str, Any]], rng: Tuple[int, int],
-            roll: np.ndarray
+            line_specifications: List[Dict[str, Any]],
+            voice_leading_rules: Dict[str, Any], harmony_rules: Dict[str, Any],
+            rng: Tuple[int, int], roll: np.ndarray
     ) -> None:
         """Test that initialization with valid values works as expected."""
         piece = Piece(
-            tonic, scale, n_measures, max_skip, line_specifications, {}
+            tonic, scale, n_measures, max_skip, line_specifications,
+            voice_leading_rules, harmony_rules, rendering_params={}
         )
         assert len(piece.lines) == len(line_specifications)
         assert (piece.lowest_row_to_show, piece.highest_row_to_show) == rng
@@ -157,6 +226,7 @@ class TestPiece:
 
     @pytest.mark.parametrize(
         "tonic, scale, n_measures, max_skip, line_specifications, "
+        "voice_leading_rules, harmony_rules, "
         "previous_movements, candidate_movements, expected",
         [
             (
@@ -189,6 +259,29 @@ class TestPiece:
                         'end_note': 'C5'
                     },
                 ],
+                # `voice_leading_rules`
+                {
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                # `harmony_rules`
+                {
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
                 # `previous_movements`
                 [],
                 # `candidate_movements`
@@ -231,6 +324,29 @@ class TestPiece:
                         'end_note': 'C5'
                     },
                 ],
+                # `voice_leading_rules`
+                {
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                # `harmony_rules`
+                {
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
                 # `previous_movements`
                 [
                     [2, -1, 0],
@@ -270,6 +386,29 @@ class TestPiece:
                         'end_note': 'G4'
                     },
                 ],
+                # `voice_leading_rules`
+                {
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                # `harmony_rules`
+                {
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
                 # `previous_movements`
                 [[0, 4]],
                 # `candidate_movements`
@@ -287,13 +426,15 @@ class TestPiece:
     def test_check_movements(
             self, tonic: str, scale: str, n_measures: int, max_skip: int,
             line_specifications: List[Dict[str, Any]],
+            voice_leading_rules: Dict[str, Any], harmony_rules: Dict[str, Any],
             previous_movements: List[List[int]],
             candidate_movements: List[List[int]],
             expected: List[bool]
     ) -> None:
         """Test `check_movements` method."""
         piece = Piece(
-            tonic, scale, n_measures, max_skip, line_specifications, {}
+            tonic, scale, n_measures, max_skip, line_specifications,
+            voice_leading_rules, harmony_rules, rendering_params={}
         )
         for movements in previous_movements:
             piece.add_measure(movements)
@@ -305,6 +446,7 @@ class TestPiece:
 
     @pytest.mark.parametrize(
         "tonic, scale, n_measures, max_skip, line_specifications, "
+        "voice_leading_rules, harmony_rules, "
         "movements, expected_positions, expected_roll",
         [
             (
@@ -331,6 +473,29 @@ class TestPiece:
                         'end_note': 'C5'
                     },
                 ],
+                # `voice_leading_rules`
+                {
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {}
+                },
+                # `harmony_rules`
+                {
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
                 # `movements`
                 [
                     [1, -1],
@@ -381,12 +546,14 @@ class TestPiece:
     def test_add_measure(
             self, tonic: str, scale: str, n_measures: int, max_skip: int,
             line_specifications: List[Dict[str, Any]],
+            voice_leading_rules: Dict[str, Any], harmony_rules: Dict[str, Any],
             movements: List[List[int]],
             expected_positions: List[int], expected_roll: np.ndarray
     ) -> None:
         """Test `add_measure` method."""
         piece = Piece(
-            tonic, scale, n_measures, max_skip, line_specifications, {}
+            tonic, scale, n_measures, max_skip, line_specifications,
+            voice_leading_rules, harmony_rules, rendering_params={}
         )
         for movement in movements:
             piece.add_measure(movement)

@@ -12,6 +12,21 @@ piece:
       highest_note: C6
       start_note: C5
       end_note: C5
+  voice_leading_rules:
+    names:
+      - rearticulation
+      - destination_of_skip
+      - turn_after_skip
+      - VI_VII_resolution
+      - step_motion_to_end
+    params: {}
+  harmony_rules:
+    names:
+      - consonance
+      - absence_of_large_intervals
+    params:
+      absence_of_large_intervals:
+        max_n_semitones: 16
   rendering_params:
     dir: rlmusician_data
     measure_in_seconds: 1.0
