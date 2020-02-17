@@ -41,7 +41,14 @@ from rlmusician.utils import (
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [],
@@ -81,7 +88,14 @@ from rlmusician.utils import (
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [],
@@ -146,7 +160,14 @@ def test_create_events_from_piece(
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [],
@@ -180,7 +201,14 @@ def test_create_events_from_piece(
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [],

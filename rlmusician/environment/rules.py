@@ -57,7 +57,8 @@ def check_that_skip_leads_to_stable_pitch(
 
 
 def check_that_skip_is_followed_by_opposite_step_motion(
-        movement: int, previous_movements: List[int], **kwargs
+        movement: int, previous_movements: List[int],
+        min_n_scale_degrees: int = 3, **kwargs
 ) -> bool:
     """
     Check that after a large skip there is a step motion in opposite direction.
@@ -66,13 +67,15 @@ def check_that_skip_is_followed_by_opposite_step_motion(
         melodic interval in scale degrees for line continuation
     :param previous_movements:
         list of previous movements
+    :param min_n_scale_degrees:
+        minimum size of a large enough skip (in scale degrees)
     :return:
         indicator whether a movement is in accordance with the rule
     """
     if len(previous_movements) == 0:
         return True
     previous_movement = previous_movements[-1]
-    if abs(previous_movement) <= 2:  # Skip of a second is not large enough.
+    if abs(previous_movement) < min_n_scale_degrees:
         return True
     return movement == -previous_movement / abs(previous_movement)
 
@@ -114,7 +117,8 @@ def check_resolution_of_submediant_and_leading_tone(
 def check_step_motion_to_final_pitch(
         line: List[Optional['LineElement']],
         line_elements: List['LineElement'],
-        measure: int, movement: int, **kwargs
+        measure: int, movement: int, prohibit_rearticulation: bool = True,
+        **kwargs
 ) -> bool:
     """
     Check that there is a way to reach final pitch with step motion.
@@ -127,6 +131,9 @@ def check_step_motion_to_final_pitch(
         last finished measure in a line
     :param movement:
         melodic interval in scale degrees for line continuation
+    :param prohibit_rearticulation:
+        if it is set to `True`, the last but one pitch can not be the same as
+        the final pitch
     :return:
         indicator whether a movement is in accordance with the rule
     """
@@ -136,6 +143,8 @@ def check_step_motion_to_final_pitch(
     final_degree = line[-1].relative_position
     degrees_to_end_note = abs(next_degree - final_degree)
     measures_left = len(line) - measure - 2
+    if measures_left == 1 and degrees_to_end_note == 0:
+        return not prohibit_rearticulation
     return degrees_to_end_note <= measures_left
 
 

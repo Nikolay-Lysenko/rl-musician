@@ -48,7 +48,14 @@ from rlmusician.environment.piece import Piece
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [],
@@ -86,7 +93,14 @@ from rlmusician.environment.piece import Piece
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [],
@@ -140,7 +154,14 @@ def test_evaluate_autocorrelation(
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [],
@@ -176,7 +197,14 @@ def test_evaluate_autocorrelation(
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [],
@@ -227,7 +255,14 @@ def test_evaluate_entropy(
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [],
@@ -265,7 +300,14 @@ def test_evaluate_entropy(
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [],
@@ -331,7 +373,14 @@ def test_evaluate_absence_of_looped_pitches(
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [
@@ -386,7 +435,14 @@ def test_evaluate_absence_of_looped_pitches(
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [
@@ -457,7 +513,14 @@ def test_evaluate_absence_of_pitch_class_clashes(
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [
@@ -543,7 +606,14 @@ def test_evaluate_motion_by_types(
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [
@@ -596,7 +666,14 @@ def test_evaluate_motion_by_types(
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [
@@ -664,7 +741,14 @@ def test_evaluate_lines_correlation(
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [
@@ -739,7 +823,14 @@ def test_evaluate_climax_explicity(
                         'VI_VII_resolution',
                         'step_motion_to_end'
                     ],
-                    'params': {}
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
                 },
                 harmony_rules={
                     'names': [

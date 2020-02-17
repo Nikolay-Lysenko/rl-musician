@@ -149,7 +149,14 @@ class TestCounterpointEnvAgent:
                                 'VI_VII_resolution',
                                 'step_motion_to_end'
                             ],
-                            'params': {}
+                            'params': {
+                                'turn_after_skip': {
+                                    'min_n_scale_degrees': 3
+                                },
+                                'step_motion_to_end': {
+                                    'prohibit_rearticulation': True
+                                }
+                            }
                         },
                         harmony_rules={
                             'names': [
