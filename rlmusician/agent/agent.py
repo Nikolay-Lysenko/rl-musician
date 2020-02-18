@@ -5,7 +5,7 @@ Author: Nikolay Lysenko.
 """
 
 
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
 from scipy.special import softmax
@@ -127,31 +127,52 @@ class CounterpointEnvAgent:
         return reward
 
 
-def __find_n_weights_by_params(
+def get_zero_weights(
         agent_params: Dict[str, Any]
-) -> int:  # pragma: no cover
-    """Run internals for `find_n_weights_by_params`."""
+) -> np.ndarray:  # pragma: no cover
+    """Get zero weights of length compatible with the specified agent."""
     agent = CounterpointEnvAgent(**agent_params)
     n_weights = agent.n_weights
-    return n_weights
+    weights = np.array([0 for _ in range(n_weights)])
+    return weights
 
 
-def find_n_weights_by_params(
-        agent_params: Dict[str, Any]
-) -> int:  # pragma: no cover
+def load_flat_weigths(
+        weights_path: str, agent_params: Dict[str, Any]
+) -> np.ndarray:  # pragma: no cover
+    """Load weights from file and flatten them."""
+    agent = CounterpointEnvAgent(**agent_params)
+    agent.model.load_weights(weights_path)
+    weights = np.hstack(tuple(w.flatten() for w in agent.model.get_weights()))
+    return weights
+
+
+def extract_initial_weights(
+        weights_path: Optional[str], agent_params: Dict[str, Any]
+) -> np.ndarray:  # pragma: no cover
     """
-    Find number of weights in agent's network by parameters of the agent.
+    Load initial weights from file or fill all of them with zeros.
 
+    :param weights_path:
+        path to a file with saved weights;
+        if it is `None`, zeros are used as weights
     :param agent_params:
         arguments that must be passed to create an agent
     :return:
-        number of weights in agent's actor model
+        initial value of agent weights
     """
     # `tf` has dead lock if parent process launches it before a child process.
-    results = map_in_parallel(
-        __find_n_weights_by_params,
-        [(agent_params,)],
-        {'n_processes': 1}
-    )
-    n_weights = results[0]
-    return n_weights
+    if weights_path is None:
+        results = map_in_parallel(
+            get_zero_weights,
+            [(agent_params,)],
+            {'n_processes': 1}
+        )
+    else:
+        results = map_in_parallel(
+            load_flat_weigths,
+            [(weights_path, agent_params)],
+            {'n_processes': 1}
+        )
+    weights = results[0]
+    return weights

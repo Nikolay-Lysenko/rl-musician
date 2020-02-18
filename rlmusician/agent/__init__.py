@@ -7,7 +7,7 @@ Author: Nikolay Lysenko
 
 from . import actor_model, agent, crossentropy
 from .actor_model import create_actor_model
-from .agent import CounterpointEnvAgent, find_n_weights_by_params
+from .agent import CounterpointEnvAgent, extract_initial_weights
 from .crossentropy import optimize_with_cem
 
 
@@ -17,6 +17,6 @@ __all__ = [
     'agent',
     'create_actor_model',
     'crossentropy',
-    'find_n_weights_by_params',
+    'extract_initial_weights',
     'optimize_with_cem'
 ]

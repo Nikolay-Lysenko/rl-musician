@@ -16,7 +16,7 @@ import yaml
 
 from rlmusician.agent import (
     CounterpointEnvAgent,
-    create_actor_model, find_n_weights_by_params, optimize_with_cem
+    create_actor_model, extract_initial_weights, optimize_with_cem
 )
 from rlmusician.environment import CounterpointEnv, Piece
 
@@ -69,6 +69,10 @@ def parse_cli_args() -> argparse.Namespace:
         '-e', '--episodes', type=int, default=3,
         help='number of episodes for testing agent after its training'
     )
+    parser.add_argument(
+        '-w', '--weights_path', type=str, default=None,
+        help='path to a file with saved agent weights to start with'
+    )
     cli_args = parser.parse_args()
     return cli_args
 
@@ -101,12 +105,12 @@ def main() -> None:
         'environment_params': settings['environment'],
         'agent_params': agent_params
     }
-    n_weights = find_n_weights_by_params(agent_params)
+    initial_mean = extract_initial_weights(cli_args.weights_path, agent_params)
     best_weights = optimize_with_cem(
         evaluate_agent_weights,
         target_fn_kwargs=target_fn_kwargs,
         n_populations=cli_args.populations,
-        initial_mean=np.array([0 for _ in range(n_weights)]),
+        initial_mean=initial_mean,
         **settings['crossentropy']
     )
 

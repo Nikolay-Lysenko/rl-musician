@@ -122,7 +122,7 @@ def optimize_with_cem(
     n_top_candidates = round(elite_fraction * population_size)
 
     current_mean = initial_mean
-    best = {'params': None, 'score': -np.inf}
+    best = {'params': initial_mean, 'score': -np.inf}
     print("population | avg_score_over_current_top |   global_best_score")
     for i_population in range(n_populations):
         args = [

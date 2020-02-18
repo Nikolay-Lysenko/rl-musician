@@ -29,12 +29,13 @@ To train an agent from scratch and to get results produced by it, run:
 python -m rlmusician \
     -c [path/to/your/config] \
     -p [how_long_to_train] \
-    -e [how_many_pieces_to_produce]
+    -e [how_many_pieces_to_produce] \
+    -w [path_to_a_file_with_saved_weights]
 ```
 
-All three arguments are optional. [Default config](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/rlmusician/configs/default_config.yml) is used if `-c` argument is not passed; `-p` and `-e` options have reasonable defaults too. Training with these settings takes about 30 minutes on a CPU of a regular laptop.
+All four arguments are optional. [Default config](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/rlmusician/configs/default_config.yml) is used if `-c` argument is not passed; `-p` and `-e` options have reasonable defaults too. You should skip `-w` option if you have no saved weights from previous launches. If `-w` option is omitted, weights are drawn at random with zero mean.  
 
-If you are on Mac OS, please check that [parallelism is enabled](https://stackoverflow.com/questions/50168647/multiprocessing-causes-python-to-crash-and-gives-an-error-may-have-been-in-progr).
+Training with default settings takes about 30 minutes on a CPU of a regular laptop. If you are on Mac OS, please check that [parallelism is enabled](https://stackoverflow.com/questions/50168647/multiprocessing-causes-python-to-crash-and-gives-an-error-may-have-been-in-progr).
 
 Created pieces are stored in a directory specified in the config. For each piece, there is a nested directory that contains:
 * Piano roll in TSV format;
