@@ -151,7 +151,7 @@ def extract_initial_weights(
         weights_path: Optional[str], agent_params: Dict[str, Any]
 ) -> np.ndarray:  # pragma: no cover
     """
-    Load initial weights from file or fill all of them with zeros.
+    Load initial weights from a file or fill all of them with zeros.
 
     :param weights_path:
         path to a file with saved weights;

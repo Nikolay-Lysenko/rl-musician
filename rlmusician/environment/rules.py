@@ -109,8 +109,10 @@ def check_resolution_of_submediant_and_leading_tone(
         return True
     if line[measure - 1].is_from_tonic_triad:
         return True
-    # If there are two unstable pitches in a row, one of them is submediant
-    # and the other is leading tone.
+    # NB: This function relies on assumption that every skip must lead to a
+    # pitch from the tonic triad.
+    # Under this assumption, if there are two unstable pitches in a row,
+    # one of them is submediant and the other is leading tone.
     return movement == previous_movements[-1]
 
 

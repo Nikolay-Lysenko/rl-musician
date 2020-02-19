@@ -27,13 +27,13 @@ pip install rl-musician
 To train an agent from scratch and to get results produced by it, run:
 ```bash
 python -m rlmusician \
-    -c [path/to/your/config] \
+    -c [path_to_your_config] \
     -p [how_long_to_train] \
     -e [how_many_pieces_to_produce] \
-    -w [path_to_a_file_with_saved_weights]
+    -w [path_to_a_file_with_startup_weights]
 ```
 
-All four arguments are optional. [Default config](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/rlmusician/configs/default_config.yml) is used if `-c` argument is not passed; `-p` and `-e` options have reasonable defaults too. You should skip `-w` option if you have no saved weights from previous launches. If `-w` option is omitted, weights are drawn at random with zero mean.  
+All four arguments are optional. [Default config](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/rlmusician/configs/default_config.yml) is used if `-c` argument is not passed; `-p` and `-e` options have reasonable defaults too. You should skip `-w` option if you have no saved weights from previous launches. If `-w` option is omitted, startup weights are drawn at random with zero mean.  
 
 Training with default settings takes about 30 minutes on a CPU of a regular laptop. If you are on Mac OS, please check that [parallelism is enabled](https://stackoverflow.com/questions/50168647/multiprocessing-causes-python-to-crash-and-gives-an-error-may-have-been-in-progr).
 
@@ -42,3 +42,5 @@ Created pieces are stored in a directory specified in the config. For each piece
 * MIDI file;
 * Events file in [sinethesizer](https://github.com/Nikolay-Lysenko/sinethesizer) TSV format;
 * WAV file.
+
+Also, weights of the trained agent are saved in a timestamped file.
