@@ -16,7 +16,7 @@ import yaml
 
 from rlmusician.agent import (
     CounterpointEnvAgent,
-    create_actor_model, extract_initial_weights, optimize_with_cem
+    create_policy, extract_initial_weights, optimize_with_cem
 )
 from rlmusician.environment import CounterpointEnv, Piece
 
@@ -28,7 +28,7 @@ def evaluate_agent_weights(
         agent_params: Dict[str, Any]
 ) -> float:
     """
-    Evaluate weights of actor model for an agent.
+    Evaluate weights of a policy for an agent.
 
     :param flat_weights:
         1D array of weights to be evaluated
@@ -94,7 +94,7 @@ def main() -> None:
     piece = Piece(**settings['piece'])
     env = CounterpointEnv(piece, **settings['environment'])
     agent_params = {
-        'model_fn': create_actor_model,
+        'policy_fn': create_policy,
         'observation_len': env.observation_space.shape[0],
         'n_lines': len(piece.lines),
         'n_movements_per_line': len(piece.all_movements),
@@ -118,7 +118,7 @@ def main() -> None:
     agent.set_weights(best_weights)
     now = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S,%f")
     weights_path = os.path.join(results_dir, f'agent_weights_{now}.h5f')
-    agent.model.save_weights(weights_path)
+    agent.policy.save_weights(weights_path)
 
     env.verbose = True
     for i_episode in range(cli_args.episodes):

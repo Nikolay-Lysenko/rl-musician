@@ -19,7 +19,7 @@ class CounterpointEnvAgent:
 
     def __init__(
             self,
-            model_fn: Callable[..., 'keras.models.Model'],
+            policy_fn: Callable[..., 'keras.models.Model'],
             observation_len: int,
             n_lines: int,
             n_movements_per_line: int,
@@ -29,8 +29,8 @@ class CounterpointEnvAgent:
         """
         Initialize instance.
 
-        :param model_fn:
-            function that creates actor model
+        :param policy_fn:
+            function that creates shallow neural network policy
         :param observation_len:
             length of observation returned by environment
         :param n_lines:
@@ -38,12 +38,12 @@ class CounterpointEnvAgent:
         :param n_movements_per_line:
             maximum number of line movements supported by environment
         :param hidden_layer_size:
-            size of actor model's hidden layer
+            size of policy's hidden layer
         :param softmax_temperature:
             temperature parameter for Boltzmann softmax which is used for
             mapping scores of candidate actions to their probabilities
         """
-        self.model_fn = model_fn
+        self.policy_fn = policy_fn
         self.observation_len = observation_len
         self.n_lines = n_lines
         self.n_movements_per_line = n_movements_per_line
@@ -51,16 +51,16 @@ class CounterpointEnvAgent:
         self.softmax_temperature = softmax_temperature
 
         self.input_size = observation_len + n_lines * n_movements_per_line
-        self.model = model_fn((self.input_size,), hidden_layer_size)
-        self.shapes = [w.shape for w in self.model.get_weights()]
-        self.sizes = [w.size for w in self.model.get_weights()]
+        self.policy = policy_fn((self.input_size,), hidden_layer_size)
+        self.shapes = [w.shape for w in self.policy.get_weights()]
+        self.sizes = [w.size for w in self.policy.get_weights()]
         self.n_weights = sum(self.sizes)
 
     def represent_actions(
             self, observation: np.ndarray, actions: List[int]
     ) -> np.ndarray:
         """
-        Create batch of potential actions' representation for actor model.
+        Create batch of potential actions' representation for policy.
 
         :param observation:
             observation returned by environment
@@ -87,7 +87,7 @@ class CounterpointEnvAgent:
 
     def set_weights(self, flat_weights: np.ndarray) -> None:
         """
-        Set weights of model.
+        Set weights of policy.
 
         :param flat_weights:
             list or 1D array of new weights
@@ -101,7 +101,7 @@ class CounterpointEnvAgent:
             arr = arr.reshape(layer_shape)
             weights.append(arr)
             position += layer_size
-        self.model.set_weights(weights)
+        self.policy.set_weights(weights)
 
     def run_episode(self, env: CounterpointEnv) -> float:
         """
@@ -118,7 +118,7 @@ class CounterpointEnvAgent:
         valid_actions = env.valid_actions
         while not done:
             batch = self.represent_actions(observation, valid_actions)
-            action_scores = self.model.predict(batch)
+            action_scores = self.policy.predict(batch)
             action_scores /= self.softmax_temperature
             action_probabilities = softmax(action_scores.reshape((-1,)))
             action = np.random.choice(valid_actions, p=action_probabilities)
@@ -142,8 +142,8 @@ def load_flat_weigths(
 ) -> np.ndarray:  # pragma: no cover
     """Load weights from file and flatten them."""
     agent = CounterpointEnvAgent(**agent_params)
-    agent.model.load_weights(weights_path)
-    weights = np.hstack(tuple(w.flatten() for w in agent.model.get_weights()))
+    agent.policy.load_weights(weights_path)
+    weights = np.hstack(tuple(w.flatten() for w in agent.policy.get_weights()))
     return weights
 
 

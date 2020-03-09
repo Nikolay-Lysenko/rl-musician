@@ -1,7 +1,7 @@
 """
-Define actor model.
+Define a policy.
 
-Here, actor model maps a pair of an observation and an encoded action to
+Here, a policy maps a pair of an observation and an encoded action to
 score of this action.
 
 Author: Nikolay Lysenko
@@ -39,18 +39,18 @@ def import_keras_silently() -> None:
     sys.stderr = stderr
 
 
-def create_actor_model(
+def create_policy(
         input_shape: Tuple[int], hidden_layer_size: int
 ) -> 'keras.models.Model':
     """
-    Create simple actor model for `CounterpointEnv`.
+    Create simple policy for `CounterpointEnv`.
 
     :param input_shape:
         shape of input without the first dimension (reserved for batch size)
     :param hidden_layer_size:
         number of hidden units
     :return:
-        actor model as a neural network with one hidden layer
+        policy as a neural network with one hidden layer
     """
     # Avoid mandatory importing `keras`-related stuff in the main process.
     import warnings

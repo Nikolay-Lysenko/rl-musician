@@ -5,18 +5,18 @@ Author: Nikolay Lysenko
 """
 
 
-from . import actor_model, agent, crossentropy
-from .actor_model import create_actor_model
+from . import agent, crossentropy, policy
 from .agent import CounterpointEnvAgent, extract_initial_weights
 from .crossentropy import optimize_with_cem
+from .policy import create_policy
 
 
 __all__ = [
     'CounterpointEnvAgent',
-    'actor_model',
     'agent',
-    'create_actor_model',
+    'create_policy',
     'crossentropy',
     'extract_initial_weights',
-    'optimize_with_cem'
+    'optimize_with_cem',
+    'policy'
 ]

@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 
 from rlmusician.agent.agent import CounterpointEnvAgent
-from rlmusician.agent.actor_model import create_actor_model
+from rlmusician.agent.policy import create_policy
 from rlmusician.environment import CounterpointEnv, Piece
 
 
@@ -60,7 +60,7 @@ class TestCounterpointEnvAgent:
     ) -> None:
         """Test `represent_actions` method."""
         agent = CounterpointEnvAgent(
-            create_actor_model,
+            create_policy,
             len(observation),
             n_lines,
             n_movements_per_line,
@@ -95,7 +95,7 @@ class TestCounterpointEnvAgent:
     ) -> None:
         """Test `set_weights` method."""
         agent = CounterpointEnvAgent(
-            create_actor_model,
+            create_policy,
             observation_len,
             n_lines,
             n_movements_per_line,
@@ -103,9 +103,9 @@ class TestCounterpointEnvAgent:
             softmax_temperature=1
         )
         agent.set_weights(flat_weights)
-        model_weights = agent.model.get_weights()
-        flat_model_weights = np.hstack((x.flatten() for x in model_weights))
-        np.testing.assert_equal(flat_model_weights, flat_weights)
+        policy_weights = agent.policy.get_weights()
+        flat_policy_weights = np.hstack((x.flatten() for x in policy_weights))
+        np.testing.assert_equal(flat_policy_weights, flat_weights)
 
     @pytest.mark.parametrize(
         "observation_len, n_lines, n_movements_per_line, hidden_layer_size, "
@@ -186,7 +186,7 @@ class TestCounterpointEnvAgent:
     ) -> None:
         """Test that `run_episode` method does not fail."""
         agent = CounterpointEnvAgent(
-            create_actor_model,
+            create_policy,
             observation_len,
             n_lines,
             n_movements_per_line,
