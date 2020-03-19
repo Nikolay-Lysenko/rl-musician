@@ -22,7 +22,7 @@ from rlmusician.utils import (
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=5,
                 max_skip=2,
                 line_specifications=[
@@ -69,7 +69,7 @@ from rlmusician.utils import (
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=5,
                 max_skip=2,
                 line_specifications=[
@@ -141,7 +141,7 @@ def test_create_events_from_piece(
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=5,
                 max_skip=2,
                 line_specifications=[
@@ -182,7 +182,7 @@ def test_create_events_from_piece(
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=5,
                 max_skip=2,
                 line_specifications=[

@@ -24,7 +24,7 @@ class TestCounterpointEnv:
                 CounterpointEnv(
                     piece=Piece(
                         tonic='C',
-                        scale='major',
+                        scale_type='major',
                         n_measures=10,
                         max_skip=2,
                         line_specifications=[
@@ -91,7 +91,7 @@ class TestCounterpointEnv:
                 CounterpointEnv(
                     piece=Piece(
                         tonic='C',
-                        scale='major',
+                        scale_type='major',
                         n_measures=10,
                         max_skip=2,
                         line_specifications=[
@@ -168,7 +168,7 @@ class TestCounterpointEnv:
                 CounterpointEnv(
                     piece=Piece(
                         tonic='C',
-                        scale='major',
+                        scale_type='major',
                         n_measures=5,
                         max_skip=2,
                         line_specifications=[
@@ -236,7 +236,7 @@ class TestCounterpointEnv:
                 CounterpointEnv(
                     piece=Piece(
                         tonic='C',
-                        scale='major',
+                        scale_type='major',
                         n_measures=5,
                         max_skip=2,
                         line_specifications=[
@@ -306,7 +306,7 @@ class TestCounterpointEnv:
                 CounterpointEnv(
                     piece=Piece(
                         tonic='C',
-                        scale='major',
+                        scale_type='major',
                         n_measures=10,
                         max_skip=2,
                         line_specifications=[

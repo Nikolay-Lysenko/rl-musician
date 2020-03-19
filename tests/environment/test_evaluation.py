@@ -29,7 +29,7 @@ from rlmusician.environment.piece import Piece
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=9,
                 max_skip=2,
                 line_specifications=[
@@ -74,7 +74,7 @@ from rlmusician.environment.piece import Piece
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=4,
                 max_skip=2,
                 line_specifications=[
@@ -135,7 +135,7 @@ def test_evaluate_autocorrelation(
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=5,
                 max_skip=2,
                 line_specifications=[
@@ -178,7 +178,7 @@ def test_evaluate_autocorrelation(
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=5,
                 max_skip=2,
                 line_specifications=[
@@ -236,7 +236,7 @@ def test_evaluate_entropy(
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=6,
                 max_skip=2,
                 line_specifications=[
@@ -281,7 +281,7 @@ def test_evaluate_entropy(
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=6,
                 max_skip=2,
                 line_specifications=[
@@ -342,7 +342,7 @@ def test_evaluate_absence_of_looped_pitches(
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=5,
                 max_skip=2,
                 line_specifications=[
@@ -410,7 +410,7 @@ def test_evaluate_absence_of_looped_pitches(
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=4,
                 max_skip=2,
                 line_specifications=[
@@ -488,7 +488,7 @@ def test_evaluate_absence_of_pitch_class_clashes(
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=5,
                 max_skip=2,
                 line_specifications=[
@@ -575,7 +575,7 @@ def test_evaluate_motion_by_types(
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=5,
                 max_skip=2,
                 line_specifications=[
@@ -641,7 +641,7 @@ def test_evaluate_motion_by_types(
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=5,
                 max_skip=2,
                 line_specifications=[
@@ -716,7 +716,7 @@ def test_evaluate_lines_correlation(
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=5,
                 max_skip=2,
                 line_specifications=[
@@ -798,7 +798,7 @@ def test_evaluate_climax_explicity(
             # `piece`
             Piece(
                 tonic='C',
-                scale='major',
+                scale_type='major',
                 n_measures=5,
                 max_skip=2,
                 line_specifications=[

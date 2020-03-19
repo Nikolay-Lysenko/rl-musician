@@ -17,13 +17,13 @@ class TestPiece:
     """Tests for `Piece` class."""
 
     @pytest.mark.parametrize(
-        "tonic, scale, n_measures, max_skip, line_specifications, "
+        "tonic, scale_type, n_measures, max_skip, line_specifications, "
         "voice_leading_rules, harmony_rules, match",
         [
             (
                 # `tonic`
                 'C',
-                # `scale`
+                # `scale_type`
                 'major',
                 # `n_measures`
                 10,
@@ -64,7 +64,7 @@ class TestPiece:
             (
                 # `tonic`
                 'C',
-                # `scale`
+                # `scale_type`
                 'major',
                 # `n_measures`
                 10,
@@ -105,7 +105,7 @@ class TestPiece:
             (
                 # `tonic`
                 'C',
-                # `scale`
+                # `scale_type`
                 'major',
                 # `n_measures`
                 10,
@@ -146,7 +146,7 @@ class TestPiece:
         ]
     )
     def test_improper_initialization(
-            self, tonic: str, scale: str, n_measures: int, max_skip: int,
+            self, tonic: str, scale_type: str, n_measures: int, max_skip: int,
             line_specifications: List[Dict[str, Any]],
             voice_leading_rules: Dict[str, Any], harmony_rules: Dict[str, Any],
             match: str
@@ -154,18 +154,18 @@ class TestPiece:
         """Test that initialization with invalid values is prohibited."""
         with pytest.raises(ValueError, match=match):
             _ = Piece(
-                tonic, scale, n_measures, max_skip, line_specifications,
+                tonic, scale_type, n_measures, max_skip, line_specifications,
                 voice_leading_rules, harmony_rules, rendering_params={}
             )
 
     @pytest.mark.parametrize(
-        "tonic, scale, n_measures, max_skip, line_specifications, "
+        "tonic, scale_type, n_measures, max_skip, line_specifications, "
         "voice_leading_rules, harmony_rules, rng, roll",
         [
             (
                 # `tonic`
                 'D',
-                # `scale`
+                # `scale_type`
                 'major',
                 # `n_measures`
                 5,
@@ -238,14 +238,14 @@ class TestPiece:
         ]
     )
     def test_initialization(
-            self, tonic: str, scale: str, n_measures: int, max_skip: int,
+            self, tonic: str, scale_type: str, n_measures: int, max_skip: int,
             line_specifications: List[Dict[str, Any]],
             voice_leading_rules: Dict[str, Any], harmony_rules: Dict[str, Any],
             rng: Tuple[int, int], roll: np.ndarray
     ) -> None:
         """Test that initialization with valid values works as expected."""
         piece = Piece(
-            tonic, scale, n_measures, max_skip, line_specifications,
+            tonic, scale_type, n_measures, max_skip, line_specifications,
             voice_leading_rules, harmony_rules, rendering_params={}
         )
         assert len(piece.lines) == len(line_specifications)
@@ -253,14 +253,14 @@ class TestPiece:
         np.testing.assert_equal(piece.piano_roll, roll)
 
     @pytest.mark.parametrize(
-        "tonic, scale, n_measures, max_skip, line_specifications, "
+        "tonic, scale_type, n_measures, max_skip, line_specifications, "
         "voice_leading_rules, harmony_rules, "
         "previous_movements, candidate_movements, expected",
         [
             (
                 # `tonic`
                 'C',
-                # `scale`
+                # `scale_type`
                 'major',
                 # `n_measures`
                 10,
@@ -332,7 +332,7 @@ class TestPiece:
             (
                 # `tonic`
                 'C',
-                # `scale`
+                # `scale_type`
                 'major',
                 # `n_measures`
                 6,
@@ -407,7 +407,7 @@ class TestPiece:
             (
                 # `tonic`
                 'C',
-                # `scale`
+                # `scale_type`
                 'major',
                 # `n_measures`
                 10,
@@ -473,7 +473,7 @@ class TestPiece:
         ]
     )
     def test_check_movements(
-            self, tonic: str, scale: str, n_measures: int, max_skip: int,
+            self, tonic: str, scale_type: str, n_measures: int, max_skip: int,
             line_specifications: List[Dict[str, Any]],
             voice_leading_rules: Dict[str, Any], harmony_rules: Dict[str, Any],
             previous_movements: List[List[int]],
@@ -482,7 +482,7 @@ class TestPiece:
     ) -> None:
         """Test `check_movements` method."""
         piece = Piece(
-            tonic, scale, n_measures, max_skip, line_specifications,
+            tonic, scale_type, n_measures, max_skip, line_specifications,
             voice_leading_rules, harmony_rules, rendering_params={}
         )
         for movements in previous_movements:
@@ -494,14 +494,14 @@ class TestPiece:
         assert result == expected
 
     @pytest.mark.parametrize(
-        "tonic, scale, n_measures, max_skip, line_specifications, "
+        "tonic, scale_type, n_measures, max_skip, line_specifications, "
         "voice_leading_rules, harmony_rules, "
         "movements, expected_positions, expected_roll",
         [
             (
                 # `tonic`
                 'C',
-                # `scale`
+                # `scale_type`
                 'major',
                 # `n_measures`
                 10,
@@ -600,7 +600,7 @@ class TestPiece:
         ]
     )
     def test_add_measure(
-            self, tonic: str, scale: str, n_measures: int, max_skip: int,
+            self, tonic: str, scale_type: str, n_measures: int, max_skip: int,
             line_specifications: List[Dict[str, Any]],
             voice_leading_rules: Dict[str, Any], harmony_rules: Dict[str, Any],
             movements: List[List[int]],
@@ -608,7 +608,7 @@ class TestPiece:
     ) -> None:
         """Test `add_measure` method."""
         piece = Piece(
-            tonic, scale, n_measures, max_skip, line_specifications,
+            tonic, scale_type, n_measures, max_skip, line_specifications,
             voice_leading_rules, harmony_rules, rendering_params={}
         )
         for movement in movements:

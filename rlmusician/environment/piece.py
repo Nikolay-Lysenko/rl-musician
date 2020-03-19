@@ -26,14 +26,14 @@ from rlmusician.environment.rules import (
 from rlmusician.utils import (
     create_events_from_piece,
     create_midi_from_piece,
+    create_scale,
     create_wav_from_events,
-    get_positions_from_scale,
-    get_tonic_triad_positions,
-    slice_positions
+    slice_scale
 )
 
 
 NOTE_TO_POSITION = get_note_to_position_mapping()
+TONIC_TRIAD_DEGREES = (1, 3, 5)
 
 
 class LineElement(NamedTuple):
@@ -41,6 +41,7 @@ class LineElement(NamedTuple):
 
     absolute_position: int
     relative_position: int
+    degree: int
     is_from_tonic_triad: bool
     feasible_movements: List[int]
 
@@ -51,7 +52,7 @@ class Piece:
     def __init__(
             self,
             tonic: str,
-            scale: str,
+            scale_type: str,
             n_measures: int,
             max_skip: int,
             line_specifications: List[Dict[str, Any]],
@@ -64,9 +65,9 @@ class Piece:
 
         :param tonic:
             tonic pitch class represented by letter (like C or A#)
-        :param scale:
-            scale (currently, 'major', 'natural_minor', and 'harmonic_minor'
-            are supported)
+        :param scale_type:
+            type of scale (currently, 'major', 'natural_minor', and
+            'harmonic_minor' are supported)
         :param n_measures:
             duration of piece in measures
         :param max_skip:
@@ -82,7 +83,7 @@ class Piece:
             settings of saving piece to TSV, MIDI, and WAV files
         """
         self.tonic = tonic
-        self.scale = scale
+        self.scale_type = scale_type
         self.n_measures = n_measures
         self.max_skip = max_skip
         self.line_specifications = line_specifications
@@ -92,8 +93,7 @@ class Piece:
         self.harmony_rules_params = harmony_rules['params']
         self.rendering_params = rendering_params
 
-        self.positions_from_scale = get_positions_from_scale(tonic, scale)
-        self.tonic_triad_positions = get_tonic_triad_positions(tonic, scale)
+        self.scale = create_scale(tonic, scale_type)
         self.all_movements = list(range(-self.max_skip, self.max_skip + 1))
 
         shape = (len(NOTE_TO_POSITION), self.n_measures)
@@ -103,15 +103,14 @@ class Piece:
 
         self.lines = []
         self.line_elements = []
-        self.line_mappings = []
         self.passed_movements = []
         for specs in line_specifications:
             self.lines.append([None for _ in range(self.n_measures)])
             self.passed_movements.append([])
             self.__define_elements(specs)
             self.__update_range_to_show(specs)
-            self.__add_end_note(specs['start_note'], 'start')
-            self.__add_end_note(specs['end_note'], 'end')
+            self.__add_boundary_note(specs['start_note'], 'start')
+            self.__add_boundary_note(specs['end_note'], 'end')
         self.last_finished_measure = 0
 
     def __get_feasible_movements(
@@ -126,32 +125,28 @@ class Piece:
 
     def __define_elements(self, specs: Dict[str, Any]) -> None:
         """Define list of pitches that can be used within a line."""
-        sliced_positions = slice_positions(
-            self.positions_from_scale,
-            specs['lowest_note'], specs['highest_note']
+        sliced_scale = slice_scale(
+            self.scale, specs['lowest_note'], specs['highest_note']
         )
-        if not sliced_positions:
+        if not sliced_scale:
             raise ValueError(
                 f"No pitches from {self.tonic}-{self.scale} are between "
                 f"{specs['lowest_note']} and {specs['highest_note']}."
             )
         elements = []
-        mapping = {}
-        for pitch_number, absolute_position in enumerate(sliced_positions):
+        for relative_position, scale_element in enumerate(sliced_scale):
             feasible_movements = self.__get_feasible_movements(
-                pitch_number, len(sliced_positions)
+                relative_position, len(sliced_scale)
             )
-            is_from_triad = absolute_position in self.tonic_triad_positions
             element = LineElement(
-                absolute_position,
-                pitch_number,
-                is_from_triad,
+                scale_element.absolute_position,
+                relative_position,
+                scale_element.degree,
+                scale_element.degree in TONIC_TRIAD_DEGREES,
                 feasible_movements
             )
             elements.append(element)
-            mapping[absolute_position] = pitch_number
         self.line_elements.append(elements)
-        self.line_mappings.append(mapping)
 
     def __update_range_to_show(self, specs: Dict[str, Any]) -> None:
         """Extend range of pitches that can occur in a piece."""
@@ -164,22 +159,25 @@ class Piece:
             self.highest_row_to_show or 0, high_bound
         )
 
-    def __add_end_note(self, note: str, end_type: str) -> None:
+    def __add_boundary_note(self, note: str, bound_type: str) -> None:
         """Add start note or end note to its line and to piano roll."""
         absolute_position = NOTE_TO_POSITION[note]
-        relative_position = self.line_mappings[-1].get(absolute_position)
-        if relative_position is None:
+        element_as_list = [
+            x for x in self.line_elements[-1]
+            if x.absolute_position == absolute_position
+        ]
+        if not element_as_list:
             raise ValueError(
-                f"Passed {end_type} note {note} does not belong to "
+                f"Passed {bound_type} note {note} does not belong to "
                 f"{self.tonic}-{self.scale} or is out of line range."
             )
-        element = self.line_elements[-1][relative_position]
+        element = element_as_list[0]
         if not element.is_from_tonic_triad:
             raise ValueError(
                 f"{note} is not a tonic triad member for "
-                f"{self.tonic}-{self.scale}; it can not be {end_type} note."
+                f"{self.tonic}-{self.scale}; it can not be {bound_type} note."
             )
-        column = 0 if end_type == 'start' else -1
+        column = 0 if bound_type == 'start' else -1
         self.lines[-1][column] = element
         self._piano_roll[absolute_position, column] = 1
 

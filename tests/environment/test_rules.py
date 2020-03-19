@@ -20,22 +20,22 @@ from rlmusician.environment.rules import check_step_motion_to_final_pitch
         (
             # `line`
             [
-                LineElement(10, 4, True, [-2, -1, 0, 1, 2]),
-                LineElement(8, 3, False, [-2, -1, 0, 1, 2]),
-                LineElement(7, 2, True, [-2, -1, 0, 1, 2]),
+                LineElement(10, 4, 5, True, [-2, -1, 0, 1, 2]),
+                LineElement(8, 3, 4, False, [-2, -1, 0, 1, 2]),
+                LineElement(7, 2, 3, True, [-2, -1, 0, 1, 2]),
                 None,
-                LineElement(3, 0, True, [0, 1, 2]),
+                LineElement(3, 0, 1, True, [0, 1, 2]),
             ],
             # `line_elements`
             [
-                LineElement(3, 0, True, [0, 1, 2]),
-                LineElement(5, 1, False, [-1, 0, 1, 2]),
-                LineElement(7, 2, True, [-2, -1, 0, 1, 2]),
-                LineElement(8, 3, False, [-2, -1, 0, 1, 2]),
-                LineElement(10, 4, True, [-2, -1, 0, 1, 2]),
-                LineElement(12, 5, False, [-2, -1, 0, 1, 2]),
-                LineElement(14, 6, False, [-2, -1, 0, 1]),
-                LineElement(15, 7, True, [-2, -1, 0]),
+                LineElement(3, 0, 1, True, [0, 1, 2]),
+                LineElement(5, 1, 2, False, [-1, 0, 1, 2]),
+                LineElement(7, 2, 3, True, [-2, -1, 0, 1, 2]),
+                LineElement(8, 3, 4, False, [-2, -1, 0, 1, 2]),
+                LineElement(10, 4, 5, True, [-2, -1, 0, 1, 2]),
+                LineElement(12, 5, 6, False, [-2, -1, 0, 1, 2]),
+                LineElement(14, 6, 7, False, [-2, -1, 0, 1]),
+                LineElement(15, 7, 1, True, [-2, -1, 0]),
             ],
             # `measure`
             2,
@@ -49,22 +49,22 @@ from rlmusician.environment.rules import check_step_motion_to_final_pitch
         (
             # `line`
             [
-                LineElement(10, 4, True, [-2, -1, 0, 1, 2]),
-                LineElement(8, 3, False, [-2, -1, 0, 1, 2]),
-                LineElement(7, 2, True, [-2, -1, 0, 1, 2]),
+                LineElement(10, 4, 5, True, [-2, -1, 0, 1, 2]),
+                LineElement(8, 3, 4, False, [-2, -1, 0, 1, 2]),
+                LineElement(7, 2, 3, True, [-2, -1, 0, 1, 2]),
                 None,
-                LineElement(3, 0, True, [0, 1, 2]),
+                LineElement(3, 0, 1, True, [0, 1, 2]),
             ],
             # `line_elements`
             [
-                LineElement(3, 0, True, [0, 1, 2]),
-                LineElement(5, 1, False, [-1, 0, 1, 2]),
-                LineElement(7, 2, True, [-2, -1, 0, 1, 2]),
-                LineElement(8, 3, False, [-2, -1, 0, 1, 2]),
-                LineElement(10, 4, True, [-2, -1, 0, 1, 2]),
-                LineElement(12, 5, False, [-2, -1, 0, 1, 2]),
-                LineElement(14, 6, False, [-2, -1, 0, 1]),
-                LineElement(15, 7, True, [-2, -1, 0]),
+                LineElement(3, 0, 1, True, [0, 1, 2]),
+                LineElement(5, 1, 2, False, [-1, 0, 1, 2]),
+                LineElement(7, 2, 3, True, [-2, -1, 0, 1, 2]),
+                LineElement(8, 3, 4, False, [-2, -1, 0, 1, 2]),
+                LineElement(10, 4, 5, True, [-2, -1, 0, 1, 2]),
+                LineElement(12, 5, 6, False, [-2, -1, 0, 1, 2]),
+                LineElement(14, 6, 7, False, [-2, -1, 0, 1]),
+                LineElement(15, 7, 1, True, [-2, -1, 0]),
             ],
             # `measure`
             2,

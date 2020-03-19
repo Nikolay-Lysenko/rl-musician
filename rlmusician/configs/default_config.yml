@@ -1,6 +1,6 @@
 piece:
   tonic: C
-  scale: major
+  scale_type: major
   n_measures: 16
   max_skip: 3
   line_specifications:
