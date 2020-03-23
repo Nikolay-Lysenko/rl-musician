@@ -81,8 +81,8 @@ def check_that_skip_is_followed_by_opposite_step_motion(
 
 
 def check_resolution_of_submediant_and_leading_tone(
-        line: List[Optional['LineElement']], measure: int,
-        movement: int, previous_movements: List[int], **kwargs
+        line: List[Optional['LineElement']], measure: int, movement: int,
+        **kwargs
 ) -> bool:
     """
     Check that a sequence of submediant and leading tone properly resolves.
@@ -105,15 +105,11 @@ def check_resolution_of_submediant_and_leading_tone(
     """
     if measure < 2:
         return True
-    if line[measure].is_from_tonic_triad:
-        return True
-    if line[measure - 1].is_from_tonic_triad:
-        return True
-    # NB: This implementation relies on assumptions that every skip must lead
-    # to a pitch from the tonic triad and only triad pitches may be repeated.
-    # Under these assumptions, if there are two unstable pitches in a row,
-    # one of them is submediant and the other is leading tone.
-    return movement == previous_movements[-1]
+    elif line[measure].degree == 6 and line[measure - 1].degree == 7:
+        return movement == -1
+    elif line[measure].degree == 7 and line[measure - 1].degree == 6:
+        return movement == 1
+    return True
 
 
 def check_step_motion_to_final_pitch(

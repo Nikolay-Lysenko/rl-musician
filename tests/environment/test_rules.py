@@ -10,7 +10,90 @@ from typing import List, Optional
 import pytest
 
 from rlmusician.environment.piece import LineElement
-from rlmusician.environment.rules import check_step_motion_to_final_pitch
+from rlmusician.environment.rules import (
+    check_resolution_of_submediant_and_leading_tone,
+    check_step_motion_to_final_pitch,
+)
+
+
+@pytest.mark.parametrize(
+    "line, measure, movement, expected",
+    [
+        (
+            # `line`
+            [
+                LineElement(10, 4, 5, True, [-2, -1, 0, 1, 2]),
+                LineElement(12, 5, 6, False, [-2, -1, 0, 1, 2]),
+                LineElement(14, 6, 7, False, [-2, -1, 0, 1]),
+                None,
+                None
+            ],
+            # `measure`
+            2,
+            # `movement`
+            1,
+            # `expected`
+            True
+        ),
+        (
+            # `line`
+            [
+                LineElement(10, 4, 5, True, [-2, -1, 0, 1, 2]),
+                LineElement(12, 5, 6, False, [-2, -1, 0, 1, 2]),
+                LineElement(14, 6, 7, False, [-2, -1, 0, 1]),
+                None,
+                None
+            ],
+            # `measure`
+            2,
+            # `movement`
+            -1,
+            # `expected`
+            False
+        ),
+        (
+            # `line`
+            [
+                LineElement(15, 7, 1, True, [-2, -1, 0]),
+                LineElement(14, 6, 7, False, [-2, -1, 0, 1]),
+                LineElement(12, 5, 6, False, [-2, -1, 0, 1, 2]),
+                None,
+                None
+            ],
+            # `measure`
+            2,
+            # `movement`
+            -1,
+            # `expected`
+            True
+        ),
+        (
+            # `line`
+            [
+                LineElement(15, 7, 1, True, [-2, -1, 0]),
+                LineElement(14, 6, 7, False, [-2, -1, 0, 1]),
+                LineElement(12, 5, 6, False, [-2, -1, 0, 1, 2]),
+                None,
+                None
+            ],
+            # `measure`
+            2,
+            # `movement`
+            2,
+            # `expected`
+            False
+        ),
+    ]
+)
+def test_check_resolution_of_submediant_and_leading_tone(
+        line: List[Optional['LineElement']], measure: int, movement: int,
+        expected: bool
+) -> None:
+    "Test `check_resolution_of_submediant_and_leading_tone` function."
+    result = check_resolution_of_submediant_and_leading_tone(
+        line, measure, movement
+    )
+    assert result == expected
 
 
 @pytest.mark.parametrize(
