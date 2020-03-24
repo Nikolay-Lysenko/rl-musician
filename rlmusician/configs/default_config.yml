@@ -50,6 +50,7 @@ environment:
     looped_pitches: 1
     types_of_motion: 1
     number_of_skips: 1
+    downward_skips: 0.05
   scoring_fn_params:
     climax_explicity:
       shortage_penalty: 0.3
@@ -64,6 +65,8 @@ environment:
     number_of_skips:
       min_n_skips: 1
       max_n_skips: 3
+    downward_skips:
+      size_penalty_power: 2.0
 agent:
   hidden_layer_size: 10
   softmax_temperature: 0.1

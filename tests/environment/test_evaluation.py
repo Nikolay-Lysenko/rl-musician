@@ -17,7 +17,8 @@ from rlmusician.environment.evaluation import (
     evaluate_motion_by_types,
     evaluate_lines_correlation,
     evaluate_climax_explicity,
-    evaluate_number_of_skips
+    evaluate_number_of_skips,
+    evaluate_absence_of_downward_skips,
 )
 from rlmusician.environment.piece import Piece
 
@@ -868,4 +869,82 @@ def test_evaluate_number_of_skips(
     for movements in all_movements:
         piece.add_measure(movements)
     result = evaluate_number_of_skips(piece, min_n_skips, max_n_skips)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "piece, all_movements, size_penalty_power, expected",
+    [
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale_type='major',
+                n_measures=5,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'G3',
+                        'highest_note': 'G4',
+                        'start_note': 'G4',
+                        'end_note': 'C4'
+                    },
+                    {
+                        'lowest_note': 'G4',
+                        'highest_note': 'G5',
+                        'start_note': 'C5',
+                        'end_note': 'C5'
+                    },
+                ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
+                },
+                harmony_rules={
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [
+                [-2, 0],
+                [0, 0],
+                [-2, 0],
+            ],
+            # `size_penalty_power`
+            2,
+            # `expected`
+            -8
+        ),
+    ]
+)
+def test_evaluate_absence_of_downward_skips(
+        piece: Piece, all_movements: List[List[int]],
+        size_penalty_power: float, expected: float
+) -> None:
+    """Test `evaluate_absence_of_downward_skips` function."""
+    for movements in all_movements:
+        piece.add_measure(movements)
+    result = evaluate_absence_of_downward_skips(piece)
     assert result == expected

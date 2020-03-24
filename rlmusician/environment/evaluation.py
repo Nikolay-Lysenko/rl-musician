@@ -256,7 +256,7 @@ def evaluate_number_of_skips(
     Evaluate interestingness of lines based on number of skips in them.
 
     :param piece:
-        Piece` instance
+        `Piece` instance
     :param min_n_skips:
         minimum number of skips for a line to be interesting
     :param max_n_skips:
@@ -272,6 +272,27 @@ def evaluate_number_of_skips(
                 n_skips += 1
         scores.append(1 if min_n_skips <= n_skips <= max_n_skips else 0)
     score = sum(scores) / len(scores)
+    return score
+
+
+def evaluate_absence_of_downward_skips(
+        piece: Piece, size_penalty_power: float = 2.0
+) -> float:
+    """
+    Evaluate presence of downward step motion due to absence of downward skips.
+
+    :param piece:
+        `Piece` instance
+    :param size_penalty_power:
+        strength of large downward skis penalization relatively to smaller ones
+    :return:
+        sum of penalties assigned to each downward skip
+    """
+    score = 0
+    for movements in piece.passed_movements:
+        for movement in movements:
+            if movement < -1:
+                score -= (-movement) ** size_penalty_power
     return score
 
 
@@ -291,6 +312,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         'lines_correlation': evaluate_lines_correlation,
         'climax_explicity': evaluate_climax_explicity,
         'number_of_skips': evaluate_number_of_skips,
+        'downward_skips': evaluate_absence_of_downward_skips,
     }
     return registry
 
