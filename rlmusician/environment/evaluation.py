@@ -66,10 +66,6 @@ def evaluate_absence_of_looped_fragments(
         for position in range(0, piece.n_measures - 2 * size + 1):
             fragment = piece.piano_roll[:, position:position+size]
             next_fragment = piece.piano_roll[:, position+size:position+2*size]
-            print(position)
-            print(fragment)
-            print(next_fragment)
-            print()
             if np.array_equal(fragment, next_fragment):
                 score -= 1
     return score
