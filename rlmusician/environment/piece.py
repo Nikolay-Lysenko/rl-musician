@@ -297,6 +297,7 @@ class Piece:
             line[measure] = None
         self._piano_roll[:, measures_to_drop] = 0
         self.last_finished_measure = 0
+        self.passed_movements = [[] for _ in self.passed_movements]
 
     @property
     def piano_roll(self) -> np.ndarray:

@@ -619,3 +619,124 @@ class TestPiece:
         ]
         assert relative_positions == expected_positions
         np.testing.assert_equal(piece.piano_roll, expected_roll)
+
+    @pytest.mark.parametrize(
+        "tonic, scale_type, n_measures, max_skip, line_specifications, "
+        "voice_leading_rules, harmony_rules, "
+        "movements, expected_passed_movements, expected_roll",
+        [
+            (
+                # `tonic`
+                'C',
+                # `scale_type`
+                'major',
+                # `n_measures`
+                10,
+                # `max_skip`
+                2,
+                # `line_specifications`
+                [
+                    {
+                        'lowest_note': 'G3',
+                        'highest_note': 'G4',
+                        'start_note': 'C4',
+                        'end_note': 'C4'
+                    },
+                    {
+                        'lowest_note': 'G4',
+                        'highest_note': 'G5',
+                        'start_note': 'G5',
+                        'end_note': 'C5'
+                    },
+                ],
+                # `voice_leading_rules`
+                {
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
+                },
+                # `harmony_rules`
+                {
+                    'names': [
+                        'consonance',
+                        'absence_of_large_intervals'
+                    ],
+                    'params': {
+                        'absence_of_large_intervals': {
+                            'max_n_semitones': 16
+                        }
+                    }
+                },
+                # `movements`
+                [
+                    [1, -1],
+                    [-1, -1],
+                    [2, -2],
+                    [2, -1],
+                    [-2, -1],
+                    [0, -1],
+                    [-2, 1],
+                ],
+                # `expected_passed_movements`
+                [[], []],
+                # `expected_roll`
+                np.array([
+                    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ])
+            ),
+        ]
+    )
+    def test_reset(
+            self, tonic: str, scale_type: str, n_measures: int, max_skip: int,
+            line_specifications: List[Dict[str, Any]],
+            voice_leading_rules: Dict[str, Any], harmony_rules: Dict[str, Any],
+            movements: List[List[int]],
+            expected_passed_movements: List[int], expected_roll: np.ndarray
+    ) -> None:
+        """Test `reset` method."""
+        piece = Piece(
+            tonic, scale_type, n_measures, max_skip, line_specifications,
+            voice_leading_rules, harmony_rules, rendering_params={}
+        )
+        for movement in movements:
+            piece.add_measure(movement)
+        piece.reset()
+        assert piece.passed_movements == expected_passed_movements
+        np.testing.assert_equal(piece.piano_roll, expected_roll)
+
