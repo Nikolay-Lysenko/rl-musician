@@ -16,9 +16,6 @@ from scipy.stats import entropy
 from rlmusician.environment.piece import Piece
 
 
-N_SEMITONES_PER_OCTAVE = 12
-
-
 def evaluate_autocorrelation(piece: Piece, max_lag: int = 8) -> float:
     """
     Evaluate non-triviality of a piece based on pitch-wise autocorrelation.
@@ -134,10 +131,9 @@ def evaluate_absence_of_pitch_class_clashes(
     for first_line, second_line in itertools.combinations(piece.lines, 2):
         paired = zip(first_line[1:-1], second_line[1:-1])
         for first, second in paired:
-            diff = first.absolute_position - second.absolute_position
-            if diff == 0:
+            if first.absolute_position == second.absolute_position:
                 n_clashes += 1
-            elif diff % N_SEMITONES_PER_OCTAVE == 0:
+            elif first.degree == second.degree:
                 n_unisons += 1
     n_lines = len(piece.lines)
     n_intervals = n_lines * (n_lines - 1) / 2 * (piece.n_measures - 2)

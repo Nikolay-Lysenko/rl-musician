@@ -98,8 +98,6 @@ def check_resolution_of_submediant_and_leading_tone(
         last finished measure in a line
     :param movement:
         melodic interval in scale degrees for line continuation
-    :param previous_movements:
-        list of previous movements
     :return:
         indicator whether a movement is in accordance with the rule
     """
@@ -205,6 +203,24 @@ def check_absence_of_large_intervals(
     return max(intervals_in_semitones) <= max_n_semitones
 
 
+def check_absence_of_pitch_class_clashes(
+        sonority: List['LineElement']
+) -> bool:
+    """
+    Check that there are no unison or octave intervals.
+
+    :param sonority:
+        list of simultaneously sounding pitches
+    :return:
+        indicator whether all pitches from the sonority belong to different
+        pitch classes
+    """
+    for first, second in itertools.combinations(sonority, 2):
+        if first.degree == second.degree:
+            return False
+    return True
+
+
 def get_harmony_rules_registry() -> Dict[str, Callable]:
     """
     Get mapping from names to functions checking harmony rules.
@@ -214,6 +230,7 @@ def get_harmony_rules_registry() -> Dict[str, Callable]:
     """
     registry = {
         'consonance': check_consonance_of_sonority,
-        'absence_of_large_intervals': check_absence_of_large_intervals
+        'absence_of_large_intervals': check_absence_of_large_intervals,
+        'absence_of_pitch_class_clashes': check_absence_of_pitch_class_clashes,
     }
     return registry

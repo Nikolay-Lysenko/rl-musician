@@ -11,9 +11,41 @@ import pytest
 
 from rlmusician.environment.piece import LineElement
 from rlmusician.environment.rules import (
+    check_absence_of_pitch_class_clashes,
     check_resolution_of_submediant_and_leading_tone,
     check_step_motion_to_final_pitch,
 )
+
+
+@pytest.mark.parametrize(
+    "sonority, expected",
+    [
+        (
+            # `sonority
+            [
+                LineElement(10, 4, 5, True, [-2, -1, 0, 1, 2]),
+                LineElement(12, 5, 6, False, [-2, -1, 0, 1, 2])
+            ],
+            # `expected`
+            True
+        ),
+        (
+            # `sonority
+            [
+                LineElement(3, 0, 1, True, [0, 1, 2]),
+                LineElement(15, 7, 1, True, [-2, -1, 0])
+            ],
+            # `expected`
+            False
+        ),
+    ]
+)
+def test_check_absence_of_pitch_class_clashes(
+        sonority: List[LineElement], expected: bool
+) -> None:
+    """Test `check_absence_of_pitch_class_clashes` function."""
+    result = check_absence_of_pitch_class_clashes(sonority)
+    assert result == expected
 
 
 @pytest.mark.parametrize(
@@ -89,7 +121,7 @@ def test_check_resolution_of_submediant_and_leading_tone(
         line: List[Optional['LineElement']], measure: int, movement: int,
         expected: bool
 ) -> None:
-    "Test `check_resolution_of_submediant_and_leading_tone` function."
+    """Test `check_resolution_of_submediant_and_leading_tone` function."""
     result = check_resolution_of_submediant_and_leading_tone(
         line, measure, movement
     )
