@@ -28,6 +28,7 @@ piece:
     names:
       - consonance
       - absence_of_large_intervals
+      - absence_of_pitch_class_clashes
     params:
       absence_of_large_intervals:
         max_n_semitones: 16
@@ -45,9 +46,9 @@ environment:
   reward_for_dead_end: -3
   scoring_coefs:
     climax_explicity: 3
-    pitch_class_clashes: 3
-    lines_correlation: 1
     looped_pitches: 1
+    looped_fragments: 1
+    lines_correlation: 1
     types_of_motion: 1
     number_of_skips: 1
     downward_skips: 0.05
