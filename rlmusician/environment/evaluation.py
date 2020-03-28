@@ -8,73 +8,12 @@ Author: Nikolay Lysenko
 import itertools
 import warnings
 from collections import Counter
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Optional
 
 import numpy as np
 from scipy.stats import entropy
 
 from rlmusician.environment.piece import Piece
-
-
-def evaluate_autocorrelation(piece: Piece, max_lag: int = 8) -> float:
-    """
-    Evaluate non-triviality of a piece based on pitch-wise autocorrelation.
-
-    :param piece:
-        `Piece` instance
-    :param max_lag:
-        maximum lag to consider
-    :return:
-        multiplied by -1 and then rescaled to be from [0, 1]
-        maximum over all lags average pitch-wise absolute autocorrelation
-    """
-    lag_scores = []
-    lags = range(2, max_lag + 1)
-    for lag in lags:
-        first = piece.piano_roll[:, :-lag]
-        second = piece.piano_roll[:, lag:]
-        corr_matrix = np.corrcoef(first, second)
-        offset = corr_matrix.shape[0] // 2
-        row_wise_correlations = [
-            np.abs(corr_matrix[i, i + offset]) for i in range(offset)
-        ]
-        # Here, `nan` values can occur for pitches that are out of scale
-        # (it is correct to ignore them), constantly played pitches (it is
-        # correct to ignore them too and also they are extremely rare),
-        # and pitches that are played in `first` only or in `second` only
-        # (it is not clear, is it correct to ignore such pitches or not).
-        lag_score = np.nanmean(row_wise_correlations)
-        if np.isnan(lag_score):
-            lag_score = 0  # Do not allow this lag to affect results.
-        lag_scores.append(lag_score)
-    score = 1 - max(lag_scores)
-    return score
-
-
-def evaluate_entropy(piece: Piece) -> float:
-    """
-    Evaluate non-triviality of a piece based on entropy of pitch distribution.
-
-    :param piece:
-        `Piece` instance
-    :return:
-        normalized average over all lines entropy of pitches distribution
-    """
-    scores = []
-    for line, elements in zip(piece.lines, piece.line_elements):
-        positions = [element.relative_position for element in line]
-        counter = Counter(positions)
-        distribution = [
-            counter[element.relative_position] / piece.n_measures
-            for element in elements
-        ]
-        raw_entropy = entropy(distribution)
-        max_entropy_distribution = [1 / len(elements) for _ in elements]
-        denominator = entropy(max_entropy_distribution)
-        normalized_entropy = raw_entropy / denominator
-        scores.append(normalized_entropy)
-    score = sum(scores) / len(scores)
-    return score
 
 
 def evaluate_absence_of_looped_pitches(
@@ -103,6 +42,62 @@ def evaluate_absence_of_looped_pitches(
                 score -= max(n_repetitions - max_n_repetitions, 0)
                 previous_pitch = current_pitch
                 n_repetitions = 1
+    return score
+
+
+def evaluate_absence_of_looped_fragments(
+        piece: Piece, min_size: int = 1, max_size: Optional[int] = None
+) -> float:
+    """
+    Evaluate non-triviality of a piece based on absence of looped fragments.
+
+    :param piece:
+        `Piece` instance
+    :param min_size:
+        minimum duration of a fragment (in measures)
+    :param max_size:
+        maximum duration of a fragment (in measures)
+    :return:
+        multiplied by -1 number of looped fragments
+    """
+    score = 0
+    max_size = max_size or piece.n_measures // 2
+    for size in range(min_size, max_size + 1):
+        for position in range(0, piece.n_measures - 2 * size + 1):
+            fragment = piece.piano_roll[:, position:position+size]
+            next_fragment = piece.piano_roll[:, position+size:position+2*size]
+            print(position)
+            print(fragment)
+            print(next_fragment)
+            print()
+            if np.array_equal(fragment, next_fragment):
+                score -= 1
+    return score
+
+
+def evaluate_entropy(piece: Piece) -> float:
+    """
+    Evaluate non-triviality of a piece based on entropy of pitch distribution.
+
+    :param piece:
+        `Piece` instance
+    :return:
+        normalized average over all lines entropy of pitches distribution
+    """
+    scores = []
+    for line, elements in zip(piece.lines, piece.line_elements):
+        positions = [element.relative_position for element in line]
+        counter = Counter(positions)
+        distribution = [
+            counter[element.relative_position] / piece.n_measures
+            for element in elements
+        ]
+        raw_entropy = entropy(distribution)
+        max_entropy_distribution = [1 / len(elements) for _ in elements]
+        denominator = entropy(max_entropy_distribution)
+        normalized_entropy = raw_entropy / denominator
+        scores.append(normalized_entropy)
+    score = sum(scores) / len(scores)
     return score
 
 
@@ -300,9 +295,9 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
         registry of scoring functions
     """
     registry = {
-        'autocorrelation': evaluate_autocorrelation,
-        'entropy': evaluate_entropy,
         'looped_pitches': evaluate_absence_of_looped_pitches,
+        'looped_fragments': evaluate_absence_of_looped_fragments,
+        'entropy': evaluate_entropy,
         'pitch_class_clashes': evaluate_absence_of_pitch_class_clashes,
         'types_of_motion': evaluate_motion_by_types,
         'lines_correlation': evaluate_lines_correlation,

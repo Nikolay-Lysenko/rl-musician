@@ -10,9 +10,9 @@ from typing import List
 import pytest
 
 from rlmusician.environment.evaluation import (
-    evaluate_autocorrelation,
-    evaluate_entropy,
     evaluate_absence_of_looped_pitches,
+    evaluate_absence_of_looped_fragments,
+    evaluate_entropy,
     evaluate_absence_of_pitch_class_clashes,
     evaluate_motion_by_types,
     evaluate_lines_correlation,
@@ -21,213 +21,6 @@ from rlmusician.environment.evaluation import (
     evaluate_absence_of_downward_skips,
 )
 from rlmusician.environment.piece import Piece
-
-
-@pytest.mark.parametrize(
-    "piece, all_movements, max_lag, expected",
-    [
-        (
-            # `piece`
-            Piece(
-                tonic='C',
-                scale_type='major',
-                n_measures=9,
-                max_skip=2,
-                line_specifications=[
-                    {
-                        'lowest_note': 'C4',
-                        'highest_note': 'E4',
-                        'start_note': 'C4',
-                        'end_note': 'C4'
-                    }
-                ],
-                voice_leading_rules={
-                    'names': [
-                        'rearticulation',
-                        'destination_of_skip',
-                        'turn_after_skip',
-                        'VI_VII_resolution',
-                        'step_motion_to_end'
-                    ],
-                    'params': {
-                        'turn_after_skip': {
-                            'min_n_scale_degrees': 3
-                        },
-                        'step_motion_to_end': {
-                            'prohibit_rearticulation': False
-                        }
-                    }
-                },
-                harmony_rules={
-                    'names': [],
-                    'params': {}
-                },
-                rendering_params={}
-            ),
-            # `all_movements`,
-            [[1], [-1], [1], [-1], [1], [-1], [1]],
-            # `max_lag`
-            3,
-            # `expected`
-            0
-        ),
-        (
-            # `piece`
-            Piece(
-                tonic='C',
-                scale_type='major',
-                n_measures=4,
-                max_skip=2,
-                line_specifications=[
-                    {
-                        'lowest_note': 'C4',
-                        'highest_note': 'E4',
-                        'start_note': 'E4',
-                        'end_note': 'C4'
-                    }
-                ],
-                voice_leading_rules={
-                    'names': [
-                        'rearticulation',
-                        'destination_of_skip',
-                        'turn_after_skip',
-                        'VI_VII_resolution',
-                        'step_motion_to_end'
-                    ],
-                    'params': {
-                        'turn_after_skip': {
-                            'min_n_scale_degrees': 3
-                        },
-                        'step_motion_to_end': {
-                            'prohibit_rearticulation': False
-                        }
-                    }
-                },
-                harmony_rules={
-                    'names': [],
-                    'params': {}
-                },
-                rendering_params={}
-            ),
-            # `all_movements`,
-            [[0], [-2]],
-            # `max_lag`
-            2,
-            # `expected`
-            1
-        ),
-    ]
-)
-def test_evaluate_autocorrelation(
-        piece: Piece, all_movements: List[List[int]], max_lag: int,
-        expected: float
-) -> None:
-    """Test `evaluate_autocorrelation` function."""
-    for movements in all_movements:
-        piece.add_measure(movements)
-    result = evaluate_autocorrelation(piece, max_lag)
-    assert round(result, 4) == expected
-
-
-@pytest.mark.parametrize(
-    "piece, all_movements, expected",
-    [
-        (
-            # `piece`
-            Piece(
-                tonic='C',
-                scale_type='major',
-                n_measures=5,
-                max_skip=2,
-                line_specifications=[
-                    {
-                        'lowest_note': 'C4',
-                        'highest_note': 'G4',
-                        'start_note': 'C4',
-                        'end_note': 'G4'
-                    }
-                ],
-                voice_leading_rules={
-                    'names': [
-                        'rearticulation',
-                        'destination_of_skip',
-                        'turn_after_skip',
-                        'VI_VII_resolution',
-                        'step_motion_to_end'
-                    ],
-                    'params': {
-                        'turn_after_skip': {
-                            'min_n_scale_degrees': 3
-                        },
-                        'step_motion_to_end': {
-                            'prohibit_rearticulation': False
-                        }
-                    }
-                },
-                harmony_rules={
-                    'names': [],
-                    'params': {}
-                },
-                rendering_params={}
-            ),
-            # `all_movements`,
-            [[1], [1], [1]],
-            # `expected`
-            1
-        ),
-        (
-            # `piece`
-            Piece(
-                tonic='C',
-                scale_type='major',
-                n_measures=5,
-                max_skip=2,
-                line_specifications=[
-                    {
-                        'lowest_note': 'C5',
-                        'highest_note': 'G5',
-                        'start_note': 'C5',
-                        'end_note': 'C5'
-                    }
-                ],
-                voice_leading_rules={
-                    'names': [
-                        'rearticulation',
-                        'destination_of_skip',
-                        'turn_after_skip',
-                        'VI_VII_resolution',
-                        'step_motion_to_end'
-                    ],
-                    'params': {
-                        'turn_after_skip': {
-                            'min_n_scale_degrees': 3
-                        },
-                        'step_motion_to_end': {
-                            'prohibit_rearticulation': False
-                        }
-                    }
-                },
-                harmony_rules={
-                    'names': [],
-                    'params': {}
-                },
-                rendering_params={}
-            ),
-            # `all_movements`,
-            [[0], [0], [0]],
-            # `expected`
-            0
-        ),
-    ]
-)
-def test_evaluate_entropy(
-        piece: Piece, all_movements: List[List[int]], expected: float
-) -> None:
-    """Test `evaluate_entropy` function."""
-    for movements in all_movements:
-        piece.add_measure(movements)
-    result = evaluate_entropy(piece)
-    assert round(result, 4) == expected
 
 
 @pytest.mark.parametrize(
@@ -334,6 +127,264 @@ def test_evaluate_absence_of_looped_pitches(
         piece.add_measure(movements)
     result = evaluate_absence_of_looped_pitches(piece, max_n_repetitions)
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    "piece, all_movements, min_size, max_size, expected",
+    [
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale_type='major',
+                n_measures=7,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'G3',
+                        'highest_note': 'G4',
+                        'start_note': 'C4',
+                        'end_note': 'C4'
+                    }
+                ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [[1], [-1], [1], [-1], [1]],
+            # `min_size`
+            2,
+            # `max_size`
+            2,
+            # `expected`
+            -4
+        ),
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale_type='major',
+                n_measures=9,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'G3',
+                        'highest_note': 'G4',
+                        'start_note': 'C4',
+                        'end_note': 'C4'
+                    }
+                ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [[1], [-1], [1], [-1], [1], [-1], [1]],
+            # `min_size`
+            2,
+            # `max_size`
+            4,
+            # `expected`
+            -8
+        ),
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale_type='major',
+                n_measures=9,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'G3',
+                        'highest_note': 'G4',
+                        'start_note': 'C4',
+                        'end_note': 'C4'
+                    }
+                ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [[1], [1], [1], [1], [-1], [-1], [-1]],
+            # `min_size`
+            2,
+            # `max_size`
+            4,
+            # `expected`
+            0
+        ),
+    ]
+)
+def test_evaluate_absence_of_looped_fragments(
+        piece: Piece, all_movements: List[List[int]],
+        min_size: int, max_size: int, expected: float
+) -> None:
+    """Test `evaluate_absence_of_looped_fragments` function."""
+    for movements in all_movements:
+        piece.add_measure(movements)
+    result = evaluate_absence_of_looped_fragments(piece, min_size, max_size)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "piece, all_movements, expected",
+    [
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale_type='major',
+                n_measures=5,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'C4',
+                        'highest_note': 'G4',
+                        'start_note': 'C4',
+                        'end_note': 'G4'
+                    }
+                ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [[1], [1], [1]],
+            # `expected`
+            1
+        ),
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale_type='major',
+                n_measures=5,
+                max_skip=2,
+                line_specifications=[
+                    {
+                        'lowest_note': 'C5',
+                        'highest_note': 'G5',
+                        'start_note': 'C5',
+                        'end_note': 'C5'
+                    }
+                ],
+                voice_leading_rules={
+                    'names': [
+                        'rearticulation',
+                        'destination_of_skip',
+                        'turn_after_skip',
+                        'VI_VII_resolution',
+                        'step_motion_to_end'
+                    ],
+                    'params': {
+                        'turn_after_skip': {
+                            'min_n_scale_degrees': 3
+                        },
+                        'step_motion_to_end': {
+                            'prohibit_rearticulation': False
+                        }
+                    }
+                },
+                harmony_rules={
+                    'names': [],
+                    'params': {}
+                },
+                rendering_params={}
+            ),
+            # `all_movements`,
+            [[0], [0], [0]],
+            # `expected`
+            0
+        ),
+    ]
+)
+def test_evaluate_entropy(
+        piece: Piece, all_movements: List[List[int]], expected: float
+) -> None:
+    """Test `evaluate_entropy` function."""
+    for movements in all_movements:
+        piece.add_measure(movements)
+    result = evaluate_entropy(piece)
+    assert round(result, 4) == expected
 
 
 @pytest.mark.parametrize(
