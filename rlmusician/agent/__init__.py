@@ -5,18 +5,8 @@ Author: Nikolay Lysenko
 """
 
 
-from . import agent, crossentropy, policy
-from .agent import CounterpointEnvAgent, extract_initial_weights
-from .crossentropy import optimize_with_cem
-from .policy import create_policy
+from . import beam_search_monte_carlo
+from .beam_search_monte_carlo import optimize_with_bsmc
 
 
-__all__ = [
-    'CounterpointEnvAgent',
-    'agent',
-    'create_policy',
-    'crossentropy',
-    'extract_initial_weights',
-    'optimize_with_cem',
-    'policy'
-]
+__all__ = ['beam_search_monte_carlo', 'optimize_with_bsmc']

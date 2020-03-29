@@ -64,7 +64,7 @@ class CounterpointEnv(gym.Env):
             low=0,
             high=1 / (1 - observation_decay),
             shape=(roll_height,),
-            dtype=np.float32
+            dtype=np.float64
         )
 
     def __set_action_to_movements(self) -> None:
