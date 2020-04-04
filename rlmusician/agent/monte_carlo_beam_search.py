@@ -72,7 +72,7 @@ def update_stubs(
     return stubs
 
 
-def optimize_with_bsmc(
+def optimize_with_mcbs(
         env: CounterpointEnv,
         beam_width: int,
         n_records_to_keep: int,
@@ -80,7 +80,7 @@ def optimize_with_bsmc(
         paralleling_params: Optional[Dict[str, Any]] = None
 ) -> List[List[int]]:
     """
-    Find optimum sequences of actions with Beam Search Monte Carlo method.
+    Find optimum sequences of actions with Monte-Carlo Beam Search.
 
     :param env:
         environment

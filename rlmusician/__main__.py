@@ -11,7 +11,7 @@ from pkg_resources import resource_filename
 
 import yaml
 
-from rlmusician.agent import optimize_with_bsmc
+from rlmusician.agent import optimize_with_mcbs
 from rlmusician.environment import CounterpointEnv, Piece
 
 
@@ -47,11 +47,11 @@ def main() -> None:
 
     piece = Piece(**settings['piece'])
     env = CounterpointEnv(piece, **settings['environment'])
-    best_action_sequences = optimize_with_bsmc(env, **settings['agent'])
+    best_action_sequences = optimize_with_mcbs(env, **settings['agent'])
 
     env.verbose = True
     for i_episode, action_sequence in enumerate(best_action_sequences):
-        print(f"\nEpisode {i_episode}:")
+        print(f"\nPiece #{i_episode}:")
         env.reset()
         for action in action_sequence:
             observation, reward, done, info = env.step(action)

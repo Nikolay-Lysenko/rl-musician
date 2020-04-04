@@ -9,8 +9,8 @@ from typing import Any, Dict, List, Tuple
 
 import pytest
 
-from rlmusician.agent.beam_search_monte_carlo import (
-    optimize_with_bsmc,
+from rlmusician.agent.monte_carlo_beam_search import (
+    optimize_with_mcbs,
     update_stubs
 )
 from rlmusician.environment import CounterpointEnv, Piece
@@ -75,15 +75,15 @@ from rlmusician.environment import CounterpointEnv, Piece
         ),
     ]
 )
-def test_optimize_with_bsmc(
+def test_optimize_with_mcbs(
         env: CounterpointEnv,
         beam_width: int,
         n_records_to_keep: int,
         n_trials_schedule: List[int],
         paralleling_params: Dict[str, Any]
 ) -> None:
-    """Test that `optimize_with_bsmc` runs without failures."""
-    results = optimize_with_bsmc(
+    """Test that `optimize_with_mcbs` runs without failures."""
+    results = optimize_with_mcbs(
         env, beam_width, n_records_to_keep, n_trials_schedule,
         paralleling_params
     )

@@ -5,8 +5,8 @@ Author: Nikolay Lysenko
 """
 
 
-from . import beam_search_monte_carlo
-from .beam_search_monte_carlo import optimize_with_bsmc
+from . import monte_carlo_beam_search
+from .monte_carlo_beam_search import optimize_with_mcbs
 
 
-__all__ = ['beam_search_monte_carlo', 'optimize_with_bsmc']
+__all__ = ['monte_carlo_beam_search.py', 'optimize_with_mcbs']
