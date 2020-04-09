@@ -5,6 +5,7 @@ Author: Nikolay Lysenko
 """
 
 
+from copy import deepcopy
 from random import choice
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -12,28 +13,38 @@ from rlmusician.environment import CounterpointEnv
 from rlmusician.utils import map_in_parallel
 
 
-def continue_stub(
-        env: CounterpointEnv,
-        stub: List[int]
-) -> Tuple[List[int], float]:
+def roll_in(env: CounterpointEnv, actions: List[int]) -> CounterpointEnv:
     """
-    Continue stub with random actions until episode is finished.
+    Do roll-in actions.
 
     :param env:
         environment
-    :param stub:
-        sequence of actions
+    :param actions:
+        sequence of roll-in actions
+    :return:
+    """
+    env.reset()
+    for action in actions:
+        env.step(action)
+    return env
+
+
+def roll_out_randomly(
+        env: CounterpointEnv,
+        past_actions: List[int]
+) -> Tuple[List[int], float]:
+    """
+    Continue an episode in progress with random actions until it is finished.
+
+    :param env:
+        environment
+    :param past_actions:
+        sequence of actions that have been taken before
     :return:
         finalized sequence of actions and reward for the episode
     """
-    env.reset()
-    done = False
-    past_actions = []
     valid_actions = env.valid_actions
-    for action in stub:
-        observation, reward, done, info = env.step(action)
-        past_actions.append(action)
-        valid_actions = info['next_actions']
+    done = False
     while not done:
         action = choice(valid_actions)
         observation, reward, done, info = env.step(action)
@@ -43,13 +54,13 @@ def continue_stub(
     return record
 
 
-def update_stubs(
+def create_stubs(
         records: List[Tuple[List[int], float]],
         n_stubs: int,
         stub_length: int
 ) -> List[List[int]]:
     """
-    Create new stubs based on collected statistics.
+    Create roll-in sequences (stubs) based on collected statistics.
 
     :param records:
         sorted statistics of played episodes as sequences of actions
@@ -72,7 +83,7 @@ def update_stubs(
     return stubs
 
 
-def optimize_with_mcbs(
+def optimize_with_monte_carlo_beam_search(
         env: CounterpointEnv,
         beam_width: int,
         n_records_to_keep: int,
@@ -80,7 +91,7 @@ def optimize_with_mcbs(
         paralleling_params: Optional[Dict[str, Any]] = None
 ) -> List[List[int]]:
     """
-    Find optimum sequences of actions with Monte-Carlo Beam Search.
+    Find optimum sequences of actions with Monte Carlo Beam Search.
 
     :param env:
         environment
@@ -107,9 +118,10 @@ def optimize_with_mcbs(
     for i in range(n_measures_to_fill):
         n_trials = n_trials_schedule[min(i, len(n_trials_schedule) - 1)]
         for stub in stubs:
+            env = roll_in(env, stub)
             records_for_stub = map_in_parallel(
-                continue_stub,
-                [(env, stub) for _ in range(n_trials)],
+                roll_out_randomly,
+                [(deepcopy(env), deepcopy(stub)) for _ in range(n_trials)],
                 paralleling_params
             )
             records.extend(records_for_stub)
@@ -118,6 +130,6 @@ def optimize_with_mcbs(
             f"Current best reward: {records[0][1]:.5f}, "
             f"achieved with: {records[0][0]}."
         )
-        stubs = update_stubs(records, beam_width, i + 1)
+        stubs = create_stubs(records, beam_width, i + 1)
         records = records[:n_records_to_keep]
     return stubs

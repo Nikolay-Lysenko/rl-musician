@@ -11,7 +11,7 @@ from pkg_resources import resource_filename
 
 import yaml
 
-from rlmusician.agent import optimize_with_mcbs
+from rlmusician.agent import optimize_with_monte_carlo_beam_search
 from rlmusician.environment import CounterpointEnv, Piece
 
 
@@ -47,7 +47,9 @@ def main() -> None:
 
     piece = Piece(**settings['piece'])
     env = CounterpointEnv(piece, **settings['environment'])
-    best_action_sequences = optimize_with_mcbs(env, **settings['agent'])
+    best_action_sequences = optimize_with_monte_carlo_beam_search(
+        env, **settings['agent']
+    )
 
     env.verbose = True
     for i_episode, action_sequence in enumerate(best_action_sequences):

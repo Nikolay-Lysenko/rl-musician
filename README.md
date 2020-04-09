@@ -29,7 +29,7 @@ To create a reward-maximizing musical piece and some its variations, run:
 python -m rlmusician [-c path_to_your_config]
 ```
 
-[Default config](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/rlmusician/configs/default_config.yml) is used if `-c` argument is not passed. Search of optimal piece with these default settings takes about 30 minutes on a CPU of a regular laptop. If you are on Mac OS, please check that [parallelism is enabled](https://stackoverflow.com/questions/50168647/multiprocessing-causes-python-to-crash-and-gives-an-error-may-have-been-in-progr).
+[Default config](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/rlmusician/configs/default_config.yml) is used if `-c` argument is not passed. Search of optimal piece with these default settings takes about 15 minutes on a CPU of a regular laptop. If you are on Mac OS, please check that [parallelism is enabled](https://stackoverflow.com/questions/50168647/multiprocessing-causes-python-to-crash-and-gives-an-error-may-have-been-in-progr).
 
 Created pieces are stored in a directory specified in the config. For each piece, there is a nested directory that contains:
 * Piano roll in TSV format;

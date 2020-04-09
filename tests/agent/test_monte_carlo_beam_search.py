@@ -10,10 +10,42 @@ from typing import Any, Dict, List, Tuple
 import pytest
 
 from rlmusician.agent.monte_carlo_beam_search import (
-    optimize_with_mcbs,
-    update_stubs
+    create_stubs,
+    optimize_with_monte_carlo_beam_search,
 )
 from rlmusician.environment import CounterpointEnv, Piece
+
+
+@pytest.mark.parametrize(
+    "records, n_stubs, stub_length, expected",
+    [
+        (
+            # `records`
+            [
+                ([1, 2, 3], 5),
+                ([1, 2, 2], 4),
+                ([3, 2, 1], 3),
+                ([2, 3, 2], 2),
+            ],
+            # `n_stubs`
+            2,
+            # `stub_length`
+            2,
+            # `expected`
+            [
+                [1, 2],
+                [3, 2],
+            ]
+        ),
+    ]
+)
+def test_create_stubs(
+        records: List[Tuple[List[int], float]], n_stubs: int, stub_length: int,
+        expected: List[List[int]]
+) -> None:
+    """Test `create_stubs` function."""
+    result = create_stubs(records, n_stubs, stub_length)
+    assert result == expected
 
 
 @pytest.mark.parametrize(
@@ -75,48 +107,16 @@ from rlmusician.environment import CounterpointEnv, Piece
         ),
     ]
 )
-def test_optimize_with_mcbs(
+def test_optimize_with_monte_carlo_beam_search(
         env: CounterpointEnv,
         beam_width: int,
         n_records_to_keep: int,
         n_trials_schedule: List[int],
         paralleling_params: Dict[str, Any]
 ) -> None:
-    """Test that `optimize_with_mcbs` runs without failures."""
-    results = optimize_with_mcbs(
+    """Test that `optimize_with_monte_carlo_beam_search` has no failures."""
+    results = optimize_with_monte_carlo_beam_search(
         env, beam_width, n_records_to_keep, n_trials_schedule,
         paralleling_params
     )
     assert len(results[0]) == env.piece.n_measures - 2
-
-
-@pytest.mark.parametrize(
-    "records, n_stubs, stub_length, expected",
-    [
-        (
-            # `records`
-            [
-                ([1, 2, 3], 5),
-                ([1, 2, 2], 4),
-                ([3, 2, 1], 3),
-                ([2, 3, 2], 2),
-            ],
-            # `n_stubs`
-            2,
-            # `stub_length`
-            2,
-            # `expected`
-            [
-                [1, 2],
-                [3, 2],
-            ]
-        ),
-    ]
-)
-def test_update_stubs(
-        records: List[Tuple[List[int], float]], n_stubs: int, stub_length: int,
-        expected: List[List[int]]
-) -> None:
-    """Test `update_stubs` function."""
-    result = update_stubs(records, n_stubs, stub_length)
-    assert result == expected
