@@ -16,7 +16,7 @@
 
 \title{RL-Musician: A Configurable Open-Source Tool for Species Counterpoint Composition}
 
-\date{April 4, 2020}
+\date{April 14, 2020}
 
 \author{
   Nikolay~Lysenko\\
@@ -43,7 +43,7 @@ Although current setup of the problem may seem simplistic, it is a step in a pro
 
 Algorithmic music composition is automatic generation of outputs representing musical pieces and written in some formal notation. To name a few of common notations, there is sheet music, tablature, and MIDI standard. It is not required from output representation to unambiguously define sound waveform. For example, sheet music leaves exact loudness of played notes to discretion of a performer and may include only imprecise hints like pianissimo (very quiet). Anyway, there are parameters of sounds that must be determined by their representation. Usually, such parameters are pitch, start time, and duration.
 
-Currently, there are no perfect tools for algorithmic composition. Plenty of various approaches for composing music automatically exist, but none of them produce well-structured and novel pieces that cannot be distinguished from works of a talented human composer. Thus, there is an open research problem. Several recent breakthroughs in it are accomplished with machine learning and both supervised learning \cite{johnson2017generating, payne2019musenet} and reinforcement learning \cite{yi2007automatic, smith2012reinforcement} are applicable. Moreover, some researchers combine them \cite{jaques2016generating, kotecha2018bach, kumar2019polyphonic}. Meanwhile, fitness function optimization also yields prominent results\cite{herremans2012first, herremans2013fifth}.
+Currently, there are no perfect tools for algorithmic composition. Plenty of various approaches to composing music automatically exist, but none of them produce well-structured and novel pieces that cannot be distinguished from works of a talented human composer. Thus, there is an open research problem. Several recent breakthroughs in it are accomplished with machine learning and both supervised learning \cite{johnson2017generating, payne2019musenet} and reinforcement learning \cite{yi2007automatic, smith2012reinforcement} are applicable. Moreover, some researchers combine them \cite{jaques2016generating, kotecha2018bach, kumar2019polyphonic}. Meanwhile, fitness function optimization also yields prominent results\cite{herremans2012first, herremans2013fifth}.
 
 In this paper, a new approach to music composition is suggested. Although it is quite straightforward, to the best of the author's knowledge it is not described anywhere, so the first contribution is its rigorous definition. The second contribution\footnote{As of now, it is in progress.} is proper setup and tuning of the parameters. It is often the case that accurately tuned simple methods outperform complex methods \cite{dacrema2019are} and, in addition, they are more transparent and less demanding.
 
@@ -68,7 +68,7 @@ The remainder of the paper is organized as follows. Section \ref{sec:literature}
 
 Usage of computers for automatic composition of music dates back to 1950s and, what is more, approaches that can be labeled as algorithmic are known since Guido of Arezzo (11th century). Therefore, it is impossible to list here all studies about the subject. An interested reader can find more information in specialized reviews such as \cite{fernandez2013ai}. What is discussed below is just some examples related to the current study.
 
-These examples can be divided into two groups. The first one is formed by approaches where given fitness function is optimized.  The second group is formed by composition of music with reinforcement learning in its narrow sense (i.e., methods based on value function estimation). This group is something in between the first group and supervised learning approaches. On the one hand, reward function is a domain-specific name for fitness function. On the other hand, data generated during past episodes are used for training supervised models.
+These examples can be divided into two groups. The first one is formed by approaches where an explicitly given fitness function is optimized. The second group is formed by composition of music with reinforcement learning in its narrow sense (i.e., methods based on value function estimation). This group is something in between the first group and supervised learning approaches. On the one hand, reward function is a domain-specific name for fitness function. On the other hand, data generated during past episodes are used for training supervised models.
 
 The closest to the current study works \cite{herremans2012first, herremans2013fifth} belong to the first group. A local search algorithm named Variable Neighborhood Search is used there in order to create first and fifth species counterpoint pieces that maximize fitness function. What these studies and the current one share in common is that fitness (reward) function is backed by the theory of species counterpoint. However, the current study is a bit closer to reinforcement learning, because composition of a piece is considered an episode consisting of sequential steps after each of which a list of valid actions changes. Conversely, in \cite{herremans2012first, herremans2013fifth}, the whole piece is created at random and then improved by applying small alterations. As a result, pieces that break some fundamental rules of counterpoint are also evaluated there (they are marked as unfeasible), whereas here such pieces can not be created. This way of that, the core drawback of the two discussed papers is that download links to the software implementation named Optimuse are broken and so the results can not be reproduced.
 
@@ -90,7 +90,7 @@ This implies that optimization-based approaches and pure reinforcement learning 
 \subsection{Monte Carlo Beam Search}
 \label{subsec:montecarlo}
 
-Consider a tree search problem. To be more detailed, suppose that there is a tree such that every its leaf is mapped to a reward and the goal is to find the leaf with the maximum reward. However, leaves and corresponding to them rewards are not known initially. Information about a leaf becomes available only after a path from the root of the tree to this leaf is constructed. %In other words, the goal is to find optimum sequence of nodes starting at the root and ending at a leaf.
+Consider a tree search problem. To be more detailed, suppose that there is a tree such that every its leaf is mapped to a reward and the goal is to find the leaf with the maximum reward. However, leaves and corresponding to them rewards are not known initially. Information about a leaf becomes available only after a path from the root of the tree to this leaf is constructed.
 
 The described in Section \ref{sec:introduction} procedure of first species counterpoint writing can be considered a tree search problem. The root is the initial state of an environment. Each valid option to fill the current measure is an edge from the current node of the tree to a new node. Leaves are pieces where all measures are filled. 
 
@@ -146,7 +146,7 @@ At the current revision of the study, seven properties of a final piece are eval
 	\item \textbf{Correlation between lines.} Consider each line as a sequence of real numbers equal to pitch positions within a range of available pitches. Then average over all pairs of lines correlation between two lines can quantify independence of lines. Actually, reward is rescaled to be from 0 to 1 -- it is half of difference of 1 and the above average correlation.
     \item \textbf{Explicity of climax.} Music theory suggests that good melodies must have goal-oriented motion and that such goal-orientedness may be achieved by having exactly one climax point. For each line, constant reward is decreased for each duplication of climax point and for not so high climax point.
     \item \textbf{Number of skips.} Positive reward is associated with every line such that number of skips in it lies within a specified range. The motivation behind this is that lines with almost no skips are not interesting, but lines with too many skips are not coherent.
-    \item \textbf{Absence of downward skips}. Counterpoint theory prescribes to have downward step motion. To encourage its usage, there are negative rewards for every downward skip and the large a skip is, the higher a penalty its.
+    \item \textbf{Absence of downward skips}. Counterpoint theory prescribes to have downward step motion. To encourage its usage, there are negative rewards for every downward skip and the larger a skip is, the higher a penalty its.
 \end{itemize}
 
 It can be seen that the first two properties deal with non-triviality of results, the next two properties deal with interaction of lines and the last three properties deal with melodic quality of each separate line. 
@@ -191,9 +191,9 @@ In this section, results are reported for experiments with 2 melodic lines and 1
 
 In Table \ref{table:scores}, scores of a piece found with Monte Carlo Beam Search are compared with benchmarks. The piece was found with beam width set to 5 and number of trials schedule set to ($10000 \times 3$, $5000 \times 3$, $1000 \times 8$) -- this means that the second measure of the piece was chosen after 10000 random continuations and, for example, the eighth measure of the piece was chosen after 1000 random continuations. One of the benchmarks is achieved by Monte Carlo Search with 43000 random trials (i.e., total number of random trials is the same). The other benchmark relates to a piece manually created by the author in about 10 minutes. Ideally, scores should be collected during multiple independent experiments and then significance of difference should be tested, but it is not done yet.
 
-The results look like scores for climax explicity and absence of looped pitches, absence of looped fragments, and absence of downward skips impose hard constraints. If so, the goal is to maximize sum of scores for lines independence subject to counterpoint rules and above new constraints.
+The results look like scores for climax explicity, absence of looped pitches, absence of looped fragments, and absence of downward skips impose hard constraints. If so, the goal is to maximize sum of scores for lines independence subject to counterpoint rules and above new constraints.
 
-Table \ref{table:piece} contains found by Monte Carlo Beam Search piece for which the scores are reported.
+Table \ref{table:piece} demonstrates found by Monte Carlo Beam Search piece for which the scores are reported.
 
 \begin{table}[h!]
 	\caption{The piece found with Monte Carlo Beam Search}
@@ -261,12 +261,11 @@ Subjective evaluation of music quality can be used for revising setup of the pro
 \section{Conclusion}
 \label{sec:conclusion}
 
-This paper introduces a new approach for music composition without usage of existing pieces.
+This paper introduces a new approach to composition of music without usage of existing pieces. For a problem of first species counterpoint writing, the approach finds pieces that maximize weighted sum of associated with particular musical properties scores subject to boundary constraints. These boundary constraints (the first measure and the last measure) are user-defined and weights for the sum of scores are user-defined too.
 
-The list of suggested further improvements is as follows:
-\begin{itemize}
-	\item Use 
-\end{itemize}
+Results are good from formal metrics point of view -- the method outperforms random search and manual trials. However, created pieces are too simple to be enjoyable music. This is an inevitable consequence of too strict limitations of first species counterpoint. To eliminate them, higher species can be chosen or frameworks other than species counterpoint can be explored.
+
+If the problem becomes computationally complex after introducing more musical freedom, concepts from reinforcement learning such as value function can be involved. State-free search can be replaced with a search where decision are made based on observations and estimated values of states and actions. 
 
 
 \bibliographystyle{unsrt}  
