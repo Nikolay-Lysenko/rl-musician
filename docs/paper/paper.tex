@@ -14,9 +14,9 @@
 \usepackage{algorithmic}    % pseudocode
 
 
-\title{RL-Musician: A Tool for Music Composition with Reinforcement Learning}
+\title{RL-Musician: A Configurable Open-Source Tool for Species Counterpoint Composition}
 
-\date{January 26, 2020}
+\date{April 14, 2020}
 
 \author{
   Nikolay~Lysenko\\
@@ -30,7 +30,7 @@
 \maketitle
 
 \begin{abstract}
-In this paper, automatic composition of first species counterpoint is framed as a black-box optimization problem close to reinforcement learning. An agent with shallow neural network as a policy composes polyphonic pieces sequentially one measure (bar) per time step. Once a specified number of measures is added, resulting piece is evaluated based on some hand-written rules derived from music theory. Cross-entropy method is used for searching policy weights that result in maximum expected score of a piece.
+In this paper, automatic composition of first species counterpoint is framed as a tree search problem close to reinforcement learning. An environment representing a polyphonic piece in progress is introduced. An action is filling of the current measure (bar) for all melodic lines simultaneously. Once a specified number of measures is added, an episode terminates and the resulting piece is evaluated based on some hand-written rules derived from music theory. Best sequences of actions are found with a variation of Monte Carlo Beam Search.
 
 Although current setup of the problem may seem simplistic, it is a step in a promising direction. Numerous recent advances in music generation are achieved with supervisedly trained neural networks and reinforcement learning is not used there as a standalone paradigm. Since collections of existing pieces are involved as datasets, results are "inspired" by these reference pieces. However, the notion of creativity is wider -- it also includes generation of something that meets criteria of being an art, but is not backed by existing pieces. Thus, new aspects of creativity can be revealed by further research of pure reinforcement learning approaches.
 \end{abstract}
@@ -43,11 +43,11 @@ Although current setup of the problem may seem simplistic, it is a step in a pro
 
 Algorithmic music composition is automatic generation of outputs representing musical pieces and written in some formal notation. To name a few of common notations, there is sheet music, tablature, and MIDI standard. It is not required from output representation to unambiguously define sound waveform. For example, sheet music leaves exact loudness of played notes to discretion of a performer and may include only imprecise hints like pianissimo (very quiet). Anyway, there are parameters of sounds that must be determined by their representation. Usually, such parameters are pitch, start time, and duration.
 
-Currently, there are no perfect tools for algorithmic composition. Plenty of various approaches for composing music automatically exist, but none of them produce well-structured and novel pieces that cannot be distinguished from works of a talented human composer. Thus, there is an open research problem. Several recent breakthroughs in it are accomplished with machine learning and both supervised learning \cite{johnson2017generating, payne2019musenet} and reinforcement learning \cite{smith2012reinforcement} are applicable. Moreover, some researchers combine them \cite{jaques2016generating, kotecha2018bach, kumar2019polyphonic}.
+Currently, there are no perfect tools for algorithmic composition. Plenty of various approaches to composing music automatically exist, but none of them produce well-structured and novel pieces that cannot be distinguished from works of a talented human composer. Thus, there is an open research problem. Several recent breakthroughs in it are accomplished with machine learning and both supervised learning \cite{johnson2017generating, payne2019musenet} and reinforcement learning \cite{yi2007automatic, smith2012reinforcement} are applicable. Moreover, some researchers combine them \cite{jaques2016generating, kotecha2018bach, kumar2019polyphonic}. Meanwhile, fitness function optimization also yields prominent results\cite{herremans2012first, herremans2013fifth}.
 
 In this paper, a new approach to music composition is suggested. Although it is quite straightforward, to the best of the author's knowledge it is not described anywhere, so the first contribution is its rigorous definition. The second contribution\footnote{As of now, it is in progress.} is proper setup and tuning of the parameters. It is often the case that accurately tuned simple methods outperform complex methods \cite{dacrema2019are} and, in addition, they are more transparent and less demanding.
 
-The approach relates to a well-known framework for simplified music composition called species counterpoint. It is often used by beginning composers in order to practice in voice leading (also known as part writing) and polyphony. From automatic composition point of view, species counterpoint is interesting due to two its properties:
+The approach relates to a well-known framework for simplified music composition called species counterpoint. It is usually used by beginning composers in order to practice in voice leading (also known as part writing) and polyphony. From automatic composition point of view, species counterpoint is interesting due to two its properties:
 \begin{itemize}
 	\item There are rules prescribing what to do and what not to do. So there are less degrees of freedom and the problem is computationally more feasible.
 	\item There are clear hints of what is better to avoid and what should be added. So formal rules for automatic evaluation of resulting piece can be introduced.
@@ -55,20 +55,9 @@ The approach relates to a well-known framework for simplified music composition 
 
 The word "species" in the name of the framework indicates that there are some types -- each of them has its own rhythmic pattern. Here, first species counterpoint is covered. This type has trivial rhythmic structure such that only whole (semibreve) notes can be used and every note must be placed in a beginning of a measure. Thus, interaction between rhythm and tonality is eliminated and the problem becomes even simpler. 
 
-Brief outline of the setup is as follows. There is an environment that keeps a piece in progress and the piece consists of a fixed number of measures. Each measure must be either empty (if it is not filled yet) or containing exactly one note per a melodic line. Initially, only the first measure and the last measure are filled with user-defined values. At a particular time step of an episode, an agent observes vector in which for every pitch there is an exponential moving average over all measures up to the current one (exclusively) of binary indicators whether this pitch is played at corresponding measure. An action of the agent is filling of the current measure, i.e., adding a pitch to each of the melodic lines. When the last measure is reached, episode is ended and the agent receives reward based on evaluation of created composition. Trainable parameters of the agent are weights of a neural network used as a policy. These parameters are trained with cross-entropy method \cite{rubinstein1997optimization} (alternatively, they can be trained with evolutionary strategies \cite{salimans2017evolution}, genetic algorithms, simulated annealing, or other black-box optimization methods). From optimization perspective, average over several episodes reward is estimated value of fitness function at the weights used.
+Brief outline of the setup is as follows. There is an environment that keeps a piece in progress and the piece consists of a fixed number of measures. Each measure must be either empty (if it is not filled yet) or containing exactly one note per a melodic line. Initially, only the first measure and the last measure are filled with user-defined values and the current measure is the second one. An action is filling of the current measure, i.e., adding a pitch to each of the melodic lines. After an action, the next measure becomes the current one. When the last measure is reached, episode is ended and a reward based on evaluation of the created composition is assigned to the sequence of passed actions.
 
-Obviously, the approach belongs to reinforcement learning, because there is an environment and an agent, but a dataset is absent. Nevertheless, there are some connections with supervised deep learning. From generation of new pieces point of view, a policy returns probabilities of next sonorities (chords) given current state. This is similar to sampling new sequences from a next-step prediction model trained with maximum likelihood method on a dataset of existing sequences.
-
-More details on the methodology are provided in Section \ref{sec:methodology} but here it is appropriate to discuss its advantages. Of course, automatic composition of species counterpoint is not novel -- some researchers have developed optimization-based approaches not only for first species, but also for fifth species \cite{herremans2012composing}. Nevertheless, as far as the author knows, such approaches yield a single piece as a result of optimization, whereas in the current approach training produces an agent that creates a new piece after each run.
-
-Next-step prediction models create a new piece after each run too, but they are trained supervisedly. The reasons for not involving supervised training at all are as follows:
-\begin{itemize}
-	\item Finding new ways of music creation is a more challenging task than imitation of famous pieces. If no known pieces are used, chances are that the harder problem is considered and it is not replaced with the simpler problem of imitation.
-	\item There are tuning systems other than equal temperament (for instance, in microtonal music). For some of them it may be impossible to collect dataset large enough to allow training models in a supervised fashion. However, developers of a tuning system should know some underlying principles and so (at least, in theory) it is possible to create evaluational rules and train an agent based on them.
-\end{itemize}
-
-Actually, results reported at this draft version are far from using above advantages at full scale (in particular, first species counterpoint is too limiting). The current study is rather a proof-of-concept, but this proof-of-concept is easily extendable and ideas on how it can be improved are listed in Section \ref{sec:conclusion}.
-% Chances are that a way of reinforcement learning combines strengths of fitness function optimization with strengths of supervised learning. 
+The remainder of the paper is organized as follows. Section \ref{sec:literature} describes the most relevant works and the place of the current paper amongst them. Namely, Section \ref{subsec:composition} discusses algorithmic composition, whereas Section \ref{subsec:montecarlo} contains preliminaries on Monte Carlo Beam Search and lists modifications made in this study. Details of the setup (in particular, rules used for evaluation of pieces) are defined in Section \ref{sec:methodology}. Section \ref{sec:results} reports experimental results and the way to reproduce them. Finally, Section \ref{sec:conclusion} concludes.
 
 
 \section{Background and Related Work}
@@ -77,44 +66,45 @@ Actually, results reported at this draft version are far from using above advant
 \subsection{Algorithmic Composition}
 \label{subsec:composition}
 
-Usage of computers for automatic composition of music dates back to 1950s and, what is more, approaches that can be labeled as algorithmic are known since Guido of Arezzo (11th century). Therefore, it is impossible to list here all studies about the subject. An interested reader can find more information in specialized reviews such as \cite{fernandez2013ai}. What is discussed below is just some examples related to reinforcement learning.
+Usage of computers for automatic composition of music dates back to 1950s and, what is more, approaches that can be labeled as algorithmic are known since Guido of Arezzo (11th century). Therefore, it is impossible to list here all studies about the subject. An interested reader can find more information in specialized reviews such as \cite{fernandez2013ai}. What is discussed below is just some examples related to the current study.
 
-Reinforcement learning can be applied to algorithmic composition either as a standalone paradigm or in connection with deep learning. As for the first case, probably, there are no influential works and only separate studies like \cite{yi2007automatic} are available. Conversely, the second group recently gained attention and several interesting approaches were developed there.
+These examples can be divided into two groups. The first one is formed by approaches where an explicitly given fitness function is optimized. The second group is formed by composition of music with reinforcement learning in its narrow sense (i.e., methods based on value function estimation). This group is something in between the first group and supervised learning approaches. On the one hand, reward function is a domain-specific name for fitness function. On the other hand, data generated during past episodes are used for training supervised models.
 
-For example, reinforcement learning can be used for altering weights of recurrent neural networks trained to generate music sequentially \cite{jaques2016generating, kotecha2018bach}. The goal is to make generated pieces more structured and conformed with music theory rules. To define an environment, let its state be composed of recurrent neural networks states and previously played notes, let an action be an output for current time step and let reward depend on both evaluational rules and probability of output according to initial RNN. Rewards are granted immediately after a step and so DQN (Deep Q-Networks \cite{mnih2013playing}) are preferred as a training algorithm.
+The closest to the current study works \cite{herremans2012first, herremans2013fifth} belong to the first group. A local search algorithm named Variable Neighborhood Search is used there in order to create first and fifth species counterpoint pieces that maximize fitness function. What these studies and the current one share in common is that fitness (reward) function is backed by the theory of species counterpoint. However, the current study is a bit closer to reinforcement learning, because composition of a piece is considered an episode consisting of sequential steps after each of which a list of valid actions changes. Conversely, in \cite{herremans2012first, herremans2013fifth}, the whole piece is created at random and then improved by applying small alterations. As a result, pieces that break some fundamental rules of counterpoint are also evaluated there (they are marked as unfeasible), whereas here such pieces cannot be created. This way of that, the core drawback of the two discussed papers is that download links to the software implementation named Optimuse are broken and so the results cannot be reproduced.
+
+There are other optimization-based approaches as well. Instead of local search metaheuristics, population-based metaheuristics (genetic algorithms, evolutionary strategies, cross-entropy method), or construction metaheuristics (ant colony algorithms) can be used. However, such papers are less relevant to the current study and so let us switch our attention to reinforcement learning. It can be applied to algorithmic composition either as a standalone paradigm or in connection with supervised deep learning. As for the first case, probably, there are no influential works and only separate studies like \cite{yi2007automatic, smith2012reinforcement} are available. Conversely, the second group recently gained attention and several interesting approaches were developed there.
+
+For example, reinforcement learning can be used for altering weights of recurrent neural networks (RNNs) trained to generate music sequentially \cite{jaques2016generating, kotecha2018bach}. The goal is to make generated pieces more structured and conformed with music theory rules. To define an environment, let its state be composed of recurrent neural networks states and previously played notes, let an action be an output for current time step and let reward depend on both evaluational rules and probability of output according to initial RNN. Rewards are granted immediately after a step and DQN (Deep Q-Networks \cite{mnih2013playing}) are preferred as a training algorithm.
 
 Usually, softmax activation function is used in the last layer of generative RNN. However, it is a common practice in reinforcement learning domain to generalize it with Boltzmann softmax which is a family of activation functions parametrized by one parameter called temperature and denoted as $t$. Depending on temperature, output distribution can vary from atomic distribution concentrated at the most probable action ($t = 0$) to distribution returned with softmax activation ($t = 1$) and to uniform distribution ($t \to +\infty$). In \cite{kumar2019polyphonic}, Boltzmann softmax is used and also input vector is extended by introducing an additional part (so called plan) indicating origination of initial input. An environment is defined so that state is a pair of temperature and plan, actions are changes in either temperature or plan, and reward depends on evaluation of produced with these settings piece.
 
 Since algorithmic composition can be framed as training of a generative model, it sounds natural to try one of the most salient examples of generative models -- generative adversarial networks (GANs) \cite{goodfellow2014gan}. However, widespread notations for music assume sequences of discrete values but classical GANs work well only with continuous data, because gradient of discrete-valued functions is uninformative. Techniques originating from reinforcement learning can be used to overcome this obstacle \cite{yu2016seqgan,hjelm2017boundary}. Namely, generator is trained with policy gradient method \cite{williams1992simple}. Such methodology is applied to various tasks and music composition is amongst them \cite{limaguimaraes2017objective}.
 
-\subsection{Cross-Entropy Method}
-\label{subsec:crossentropy}
+Let us highlight again that above cases of reinforcement learning usage still require supervised learning and datasets. The arguments for not involving them at all are as follows:
+\begin{itemize}
+	\item Finding new ways of music creation is a more challenging task than imitation of famous pieces. If no known pieces are used, chances are that the harder problem is considered and it is not replaced with the simpler problem of imitation.
+	\item There are tuning systems other than equal temperament (for instance, in microtonal music). For some of them it may be impossible to collect a dataset large enough to allow training models in a supervised fashion. However, developers of a tuning system should know some underlying principles and so (at least, in theory) it is possible to define a fitness function and find pieces that optimize it or to define a reward and train an agent based on it.
+\end{itemize}
+This implies that optimization-based approaches and pure reinforcement learning approaches must not be overlooked due to advances in supervised learning application.
 
-Initially, cross-entropy method was developed for estimation of rare events probability \cite{rubinstein1997optimization}. However, it was found that it is also appropriate for solving optimization problems. More detailed discussion of cross-entropy method can be found in \cite{boer2005tutorial}.
+\subsection{Monte Carlo Beam Search}
+\label{subsec:montecarlo}
 
-\begin{algorithm}
-	\caption{Cross-entropy method for optimization} \label{alg:crossentropy}
-	\textbf{Input:} $X$ -- set of elements, $f: X \to \mathbb{R}$ -- target function, $u(\cdot, w)$ -- probabilistic distribution over $X$ parametrized by vector $w$. \\
-	\textbf{Output:} $\hat{w}$ -- approximate solution to the problem $\max_w \mathbb{E}_{x \sim u(\cdot, w)} f(x)$. \\
-	\textbf{Hyperparameters:} $w^{(0)}$ -- initial value of $w$; $N$ -- number of iterations, $n$ -- number of vectors to draw at each iteration, $\sigma$ -- standard deviation for vectors generation, $m$ -- number of trials for each vector; $\rho$ -- fraction of best vectors to use for update; $\alpha$ -- smoothing coefficient of updates.
-	\begin{algorithmic}[1]
-		\FORALL{$i \in \{1, \dots, N\}$}
-		    \FORALL{$j \in \{1, \dots, n\}$}
-		        \STATE{draw $w^{(i,j)} \sim \mathcal{N}(\cdot \vert w^{(i-1)}, \sigma)$}
-		        \STATE{$r_j \gets \sum_{k = 1}^{m} f(x_k)$ where $x_k \sim u(\cdot, w^{(i,j)})$}
-		    \ENDFOR
-		    \STATE{$r_{\mathrm{threshold}} \gets$ $[\rho n]$-th highest value of $\{r_j: j \in \{1, \dots, n\}\}$}
-		    \STATE{$J \gets \{j: r_j \ge r_{\mathrm{threshold}}\}$}
-		    \STATE{$w^{(i)} \gets \alpha w^{(i-1)} + (1 - \alpha)(\sum_{j \in J} w^{(i,j)}) / [\rho n]$}
-		\ENDFOR
-	    \STATE{$\hat{w} \gets w^{(N)}$}
-	\end{algorithmic}
-\end{algorithm}
+Consider a tree search problem. To be more detailed, suppose that there is a tree such that every its leaf is mapped to a reward and the goal is to find the leaf with the maximum reward. However, leaves and corresponding to them rewards are not known initially. Information about a leaf becomes available only after a path from the root of the tree to this leaf is constructed.
 
-Algorithm \ref{alg:crossentropy} defines a variant of cross-entropy method for optimization. Sometimes, hyperparameter $m$ is omitted and intermediate results are not aggregated over multiple trials. In case of $u(\cdot, w)$ that acts like a deterministic function of $w$, $m$ is redundant, but, in general case, terminal result can be improved by setting $m > 1$.
+The described in Section \ref{sec:introduction} procedure of first species counterpoint writing can be considered a tree search problem. The root is the initial state of an environment. Each valid option to fill the current measure is an edge from the current node of the tree to a new node. Leaves are pieces where all measures are filled. 
 
-In context of reinforcement learning, cross-entropy method is used for searching parameters of agent that result in maximum expected reward. So $X$ is a set of all possible finished episodes, $f$ is reward, and $u(\cdot, w)$ describes how an episode depends on parameters. Cross-entropy method is best suitable for environments where reward becomes known only after an episode is finished. If there are rewards granted after intermediate steps, methods based on Q-values usually outperform it.
+If size of a tree is small enough, exhaustive search is possible. There are well-known classical algorithms such as depth-first search (DFS) that allow iterating over all paths from the root to leaves. Unfortunately, trees are large in numerous real problems. For instance, a rough estimate of total number of leaves for first species counterpoint with 2 voices and 16 measures is about $7^{14}$ which is equal to several hundreds of billions.
 
+An obvious idea for a large tree is to use random search. To create a path, every next node is chosen at random until a leaf is reached. After specified number of paths are created, the best one amongst them is chosen as an approximate solution.
+
+This idea can be further improved in the following way. Let an optimum path be constructed sequentially with adding one new node per a series of random trials. If so, there is a stub initially containing only the root. At every iteration, there are several trials to continue stub at random until a leaf is reached. The best one amongst them (and amongst trials from previous iterations if applicable) is chosen and the first non-stub node from there is added to the stub. This method can be called Monte Carlo Search. The gain in comparison with plain random search is due to allocating more exploration to subtrees that contain the current best leaf.
+
+Above version of Monte Carlo Search is greedy, because it ignores that some subtrees might be underexplored. A well-known method that explores more than greedy search but uses less computational resources than exhaustive search, is called beam search. Instead of just one stub, $w$ distinct stubs are constructed and used, where $w$ is a hyperparameter named beam width. It is natural to call this method Monte Carlo Beam Search.
+
+Probably, the term Monte Carlo Beam Search was coined in \cite{cazenave2012beam}. However, it has different meaning there. In \cite{cazenave2009nested}, the same author defined Nested Monte Carlo Search as a combination of Monte Carlo Search with DFS. Given a current stub, all its extensions by $n$ new nodes (where $n$ is a hyperparameter named level of nestedness) are found with DFS and then continued at random. So pre-defined number of trials per iteration is absent, because number of trials is equal to number of extensions by $n$ nodes ahead. Comparing with Monte Carlo Search, Nested Monte Carlo Search distributes exploration more evenly between short extensions of a stub. This way or that, in \cite{cazenave2012beam}, Monte Carlo Beam Search is defined as beam search based on Nested Monte Carlo Search.
+
+Nevertheless, here, beam search is based on Monte Carlo Search. The reason for it is quite mundane -- parallel implementation of DFS looks like overcomplication that may yield too few. The second difference with \cite{cazenave2012beam} is that dependence of trials number on stub length is introduced. The longer the stub is, the smaller a subtree to be explored is. Therefore, it is better to reallocate computational resources in order to explore more when a stub is short and to explore less when a stub is long.
 
 \section{Methodology}
 \label{sec:methodology}
@@ -122,7 +112,7 @@ In context of reinforcement learning, cross-entropy method is used for searching
 \subsection{Setup}
 \label{subsec:setup}
 
-To start with, define representation of a musical piece. Suppose that counterpoint is written in $l$ melodic lines (parts, voices), where $l$ is usually 2 or 3. Suppose also that a diatonic scale (like C-major or A-minor) is chosen. Let each line be a list of pitches from the scale (i.e., only 7 notes per octave can be used and chromaticism is prohibited). Set length of all lines to the same number $m$, where $m$ is usually between 8 and 24. From music point of view, this means that a piece to be created is rather a phrase that can be inserted into a longer composition. Such limitation goes back to species counterpoint, because it is designed exactly for writing short phrases. This way or that, define a piece as a matrix $P$ of size $l \times m$ where element $P_{ij}$ is a pitch played in $i$-th line in $j$-th measure.
+To start with, define representation of a musical piece. Suppose that counterpoint is written in $l$ melodic lines (parts, voices), where $l$ is usually 2 or 3. Suppose also that a diatonic scale (like C-major or A-minor) is chosen. Let each line be a list of pitches from the scale (i.e., only 7 out of 12 notes per octave can be used and so chromaticism is prohibited). Set length of all lines to the same number $m$, where $m$ is usually between 8 and 24. From music point of view, this means that a piece to be created is rather a phrase that can be inserted into a longer composition. Such limitation goes back to species counterpoint, because it is designed exactly for writing short phrases. This way or that, define a piece as a matrix $P$ of size $l \times m$ where element $P_{ij}$ is a pitch played in $i$-th line in $j$-th measure.
 
 Every line must have only small intervals between its successive elements in order to be perceived as a single line and not as a heterogeneous collection of sounds. Suppose that maximum allowed melodic interval is $s$ scale degrees (here, $s = 3$). If so, there are no more than $(2s + 1)^l$ options to fill the next measure given current measure. Actually, the number is smaller, because some options are filtered out by counterpoint rules. The rules enforced in this study can be either rules of voice leading (part writing) or rules of harmony.
 
@@ -131,56 +121,45 @@ Here, five rules of voice leading are imposed:
 	\item Only pitches from tonic triad (i.e., tonic, mediant, and dominant) can be rearticulated (repeated), because only they are stable;
 	\item If a line has submediant followed by leading tone, tonic must be used after leading tone, because there is strong attraction to it; similarly, if a line has leading tone followed by submediant, dominant must be used after submediant;
 	\item If a melodic interval between two successive pitches from the same line is larger than second (i.e., if there is a skip), the second pitch must be from tonic triad, because skip creates enough tension and something stable is needed;
-	\item Movement in the opposite direction must happen immediately after a skip larger than third in order to resolve tension associated with the skip;
+	\item Movement by step in the opposite direction must happen immediately after a skip larger than third in order to resolve tension associated with the skip;
 	\item For every pitch, there must be a way to reach the final pitch of this line with step motion (the final measure is filled initially with user-defined sonority), because resolution must be present during last measures.
 \end{itemize}
-In addition, there are two rules of harmony:
+In addition, there are three rules of harmony:
 \begin{itemize}
 	\item All harmonic intervals between two simultaneously sounding pitches from different lines must be consonant;
+	\item Within a measure, all pitch classes must be different unless the measure is the first one or the last one;
 	\item For every pitch, the closest to it pitch from the same measure must be no more than tenth apart.
 \end{itemize}
 
-Above rules are absolute and an agent cannot break them, because it selects pitches for the next measure only from options that are filtered according to them. If a set of such options is empty, episode terminates and an agent receives negative reward for dead end.
+Above rules are absolute and it is not possible to break any of them, because pitches for the next measure can be selected only from options that are filtered according to these rules. If a set of such options is empty, episode terminates and an unfinished sequence of actions receives negative reward for dead end.
 
-If the set of options is not empty, an agent needs an observation. Observation is provided in terms of so called piano roll format. Denote size of pitch range available to the agent as $n$ and let the piece be represented also as a matrix $R$ of size $n \times m$ where $R_{ij}$ is 1 if $i$-th pitch is played in any line in $j$-th measure and 0 otherwise. Denote current measure as $t$, $1 \le t \le m$. Then observation is defined as vector $v$ of length $n$:
-$$v = \sum_{i = 1}^t \beta^{t - i} R_{\cdot i},$$
-where $\beta$ is a hyperparameter related to exponential decay, $0 < \beta < 1$.
-
-For each option, agent concatenates observation $v$ with encoding this option vector $u$ of length $(2s + 1)l$. Exactly one element is 1 and others are 0 amongst the first $(2s + 1)$ elements of $u$; position of the non-zero element corresponds to movement of the first line; the same encoding procedure is valid for other blocks of size $(2s + 1)$ and lines corresponding to them. Concatenation of $v$ and $u$ is passed as input to a policy which is a shallow neural network returning a single real-valued score. After these scores are collected for all valid options, Boltzmann softmax is applied to them in order to convert them to probabilities of actions. An action is drawn from this distribution and the agent takes it.
-
-Remember that an episode starts with the first and last measures already filled. The agent fills empty measures one-by-one according to the described above procedure. When the final measure is reached, the episode ends, created piece is evaluated and the agent receives reward.
 
 \subsection{Evaluational Rules}
 \label{subsec:setup}
 
-At the current revision of the study, eight properties of a final piece are evaluated separately and total reward is a weighted sum of these eight scores.
+At the current revision of the study, seven properties of a final piece are evaluated separately and total reward is a weighted sum of these seven scores.
 
 \begin{itemize}
-	\item \textbf{Autocorrelation.} Pieces where the same sequence of sounds is repeated over and over again are worse than pieces with no repetitions. To reflect this in reward, this score is used:
-	$$1 - \max_k \{|\mathrm{Autocorr}_k(R)| : 2 \le k \le 8\},$$
-	where $R$ is piano roll representation of the piece, $\mathrm{Autocorr}_k$ is autocorrelation function for lag $k$ (for matrix $R$ its autocorrelation is average autocorrelation of its rows) and maximum lag to consider is set to 8 based on common sense.
-	\item \textbf{Entropy of pitch distribution.} To encourage usage of all pitches from a range corresponding to a line, there is a score equal to average over all lines actual entropy of pitch distribution within the line normalized by entropy of uniform distribution on the same set of pitches.
 	\item \textbf{Absence of looped pitches.} A stable pitch may be rearticulated, but not more than once in a row. Every excessive occurrence of the same pitch within a line adds constant negative reward.
-	\item \textbf{Absence of pitch or pitch class clashes.} According to species counterpoint methodology, lines must be as distinguishable from each other as possible. In particular, this implies that the same pitches or the same pitch classes should not sound simultaneously in different lines. What is more, unison or octave harmonic intervals are too stable and so they create illusion of false finish if they occur in intermediate measures. To take into account these considerations, there is a negative reward proportional to share of intervals with both pitches belonging to the same pitch class amongst all intervals between two simultaneously sounding pitches. Also there is extra negative reward proportional to share of unison intervals.
+    \item \textbf{Absence of looped fragments.} Define a fragment as one or more consecutive measures (at a piece level, not at a melodic line level). For every fragment followed by exactly the same fragment, a constant negative reward is added.
 	\item \textbf{Motion.} For every pair of lines every motion between two successive measures adds a reward that depends on a type of motion. Since contrary motion makes lines more distinguishable, reward for it is positive. Reward for oblique motion is zero, reward for similar motion is slightly negative and reward for parallel motion is negative, because parallel motion makes lines sounding like copies of each other.
-	\item \textbf{Correlation between lines.} Consider each line as a sequence of real numbers equal to pitch positions within a range of available pitches. Then half of difference of 1 and average over all pairs of lines correlation between two lines is returned as a reward for independence of lines. 
-    \item \textbf{Explicity of climax.} Music theory suggests that good melodies must have goal-oriented motion and that such goal-orientedness may be achieved by having exactly one climax point. For each line, negative rewards are granted for each duplication of climax point and for not so high climax point.
+	\item \textbf{Correlation between lines.} Consider each line as a sequence of real numbers equal to pitch positions within a range of available pitches. Then average over all pairs of lines correlation between two lines can quantify independence of lines. Actually, reward is rescaled to be from 0 to 1 -- it is half of difference of 1 and the above average correlation.
+    \item \textbf{Explicity of climax.} Music theory suggests that good melodies must have goal-oriented motion and that such goal-orientedness may be achieved by having exactly one climax point. For each line, constant reward is decreased for each duplication of climax point and for not so high climax point.
     \item \textbf{Number of skips.} Positive reward is associated with every line such that number of skips in it lies within a specified range. The motivation behind this is that lines with almost no skips are not interesting, but lines with too many skips are not coherent.
+    \item \textbf{Absence of downward skips}. Counterpoint theory prescribes to have downward step motion. To encourage its usage, there are negative rewards for every downward skip and the larger a skip is, the higher a penalty its.
 \end{itemize}
 
-It can be seen that the first three properties deal with non-triviality of results, the next three properties deal with interaction of lines and the last two properties deal with melodic quality of each separate line. 
+It can be seen that the first two properties deal with non-triviality of results, the next two properties deal with interaction of lines and the last three properties deal with melodic quality of each separate line. 
 
 
 \section{Experimental Results}
 \label{sec:results}
 
-A software implementation of the above methodology in Python programming language is available on GitHub\footnote{\url{https://github.com/Nikolay-Lysenko/rl-musician}}. The code has built-in documentation, is covered with unit tests, and is released as a package on PyPI\footnote{\url{https://pypi.org/project/rl-musician/0.2.0/}}. All important settings are placed to a separate configuration file and so it is easy to experiment with them.
+A software implementation of the above methodology in Python programming language is available on GitHub\footnote{\url{https://github.com/Nikolay-Lysenko/rl-musician}}. The code has built-in documentation, is covered with unit tests, and is released as a package on PyPI\footnote{\url{https://pypi.org/project/rl-musician/0.3.0/}}. All important settings are placed to a separate configuration file and so it is easy to experiment with them.
 
-The implementation relies on some open-source tools \cite{brockman2016openai,chollet2015keras,oliphant2006guide,raffel2014intuitive}.
+The implementation relies on some open-source tools \cite{brockman2016openai,oliphant2006guide,raffel2014intuitive}.
 
-In this section, results are reported for experiments with 2 melodic lines and 16 measures starting from (G4, C5) and ending with (C4, C5). It is found that scores for autocorrelation and entropy of pitch distribution are redundant. Non-degenerate pieces are produced even without them. So only six properties are evaluated. They are weighted so that explicity of climax and absence of pitch class clashes have 3 times more impact than any other property.
-
-In Table \ref{table:scores}, scores of a typical piece created by an agent trained for 20 populations, are compared with two benchmarks. The first one is simple baseline -- it is score of a piece created by an agent with weights that are the best amongst 100 random weights. The second one are scores for a piece manually created by the author in about 15 minutes.
+In this section, results are reported for experiments with 2 melodic lines and 16 measures starting from (G4, C5) and ending with (C4, C5). Properties to be evaluated are weighted so that explicity of climax has 3 times more impact than any other property.
 
 \begin{table}[h!]
 	\caption{Scores of sample pieces}
@@ -188,106 +167,105 @@ In Table \ref{table:scores}, scores of a typical piece created by an agent train
 	\begin{center}
 		\begin{tabular}{|l|c|c|c|c|}
 			\hline
-			& Baseline & Agent & Human & Maximum\\
+			& Human & MCS & MCBS & Maximum\\
 			\hline
-			Absence of looped pitches & -1 & 0 & 0 & 0\\
+			Absence of looped pitches & 0 & 0 & 0 & 0\\
 			\hline
-			Absence of pitch or pitch class clashes & -0.429 & -1.286 & -0.643 & 0\\
+			Absence of looped fragments & -1 & 0 & 0 & 0\\
 			\hline
-			Motion & -0.1 & -0.033 & 0.1 & 1\\
+			Motion & -0.267 & -0.1 & -0.033 & 1\\
 			\hline
-			Correlation between lines & 0.552 & 0.168 & 0.278 & 1\\
+			Correlation between lines & 0.269 & 0.321 & 0.321 & 1\\
 			\hline
-			Explicity of climax & 0.9 & 3 & 3 & 3\\
+			Explicity of climax & 3 & 3 & 3 & 3\\
 			\hline
-			Number of skips & 0 & 1 & 1 & 1\\
+			Number of skips & 1 & 1 & 1 & 1\\
 			\hline
-			Total reward & -0.076 & 2.849 & 3.735 & 6\\
+			Absence of downward skips & 0 & -0.6 & 0 & 0\\
+			\hline
+			Total reward & 3.003 & 3.621 & 4.288 & 6\\
 			\hline
 		\end{tabular}
 	\end{center}
 \end{table}
 
-It can be seen that the agent's piece consists of two lines with formally good melodies but these lines are not independent enough. Table \ref{table:piece} contains the created by the agent piece for which above scores are reported. Visual analysis of the shown piano roll confirms observation about lines dependence -- their climax points coincide and there are plenty of intermediate octave intervals.
+In Table \ref{table:scores}, scores of a piece found with Monte Carlo Beam Search are compared with benchmarks. The piece was found with beam width set to 5 and number of trials schedule set to ($10000 \times 3$, $5000 \times 3$, $1000 \times 8$) -- this means that the second measure of the piece was chosen after 10000 random continuations and, for example, the eighth measure of the piece was chosen after 1000 random continuations. One of the benchmarks is achieved by Monte Carlo Search with 53000 random trials (i.e., total number of random trials is the same). The other benchmark relates to a piece manually created by the author in about 10 minutes. Ideally, scores should be collected during multiple independent experiments and then statistical significance of difference should be tested, but it is not done yet.
+
+The results look like scores for climax explicity, absence of looped pitches, absence of looped fragments, and absence of downward skips impose hard constraints. If so, the goal is to maximize sum of scores for lines independence subject to counterpoint rules and above new constraints.
+
+Table \ref{table:piece} demonstrates found by Monte Carlo Beam Search piece for which the scores are reported.
 
 \begin{table}[h!]
-	\caption{A piece composed by an agent}
+	\caption{The piece found with Monte Carlo Beam Search}
 	\label{table:piece}
 	\begin{center}
 		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
 			\hline
-			& & & & & & & C6 & & & & & & & & \\
+			& & & C6 & & & & & & & & & & & & \\
 			\hline
-			& & & & & & B5 & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & A5 & & & & A5 & & & & & & \\
+			& & & & B5 & & & & & & & & & & & \\
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
-			& & & & G5 & & & & G5 & & & & & & & \\
+			& & & & & A5 & & & &  & & & & & & \\
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
-			& & & F5 & & & & & & & & F5 & & & & \\
-			\hline
-			& & E5 & & & & & & & & E5 & & & & & \\
+			& & G5 & & & & G5 & & & & & & & & & \\
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
-			& D5 & & & & & & & & & & & & D5 & & \\
+			& & & & & & & F5 & & & & & & & & \\
+			\hline
+			& E5 & & & & & & & E5 & & & & & & & \\
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
-			C5 & & & & & & & C5 & & & & & C5 & & C5 & C5 \\
-			\hline
-			& & & & & & & & B4 & & & & & & & \\
+			& & & & & & & & & D5 & & & & & & \\
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
-			& & & & & & & & & A4 & & & & & & \\
+			C5 & C5 & & & & & & & & & C5 & & C5 & C5 & & C5 \\
+			\hline
+			& & B4 & & & & & & & & & B4 & & & B4 & \\
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
-			G4 & & & & G4 & & G4 & & & & G4 & & & & & \\
+			& & & A4 & & & & & & & & & & & & \\
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
-			& F4 & & & & F4 & & & & & & F4 & & & & \\
-			\hline
-			& & & & & & & & & & & & E4 & & & \\
+			G4 & & & & G4 & & & & G4 & & G4 & G4 & & & & \\
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
-			& & & D4 & & & & & & & & & & D4 & & \\
+			& & & & & F4 & & & & F4 & & & F4 & & & \\
+			\hline
+			& & & & & & E4 & & & & & & & E4 & & \\
 			\hline
 			& & & & & & & & & & & & & & & \\
 			\hline
-			& & C4 & & & & & & & & & & & & C4 & C4 \\
+			& & & & & & & D4 & & & & & & & D4 & \\
+			\hline
+			& & & & & & & & & & & & & & & \\
+			\hline
+			& & & & & & & & & & & & & & & C4 \\
 			\hline
 		\end{tabular}
 	\end{center}
 \end{table}
 
-As for subjective evaluation of music quality, it is not correct to compare the selected piece created by the agent with the piece created by the author. The problem is that reward encourages to follow counterpointal rules but, from a modern listener point of view, breaking these rules does not necessarily sound unaesthetically. That being said, subjective perception of a resulting piece is not aligned with fitness function used during optimization. However, it must be noted that the piece shown above looks like excessively oriented on maximization of fitness function regardless more subtle properties important for human listeners. It is not a problem associated with training, it is a flaw in problem setup (more criteria for evaluation are needed).
-
-Numerous experiments revealed another important issue. Actually, different runs of a trained agent produce variations of the same piece. Although there might be significant differences in scores (in particular, because some scoring functions are discrete), there are no significant differences from music point of view.
+Subjective evaluation of music quality can be used for revising setup of the problem. Probably, 16 measures are too much, because long step motions are resembling descending scales.
 
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-This paper studies capabilities of reinforcement learning for music composition without usage of existing pieces. Here, music composition is framed as optimization problem where the goal is to find values of generative model's parameters maximizing expected score of pieces generated with them. It is found that some progress can be made in this direction.
+This paper introduces a new approach to composition of music without usage of existing pieces. For a problem of first species counterpoint writing, the approach finds pieces that maximize weighted sum of associated with particular musical properties scores subject to boundary constraints. These boundary constraints (the first measure and the last measure) are user-defined and weights for the sum of scores are user-defined too.
 
-The list of suggested further improvements is as follows:
-\begin{itemize}
-	\item \textbf{Reflect more knowledge from music theory in filtering rules and evaluational rules.} For example, overlapping motion should be discouraged. Also downward skips can be penalized in order to have upward skips before climax and downward conjunct motion after it.
-	\item \textbf{Promote variety in fitness function.} Now, fitness function just averages rewards for several episodes. However, a new term can be added to this average. This term must quantify how different created pieces are from each other.
-	\item \textbf{Revise feature representation for policy.} Probably, procedure of next measure generation should be changed. Currently, it is assumed that shallow neural network is able to act based on relatively raw feature representation. To make it less raw, some features inspired by music theory may be engineered.
-	\item \textbf{Tune hyperparameters.} In the current software implementation, cross-entropy method has five hyperparameters, an agent has two hyperparameters, and evaluation functions have more than ten hyperparameters. As of now, not so many computational experiments are held in order to find their optimum values. 
-	\item \textbf{Abstract away all rules and focus only on essentials of music.} Tonal music introduces attraction between pitches. Depending on this attraction and degree of consonance/dissonance, tension increases or dissipates. Moments of time when level of tension changes may be rhythmically accented or unaccented. Close but not exact alignment between rhythmical accent and resolution often results in aesthetic and interesting music. Taking into account constraints of smooth voice leading, optimization problem can be set up based on above considerations.
-\end{itemize}
+Results are good from formal metrics point of view -- the method outperforms random search and manual trials. However, created pieces are too simple to be enjoyable music. This is an inevitable consequence of too strict limitations of first species counterpoint. To eliminate them, higher species can be chosen or frameworks other than species counterpoint can be explored.
+
+If the problem becomes computationally complex after introducing more musical freedom, concepts from reinforcement learning such as value function can be involved. State-free search can be replaced with a search where decision are made based on observations and estimated values of states and actions. 
 
 
 \bibliographystyle{unsrt}  

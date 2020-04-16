@@ -69,15 +69,15 @@ environment:
     downward_skips:
       size_penalty_power: 2.0
 agent:
-  hidden_layer_size: 10
-  softmax_temperature: 0.1
-crossentropy:
-  population_size: 100
-  elite_fraction: 0.1
-  smoothing_coef: 0.25
-  std: 0.25
-  n_trials: 10
-  aggregation_fn: mean
-  parallelling_params:
+  beam_width: 5
+  n_records_to_keep: 5000
+  n_trials_schedule:
+    - 10000
+    - 10000
+    - 10000
+    - 5000
+    - 5000
+    - 5000
+    - 1000
+  paralleling_params:
     n_processes:
-    max_tasks_per_child: 1

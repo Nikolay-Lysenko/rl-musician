@@ -169,13 +169,14 @@ class Piece:
         if not element_as_list:
             raise ValueError(
                 f"Passed {bound_type} note {note} does not belong to "
-                f"{self.tonic}-{self.scale} or is out of line range."
+                f"{self.tonic}-{self.scale_type} or is out of line range."
             )
         element = element_as_list[0]
         if not element.is_from_tonic_triad:
             raise ValueError(
                 f"{note} is not a tonic triad member for "
-                f"{self.tonic}-{self.scale}; it can not be {bound_type} note."
+                f"{self.tonic}-{self.scale_type}; thus, "
+                f"it can not be {bound_type} note."
             )
         column = 0 if bound_type == 'start' else -1
         self.lines[-1][column] = element

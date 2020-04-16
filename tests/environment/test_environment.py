@@ -60,7 +60,7 @@ class TestCounterpointEnv:
                     ),
                     observation_decay=0.75,
                     reward_for_dead_end=-100,
-                    scoring_coefs={'lines_correlation': 1},
+                    scoring_coefs={'climax_explicity': 1},
                     scoring_fn_params={},
                 ),
                 # `actions`
@@ -279,7 +279,7 @@ class TestCounterpointEnv:
                     ),
                     observation_decay=0.75,
                     reward_for_dead_end=-100,
-                    scoring_coefs={'lines_correlation': 1},
+                    scoring_coefs={'climax_explicity': 1},
                     scoring_fn_params={},
                 ),
                 # `actions`
@@ -342,7 +342,7 @@ class TestCounterpointEnv:
                     ),
                     observation_decay=0.75,
                     reward_for_dead_end=-100,
-                    scoring_coefs={'lines_correlation': 1},
+                    scoring_coefs={'climax_explicity': 1},
                     scoring_fn_params={},
                 ),
                 # `actions`
