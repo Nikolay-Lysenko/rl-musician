@@ -97,6 +97,7 @@ class Piece:
         self.scale = Scale(tonic, scale_type)
         self.max_skip = counterpoint_specifications['max_skip']
         self.all_movements = list(range(-self.max_skip, self.max_skip + 1))
+
         self.current_time_in_eights = None
         self.current_measure_durations = None
         self.past_movements = None
@@ -105,11 +106,16 @@ class Piece:
         self.cantus_firmus = self.__create_cantus_firmus(cantus_firmus)
         self.counterpoint = self.__create_beginning_of_counterpoint()
 
-        end_note = self.counterpoint_specifications['end_note']
+        end_note = counterpoint_specifications['end_note']
         self.end_scale_element = self.scale.get_element_by_note(end_note)
         self.__validate_boundary_notes()
 
-        # TODO: Range for counterpoint line.
+        self.lowest_element = self.scale.get_element_by_note(
+            counterpoint_specifications['lowest_note']
+        )
+        self.highest_element = self.scale.get_element_by_note(
+            counterpoint_specifications['highest_note']
+        )
 
         self._piano_roll = None
         self.__initialize_piano_roll()
@@ -200,14 +206,8 @@ class Piece:
         cantus_firmus_lower_bound = min(cantus_firmus_positions)
         cantus_firmus_upper_bound = max(cantus_firmus_positions)
 
-        lowest_element = self.scale.get_element_by_note(
-            self.counterpoint_specifications['lowest_note']
-        )
-        counterpoint_lower_bound = lowest_element.position_in_semitones
-        highest_element = self.scale.get_element_by_note(
-            self.counterpoint_specifications['highest_note']
-        )
-        counterpoint_upper_bound = highest_element.position_in_semitones
+        counterpoint_lower_bound = self.lowest_element.position_in_semitones
+        counterpoint_upper_bound = self.highest_element.position_in_semitones
 
         self.lowest_row_to_show = min(
             cantus_firmus_lower_bound,
@@ -218,30 +218,17 @@ class Piece:
             counterpoint_upper_bound
         )
 
-    def __finalize_if_needed(self) -> None:
-        """Add final measure of counterpoint line if the piece is finished."""
-        penultimate_measure_end = N_EIGHTS_PER_MEASURE * (self.n_measures - 1)
-        if self.current_time_in_eights == penultimate_measure_end:
-            end_line_element = LineElement(
-                self.end_scale_element,
-                penultimate_measure_end,
-                N_EIGHTS_PER_MEASURE * self.n_measures
-            )
-            self.counterpoint.append(end_line_element)
-            self.__add_to_piano_roll(end_line_element)
-        last_movement = (
-            self.end_scale_element.position_in_degrees
-            - self.counterpoint[-2].scale_element.position_in_degrees
-        )
-        self.past_movements.append(last_movement)
-        self.current_time_in_eights = N_EIGHTS_PER_MEASURE * self.n_measures
-
-    def __find_next_element(self, movement: int, duration: int) -> LineElement:
-        """Find line element that can be added with movement and duration."""
+    def __find_next_position_in_degrees(self, movement: int) -> int:
+        """Find position (in scale degrees) that is reached by movement."""
         next_position = (
             self.counterpoint[-1].scale_element.position_in_degrees
             + movement
         )
+        return next_position
+
+    def __find_next_element(self, movement: int, duration: int) -> LineElement:
+        """Find line element that can be added with movement and duration."""
+        next_position = self.__find_next_position_in_degrees(movement)
         next_line_element = LineElement(
             self.scale.get_element_by_position_in_degrees(next_position),
             self.current_time_in_eights,
@@ -263,13 +250,20 @@ class Piece:
             results.append(element)
         return results
 
+    def __check_range(self, movement: int) -> bool:
+        """Check that movement does not lead beyond a range of a line."""
+        next_position = self.__find_next_position_in_degrees(movement)
+        if next_position < self.lowest_element.position_in_degrees:
+            return False
+        if next_position > self.highest_element.position_in_degrees:
+            return False
+        return True
+
     def __check_rhythm_rules(self, duration: int) -> bool:
         """Check compliance with rules of rhythm."""
         rhythm_registry = get_rhythm_rules_registry()
         durations = [x for x in self.current_measure_durations] + [duration]
-        inputs = {
-            'durations': durations,
-        }
+        inputs = {'durations': durations}
         for rule_name in self.names_of_rhythm_rules:
             rule_fn = rhythm_registry[rule_name]
             rule_fn_params = self.rhythm_rules_params.get(rule_name, {})
@@ -281,10 +275,6 @@ class Piece:
     def __check_voice_leading_rules(self, movement: int) -> bool:
         """Check compliance with rules of voice leading."""
         voice_leading_registry = get_voice_leading_rules_registry()
-        # TODO: Check that movement does not lead beyond the range.
-        # last_pitch = line[self.last_finished_measure]
-        # if movement not in last_pitch.feasible_movements:
-        #     return False
         inputs = {
             'line': self.counterpoint,
             'movement': movement,
@@ -329,6 +319,8 @@ class Piece:
             `True` if continuation is in accordance with the rules,
             `False` else
         """
+        if not self.__check_range(movement):
+            return False
         if not self.__check_rhythm_rules(duration):
             return False
         if not self.__check_voice_leading_rules(movement):
@@ -347,6 +339,24 @@ class Piece:
         elif total_duration > N_EIGHTS_PER_MEASURE:
             syncopated_duration = total_duration - N_EIGHTS_PER_MEASURE
             self.current_measure_durations = [syncopated_duration]
+
+    def __finalize_if_needed(self) -> None:
+        """Add final measure of counterpoint line if the piece is finished."""
+        penultimate_measure_end = N_EIGHTS_PER_MEASURE * (self.n_measures - 1)
+        if self.current_time_in_eights == penultimate_measure_end:
+            end_line_element = LineElement(
+                self.end_scale_element,
+                penultimate_measure_end,
+                N_EIGHTS_PER_MEASURE * self.n_measures
+            )
+            self.counterpoint.append(end_line_element)
+            self.__add_to_piano_roll(end_line_element)
+        last_movement = (
+            self.end_scale_element.position_in_degrees
+            - self.counterpoint[-2].scale_element.position_in_degrees
+        )
+        self.past_movements.append(last_movement)
+        self.current_time_in_eights = N_EIGHTS_PER_MEASURE * self.n_measures
 
     def add_line_element(self, movement: int, duration: int) -> None:
         """
