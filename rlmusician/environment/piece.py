@@ -2,10 +2,13 @@
 Define data structure that represents musical piece compliant with some rules.
 
 This data structure contains two nested data structures:
-1) melodic lines (lists of pitches),
+1) melodic lines (loosely speaking, lists of pitches),
 2) piano roll (`numpy` 2D-array with rows corresponding to notes,
    columns corresponding to time steps, and cells containing zeros and ones
    and indicating whether a note is played).
+
+The rules for a piece and its structure come from 5th species counterpoint
+(also known as florid counterpoint).
 
 Author: Nikolay Lysenko
 """
@@ -18,11 +21,7 @@ from typing import Any, Dict, List, NamedTuple
 import numpy as np
 from sinethesizer.io.utils import get_note_to_position_mapping
 
-from rlmusician.environment.rules import (
-    get_harmony_rules_registry,
-    get_rhythm_rules_registry,
-    get_voice_leading_rules_registry,
-)
+from rlmusician.environment.rules import get_rules_registry
 from rlmusician.utils import (
     Scale,
     ScaleElement,
@@ -54,9 +53,7 @@ class Piece:
             n_measures: int,
             cantus_firmus: List[str],
             counterpoint_specifications: Dict[str, Any],
-            rhythm_rules: Dict[str, Any],
-            voice_leading_rules: Dict[str, Any],
-            harmony_rules: Dict[str, Any],
+            rules: Dict[str, Any],
             rendering_params: Dict[str, Any]
     ):
         """
@@ -73,12 +70,8 @@ class Piece:
             cantus firmus as a sequence of notes
         :param counterpoint_specifications:
             parameters of a counterpoint line
-        :param rhythm_rules:
-            names of applicable rhythm rules and their parameters
-        :param voice_leading_rules:
-            names of applicable voice leading rules and their parameters
-        :param harmony_rules:
-            names of applicable harmony rules and their parameters
+        :param rules:
+            names of applicable rules and parameters of these rules
         :param rendering_params:
             settings of saving the piece to TSV, MIDI, and WAV files
         """
@@ -86,12 +79,8 @@ class Piece:
         self.scale_type = scale_type
         self.n_measures = n_measures
         self.counterpoint_specifications = counterpoint_specifications
-        self.names_of_rhythm_rules = rhythm_rules['names']
-        self.rhythm_rules_params = rhythm_rules['params']
-        self.names_of_voice_leading_rules = voice_leading_rules['names']
-        self.voice_leading_rules_params = voice_leading_rules['params']
-        self.names_of_harmony_rules = harmony_rules['names']
-        self.harmony_rules_params = harmony_rules['params']
+        self.names_of_rules = rules['names']
+        self.rules_params = rules['params']
         self.rendering_params = rendering_params
 
         self.scale = Scale(tonic, scale_type)
@@ -259,49 +248,25 @@ class Piece:
             return False
         return True
 
-    def __check_rhythm_rules(self, duration: int) -> bool:
-        """Check compliance with rules of rhythm."""
-        rhythm_registry = get_rhythm_rules_registry()
+    def __check_rules(self, movement: int, duration: int) -> bool:
+        """Check compliance with the rules."""
+        registry = get_rules_registry()
+        next_line_element = self.__find_next_element(movement, duration)
+        cantus_firmus_elements = self.__find_cantus_firmus_elements(duration)
         durations = [x for x in self.current_measure_durations] + [duration]
-        inputs = {'durations': durations}
-        for rule_name in self.names_of_rhythm_rules:
-            rule_fn = rhythm_registry[rule_name]
-            rule_fn_params = self.rhythm_rules_params.get(rule_name, {})
-            is_compliant = rule_fn(**inputs, **rule_fn_params)
-            if not is_compliant:
-                return False
-        return True
-
-    def __check_voice_leading_rules(self, movement: int) -> bool:
-        """Check compliance with rules of voice leading."""
-        voice_leading_registry = get_voice_leading_rules_registry()
         inputs = {
             'line': self.counterpoint,
             'movement': movement,
             'past_movements': self.past_movements,
-            'current_time': self.current_time_in_eights
-        }
-        for rule_name in self.names_of_voice_leading_rules:
-            rule_fn = voice_leading_registry[rule_name]
-            fn_params = self.voice_leading_rules_params.get(rule_name, {})
-            is_compliant = rule_fn(**inputs, **fn_params)
-            if not is_compliant:
-                return False
-        return True
-
-    def __check_harmony_rules(self, movement: int, duration: int) -> bool:
-        """Check compliance with rules of harmony."""
-        harmony_registry = get_harmony_rules_registry()
-        next_line_element = self.__find_next_element(movement, duration)
-        cantus_firmus_elements = self.__find_cantus_firmus_elements(duration)
-        inputs = {
+            'current_time': self.current_time_in_eights,
             'next_line_element': next_line_element,
             'cantus_firmus_elements': cantus_firmus_elements,
             'current_measure_durations': self.current_measure_durations,
+            'durations': durations,
         }
-        for rule_name in self.names_of_harmony_rules:
-            rule_fn = harmony_registry[rule_name]
-            rule_fn_params = self.harmony_rules_params.get(rule_name, {})
+        for rule_name in self.names_of_rules:
+            rule_fn = registry[rule_name]
+            rule_fn_params = self.rules_params.get(rule_name, {})
             is_compliant = rule_fn(**inputs, **rule_fn_params)
             if not is_compliant:
                 return False
@@ -316,16 +281,12 @@ class Piece:
         :param duration:
             duration (in eights) of a new element
         :return:
-            `True` if continuation is in accordance with the rules,
+            `True` if the continuation is in accordance with the rules,
             `False` else
         """
         if not self.__check_range(movement):
             return False
-        if not self.__check_rhythm_rules(duration):
-            return False
-        if not self.__check_voice_leading_rules(movement):
-            return False
-        if not self.__check_harmony_rules(movement, duration):
+        if not self.__check_rules(movement, duration):
             return False
         return True
 
@@ -404,7 +365,7 @@ class Piece:
 
     def render(self) -> None:  # pragma: no cover
         """
-        Save final piano roll as TSV, MIDI, and WAV files.
+        Save piece as TSV, MIDI, and WAV files.
 
         :return:
             None

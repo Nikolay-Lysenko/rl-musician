@@ -22,28 +22,22 @@ piece:
     highest_note: C6
     start_pause_in_eights: 4
     max_skip_in_degrees: 7
-  rhythm_rules:
+  rules:
     names:
       - pattern_validity
-    params: {}
-  voice_leading_rules:
-    names:
       - rearticulation
       - destination_of_skip
       - turn_after_skip
       - VI_VII_resolution
       - step_motion_to_end
+      - consonance
+      - absence_of_large_intervals
+      - absence_of_pitch_class_clashes
     params:
       turn_after_skip:
         min_n_scale_degrees: 3
       step_motion_to_end:
         prohibit_rearticulation: true
-  harmony_rules:
-    names:
-      - consonance
-      - absence_of_large_intervals
-      - absence_of_pitch_class_clashes
-    params:
       absence_of_large_intervals:
         max_n_semitones: 16
   rendering_params:

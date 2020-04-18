@@ -14,8 +14,11 @@ def check_validity_of_rhythmic_pattern(durations: List[int]) -> bool:
     Check that current measure is properly divided by notes.
 
     :param durations:
-        durations (in eights) of all notes from a current measure and
-        a new note
+        durations (in eights) of all notes from a current measure
+        (including a new note); if a new note prolongs to the next measure,
+        its full duration is included; however, if the first note starts
+        in the previous measure, only its duration within the current measure
+        is included
     :return:
         indicator whether a movement is in accordance with the rule
     """
@@ -34,19 +37,6 @@ def check_validity_of_rhythmic_pattern(durations: List[int]) -> bool:
         if valid_pattern[:len(durations)] == durations:
             return True
     return False
-
-
-def get_rhythm_rules_registry() -> Dict[str, Callable]:
-    """
-    Get mapping from names to functions checking rhythm rules.
-
-    :return:
-        registry of functions checking rhythm rules
-    """
-    registry = {
-        'pattern_validity': check_validity_of_rhythmic_pattern,
-    }
-    return registry
 
 
 def check_stability_of_rearticulated_pitch(
@@ -184,23 +174,6 @@ def check_step_motion_to_final_pitch(
     return degrees_to_end_note <= measures_left
 
 
-def get_voice_leading_rules_registry() -> Dict[str, Callable]:
-    """
-    Get mapping from names to functions checking voice leading rules.
-
-    :return:
-        registry of functions checking voice leading rules
-    """
-    registry = {
-        'rearticulation': check_stability_of_rearticulated_pitch,
-        'destination_of_skip': check_that_skip_leads_to_stable_pitch,
-        'turn_after_skip': check_that_skip_is_followed_by_opposite_step_motion,
-        'VI_VII_resolution': check_resolution_of_submediant_and_leading_tone,
-        'step_motion_to_end': check_step_motion_to_final_pitch
-    }
-    return registry
-
-
 def check_consonance_of_sonority(sonority: List['LineElement']) -> bool:
     """
     Check that sonority is consonant.
@@ -261,14 +234,24 @@ def check_absence_of_pitch_class_clashes(
     return True
 
 
-def get_harmony_rules_registry() -> Dict[str, Callable]:
+def get_rules_registry() -> Dict[str, Callable]:
     """
-    Get mapping from names to functions checking harmony rules.
+    Get mapping from names to corresponding functions that check rules.
 
     :return:
-        registry of functions checking harmony rules
+        registry of functions checking rules of rhythm, voice leading,
+        and harmony
     """
     registry = {
+        # Rhythm rules:
+        'pattern_validity': check_validity_of_rhythmic_pattern,
+        # Voice leading rules:
+        'rearticulation': check_stability_of_rearticulated_pitch,
+        'destination_of_skip': check_that_skip_leads_to_stable_pitch,
+        'turn_after_skip': check_that_skip_is_followed_by_opposite_step_motion,
+        'VI_VII_resolution': check_resolution_of_submediant_and_leading_tone,
+        'step_motion_to_end': check_step_motion_to_final_pitch,
+        # Harmony rules:
         'consonance': check_consonance_of_sonority,
         'absence_of_large_intervals': check_absence_of_large_intervals,
         'absence_of_pitch_class_clashes': check_absence_of_pitch_class_clashes,
