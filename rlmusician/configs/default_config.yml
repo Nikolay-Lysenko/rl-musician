@@ -22,6 +22,10 @@ piece:
     highest_note: C6
     start_pause_in_eights: 4
     max_skip_in_degrees: 7
+  rhythm_rules:
+    names:
+      - pattern_validity
+    params: {}
   voice_leading_rules:
     names:
       - rearticulation

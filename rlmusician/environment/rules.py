@@ -1,5 +1,5 @@
 """
-Check compliance with some rules of voice leading and harmony.
+Check compliance with some rules of rhythm, voice leading, and harmony.
 
 Author: Nikolay Lysenko
 """
@@ -7,6 +7,46 @@ Author: Nikolay Lysenko
 
 import itertools
 from typing import Callable, Dict, List, Optional
+
+
+def check_validity_of_rhythmic_pattern(durations: List[int]) -> bool:
+    """
+    Check that current measure is properly divided by notes.
+
+    :param durations:
+        durations (in eights) of all notes from a current measure and
+        a new note
+    :return:
+        indicator whether a movement is in accordance with the rule
+    """
+    valid_patterns = [
+        [4, 4],
+        [4, 2, 2],
+        [4, 2, 1, 1],
+        [2, 2, 2, 2],
+        [2, 2, 2, 1, 1],
+        [2, 1, 1, 2, 2],
+        [4, 8],
+        [2, 2, 8],
+        [2, 1, 1, 8],
+    ]
+    for valid_pattern in valid_patterns:
+        if valid_pattern[:len(durations)] == durations:
+            return True
+    return False
+
+
+def get_rhythm_rules_registry() -> Dict[str, Callable]:
+    """
+    Get mapping from names to functions checking rhythm rules.
+
+    :return:
+        registry of functions checking rhythm rules
+    """
+    registry = {
+        'pattern_validity': check_validity_of_rhythmic_pattern,
+    }
+    return registry
 
 
 def check_stability_of_rearticulated_pitch(

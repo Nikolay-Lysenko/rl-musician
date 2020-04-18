@@ -19,8 +19,9 @@ import numpy as np
 from sinethesizer.io.utils import get_note_to_position_mapping
 
 from rlmusician.environment.rules import (
+    get_harmony_rules_registry,
+    get_rhythm_rules_registry,
     get_voice_leading_rules_registry,
-    get_harmony_rules_registry
 )
 from rlmusician.utils import (
     Scale,
@@ -53,6 +54,7 @@ class Piece:
             n_measures: int,
             cantus_firmus: List[str],
             counterpoint_specifications: Dict[str, Any],
+            rhythm_rules: Dict[str, Any],
             voice_leading_rules: Dict[str, Any],
             harmony_rules: Dict[str, Any],
             rendering_params: Dict[str, Any]
@@ -71,6 +73,8 @@ class Piece:
             cantus firmus as a sequence of notes
         :param counterpoint_specifications:
             parameters of a counterpoint line
+        :param rhythm_rules:
+            names of applicable rhythm rules and their parameters
         :param voice_leading_rules:
             names of applicable voice leading rules and their parameters
         :param harmony_rules:
@@ -82,6 +86,8 @@ class Piece:
         self.scale_type = scale_type
         self.n_measures = n_measures
         self.counterpoint_specifications = counterpoint_specifications
+        self.names_of_rhythm_rules = rhythm_rules['names']
+        self.rhythm_rules_params = rhythm_rules['params']
         self.names_of_voice_leading_rules = voice_leading_rules['names']
         self.voice_leading_rules_params = voice_leading_rules['params']
         self.names_of_harmony_rules = harmony_rules['names']
@@ -91,7 +97,10 @@ class Piece:
         self.scale = Scale(tonic, scale_type)
         self.max_skip = counterpoint_specifications['max_skip']
         self.all_movements = list(range(-self.max_skip, self.max_skip + 1))
-        self.current_time_in_eights = N_EIGHTS_PER_MEASURE
+        self.current_time_in_eights = None
+        self.current_measure_durations = None
+        self.past_movements = None
+        self.__set_defaults_to_runtime_variables()
 
         self.cantus_firmus = self.__create_cantus_firmus(cantus_firmus)
         self.counterpoint = self.__create_beginning_of_counterpoint()
@@ -100,11 +109,19 @@ class Piece:
         self.end_scale_element = self.scale.get_element_by_note(end_note)
         self.__validate_boundary_notes()
 
+        # TODO: Range for counterpoint line.
+
         self._piano_roll = None
         self.__initialize_piano_roll()
         self.lowest_row_to_show = None
         self.highest_row_to_show = None
         self.__set_range_to_show()
+
+    def __set_defaults_to_runtime_variables(self) -> None:
+        """Set default values to variables that change at runtime."""
+        self.current_time_in_eights = N_EIGHTS_PER_MEASURE
+        self.current_measure_durations = []
+        self.past_movements = []
 
     def __create_cantus_firmus(
             self, cantus_firmus_as_notes: List[str]
@@ -212,100 +229,147 @@ class Piece:
             )
             self.counterpoint.append(end_line_element)
             self.__add_to_piano_roll(end_line_element)
-
-    def __find_destinations(self, movements: List[int]) -> List[LineElement]:
-        """Find sonority that is added by movements."""
-        destination_sonority = []
-        zipped = zip(self.lines, self.line_elements, movements)
-        for line, line_elements, movement in zipped:
-            current_element = line[self.last_finished_measure]
-            next_position = current_element.relative_position + movement
-            next_element = line_elements[next_position]
-            destination_sonority.append(next_element)
-        return destination_sonority
-
-    def __check_voice_leading_rules(self, movements: List[int]) -> bool:
-        """Check compliance with rules of voice leading."""
-        voice_leading_registry = get_voice_leading_rules_registry()
-        zipped = zip(
-            self.lines,
-            self.line_elements,
-            movements,
-            self.passed_movements
+        last_movement = (
+            self.end_scale_element.position_in_degrees
+            - self.counterpoint[-2].scale_element.position_in_degrees
         )
-        for line, line_elements, movement, previous_movements in zipped:
-            last_pitch = line[self.last_finished_measure]
-            if movement not in last_pitch.feasible_movements:
-                return False
-            inputs = {
-                'line': line,
-                'line_elements': line_elements,
-                'movement': movement,
-                'previous_movements': previous_movements,
-                'measure': self.last_finished_measure
-            }
-            for rule_name in self.names_of_voice_leading_rules:
-                rule_fn = voice_leading_registry[rule_name]
-                fn_params = self.voice_leading_rules_params.get(rule_name, {})
-                is_compliant = rule_fn(**inputs, **fn_params)
-                if not is_compliant:
-                    return False
-        return True
+        self.past_movements.append(last_movement)
+        self.current_time_in_eights = N_EIGHTS_PER_MEASURE * self.n_measures
 
-    def __check_harmony_rules(self, movements: List[int]) -> bool:
-        """Check compliance with rules of harmony."""
-        harmony_registry = get_harmony_rules_registry()
-        destination_sonority = self.__find_destinations(movements)
-        for rule_name in self.names_of_harmony_rules:
-            rule_fn = harmony_registry[rule_name]
-            rule_fn_params = self.harmony_rules_params.get(rule_name, {})
-            is_compliant = rule_fn(destination_sonority, **rule_fn_params)
+    def __find_next_element(self, movement: int, duration: int) -> LineElement:
+        """Find line element that can be added with movement and duration."""
+        next_position = (
+            self.counterpoint[-1].scale_element.position_in_degrees
+            + movement
+        )
+        next_line_element = LineElement(
+            self.scale.get_element_by_position_in_degrees(next_position),
+            self.current_time_in_eights,
+            self.current_time_in_eights + duration
+        )
+        return next_line_element
+
+    def __find_cantus_firmus_elements(
+            self, duration: int
+    ) -> List[LineElement]:
+        """Find what in cantus firmus sounds simultaneously with a new note."""
+        results = []
+        for element in self.cantus_firmus:
+            if element.end_time_in_eights <= self.current_time_in_eights:
+                continue
+            new_note_end_time = self.current_time_in_eights + duration
+            if element.start_time_in_eights >= new_note_end_time:
+                break
+            results.append(element)
+        return results
+
+    def __check_rhythm_rules(self, duration: int) -> bool:
+        """Check compliance with rules of rhythm."""
+        rhythm_registry = get_rhythm_rules_registry()
+        durations = [x for x in self.current_measure_durations] + [duration]
+        inputs = {
+            'durations': durations,
+        }
+        for rule_name in self.names_of_rhythm_rules:
+            rule_fn = rhythm_registry[rule_name]
+            rule_fn_params = self.rhythm_rules_params.get(rule_name, {})
+            is_compliant = rule_fn(**inputs, **rule_fn_params)
             if not is_compliant:
                 return False
         return True
 
-    def check_movements(self, movements: List[int]) -> bool:
-        """
-        Check whether suggested movements are compliant with the rules.
+    def __check_voice_leading_rules(self, movement: int) -> bool:
+        """Check compliance with rules of voice leading."""
+        voice_leading_registry = get_voice_leading_rules_registry()
+        # TODO: Check that movement does not lead beyond the range.
+        # last_pitch = line[self.last_finished_measure]
+        # if movement not in last_pitch.feasible_movements:
+        #     return False
+        inputs = {
+            'line': self.counterpoint,
+            'movement': movement,
+            'past_movements': self.past_movements,
+            'current_time': self.current_time_in_eights
+        }
+        for rule_name in self.names_of_voice_leading_rules:
+            rule_fn = voice_leading_registry[rule_name]
+            fn_params = self.voice_leading_rules_params.get(rule_name, {})
+            is_compliant = rule_fn(**inputs, **fn_params)
+            if not is_compliant:
+                return False
+        return True
 
-        :param movements:
-            list of shifts in scale degrees for each line
-        :return:
-            `True` if movements are in accordance with the rules, `False` else
+    def __check_harmony_rules(self, movement: int, duration: int) -> bool:
+        """Check compliance with rules of harmony."""
+        harmony_registry = get_harmony_rules_registry()
+        next_line_element = self.__find_next_element(movement, duration)
+        cantus_firmus_elements = self.__find_cantus_firmus_elements(duration)
+        inputs = {
+            'next_line_element': next_line_element,
+            'cantus_firmus_elements': cantus_firmus_elements,
+            'current_measure_durations': self.current_measure_durations,
+        }
+        for rule_name in self.names_of_harmony_rules:
+            rule_fn = harmony_registry[rule_name]
+            rule_fn_params = self.harmony_rules_params.get(rule_name, {})
+            is_compliant = rule_fn(**inputs, **rule_fn_params)
+            if not is_compliant:
+                return False
+        return True
+
+    def check_rules(self, movement: int, duration: int) -> bool:
         """
-        if len(movements) != len(self.lines):
-            raise ValueError(
-                f"Wrong number of lines: {len(movements)}, "
-                f"expected: {len(self.lines)}."
-            )
-        if not self.__check_voice_leading_rules(movements):
+        Check whether suggested continuation is compliant with the rules.
+
+        :param movement:
+            shift (in scale degrees) from previous element to a new one
+        :param duration:
+            duration (in eights) of a new element
+        :return:
+            `True` if continuation is in accordance with the rules,
+            `False` else
+        """
+        if not self.__check_rhythm_rules(duration):
             return False
-        if not self.__check_harmony_rules(movements):
+        if not self.__check_voice_leading_rules(movement):
+            return False
+        if not self.__check_harmony_rules(movement, duration):
             return False
         return True
 
-    def add_measure(self, movements: List[int]) -> None:
-        """
-        Add continuations of all lines for a next measure.
+    def __update_current_measure_durations(self, duration: int) -> None:
+        """Update division of current measure by played notes."""
+        total_duration = sum(self.current_measure_durations) + duration
+        if total_duration < N_EIGHTS_PER_MEASURE:
+            self.current_measure_durations.append(duration)
+        elif total_duration == N_EIGHTS_PER_MEASURE:
+            self.current_measure_durations = []
+        elif total_duration > N_EIGHTS_PER_MEASURE:
+            syncopated_duration = total_duration - N_EIGHTS_PER_MEASURE
+            self.current_measure_durations = [syncopated_duration]
 
-        :param movements:
-            list of shifts in scale degrees for each line
+    def add_line_element(self, movement: int, duration: int) -> None:
+        """
+        Add a continuation of counterpoint line.
+
+        :param movement:
+            shift (in scale degrees) from previous element to a new one
+        :param duration:
+            duration (in eights) of a new element
         :return:
             None
         """
-        if self.last_finished_measure == self.n_measures - 1:
+        piece_duration = N_EIGHTS_PER_MEASURE * self.n_measures
+        if self.current_time_in_eights == piece_duration:
             raise RuntimeError("Attempt to add notes to a finished piece.")
-        if not self.check_movements(movements):
-            raise ValueError('Suggested movements break some rules.')
-        next_sonority = self.__find_destinations(movements)
-        for line, next_element in zip(self.lines, next_sonority):
-            line[self.last_finished_measure + 1] = next_element
-            self._piano_roll[
-                next_element.absolute_position, self.last_finished_measure + 1
-            ] = 1
-        for movement, past_movements in zip(movements, self.passed_movements):
-            past_movements.append(movement)
-        self.last_finished_measure += 1
+        if not self.check_rules(movement, duration):
+            raise ValueError('The suggested step breaks some rules.')
+        next_line_element = self.__find_next_element(movement, duration)
+        self.counterpoint.append(next_line_element)
+        self.__add_to_piano_roll(next_line_element)
+        self.current_time_in_eights += duration
+        self.past_movements.append(movement)
+        self.__update_current_measure_durations(duration)
         self.__finalize_if_needed()
 
     def reset(self) -> None:
@@ -317,7 +381,7 @@ class Piece:
         """
         self.counterpoint = self.counterpoint[0:1]
         self.__initialize_piano_roll()
-        self.current_time_in_eights = N_EIGHTS_PER_MEASURE
+        self.__set_defaults_to_runtime_variables()
 
     @property
     def piano_roll(self) -> np.ndarray:
