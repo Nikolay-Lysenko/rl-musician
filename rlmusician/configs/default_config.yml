@@ -1,17 +1,27 @@
 piece:
   tonic: C
   scale_type: major
-  n_measures: 16
-  max_skip: 3
-  line_specifications:
-    - lowest_note: C4
-      highest_note: C5
-      start_note: G4
-      end_note: C4
-    - lowest_note: G4
-      highest_note: C6
-      start_note: C5
-      end_note: C5
+  n_measures: 12
+  cantus_firmus:
+    - C4
+    - D4
+    - E4
+    - C4
+    - A3
+    - B3
+    - C4
+    - G4
+    - E4
+    - C4
+    - D4
+    - C4
+  counterpoint_specifications:
+    start_note: G4
+    end_note: C5
+    lowest_note: C4
+    highest_note: C6
+    start_pause_in_eights: 4
+    max_skip_in_degrees: 7
   voice_leading_rules:
     names:
       - rearticulation
@@ -36,10 +46,12 @@ piece:
     dir: rlmusician_data
     measure_in_seconds: 1.0
     midi:
-      instrument: 0
+      cantus_firmus_instrument: 0
+      counterpoint_instrument: 0
       velocity: 100
     sinethesizer:
-      timbre: default_timbre
+      cantus_firmus_timbre: default_timbre
+      counterpoint_timbre: default_timbre
       volume: 0.3
 environment:
   observation_decay: 0.75
