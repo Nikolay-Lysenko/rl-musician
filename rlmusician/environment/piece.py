@@ -373,7 +373,7 @@ class Piece:
         if self.current_time_in_eights == piece_duration:
             raise RuntimeError("Attempt to add notes to a finished piece.")
         if not self.check_rules(movement, duration):
-            raise ValueError('The suggested step breaks some rules.')
+            raise ValueError('The suggested continuation breaks some rules.')
         next_line_element = self.__find_next_element(movement, duration)
         self.counterpoint.append(next_line_element)
         self.__add_to_piano_roll(next_line_element)

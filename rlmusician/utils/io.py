@@ -14,10 +14,17 @@ from sinethesizer.io import (
 from sinethesizer.io.utils import get_list_of_notes
 
 
+N_EIGHTS_PER_MEASURE = 8
+
+
 def create_midi_from_piece(
         piece: 'rlmusician.environment.Piece',
-        midi_path: str, measure_in_seconds: float,
-        instrument: int, velocity: int, trailing_silence_in_measures: int = 2
+        midi_path: str,
+        measure_in_seconds: float,
+        cantus_firmus_instrument: int,
+        counterpoint_instrument: int,
+        velocity: int,
+        trailing_silence_in_measures: int = 2
 ) -> None:
     """
     Create MIDI file from a piece created by this package.
@@ -28,8 +35,12 @@ def create_midi_from_piece(
         path where resulting MIDI file is going to be saved
     :param measure_in_seconds:
         duration of one measure in seconds
-    :param instrument:
-        ID (number) of instrument according to General MIDI specification
+    :param cantus_firmus_instrument:
+        for an instrument that plays cantus firmus, its ID (number)
+        according to General MIDI specification
+    :param counterpoint_instrument:
+        for an instrument that plays counterpoint line, its ID (number)
+        according to General MIDI specification
     :param velocity:
         one common velocity for all notes
     :param trailing_silence_in_measures:
@@ -38,13 +49,26 @@ def create_midi_from_piece(
         None
     """
     numeration_shift = pretty_midi.note_name_to_number('A0')
-    pretty_midi_instrument = pretty_midi.Instrument(program=instrument)
-    for line in piece.lines:
-        for measure, element in enumerate(line):
-            if element is None:  # Dead end occurred during piece creation.
-                continue
-            start_time = measure * measure_in_seconds
-            end_time = start_time + measure_in_seconds
+    lines = [
+        piece.cantus_firmus,
+        piece.counterpoint
+    ]
+    pretty_midi_instruments = [
+        pretty_midi.Instrument(program=cantus_firmus_instrument),
+        pretty_midi.Instrument(program=counterpoint_instrument)
+    ]
+    for line, pretty_midi_instrument in zip(lines, pretty_midi_instruments):
+        for element in line:
+            start_time = (
+                element.start_time_in_eights
+                / N_EIGHTS_PER_MEASURE
+                * measure_in_seconds
+            )
+            end_time = (
+                element.end_time_in_eights
+                / N_EIGHTS_PER_MEASURE
+                * measure_in_seconds
+            )
             note = pretty_midi.Note(
                 velocity=velocity,
                 pitch=element.absolute_position + numeration_shift,
@@ -52,26 +76,33 @@ def create_midi_from_piece(
                 end=end_time
             )
             pretty_midi_instrument.notes.append(note)
-    for i in range(trailing_silence_in_measures):
-        start_time = (piece.n_measures + i) * measure_in_seconds
-        end_time = start_time + measure_in_seconds
-        note = pretty_midi.Note(
-            velocity=0,
-            pitch=1,  # Arbitrary value that affects nothing.
-            start=start_time,
-            end=end_time
-        )
-        pretty_midi_instrument.notes.append(note)
-    pretty_midi_instrument.notes.sort(key=lambda x: x.start)
+        pretty_midi_instrument.notes.sort(key=lambda x: x.start)
+
+    start_time = piece.n_measures * measure_in_seconds
+    end_time = start_time + trailing_silence_in_measures * measure_in_seconds
+    note = pretty_midi.Note(
+        velocity=0,
+        pitch=1,  # Arbitrary value that affects nothing.
+        start=start_time,
+        end=end_time
+    )
+    pretty_midi_instruments[0].notes.append(note)
+
     composition = pretty_midi.PrettyMIDI()
-    composition.instruments.append(pretty_midi_instrument)
+    for pretty_midi_instrument in pretty_midi_instruments:
+        composition.instruments.append(pretty_midi_instrument)
     composition.write(midi_path)
 
 
 def create_events_from_piece(
         piece: 'rlmusician.environment.Piece',
-        events_path: str, measure_in_seconds: float,
-        timbre: str, volume: float, location: int = 0, effects: str = ''
+        events_path: str,
+        measure_in_seconds: float,
+        cantus_firmus_timbre: str,
+        counterpoint_timbre: str,
+        volume: float,
+        location: int = 0,
+        effects: str = ''
 ) -> None:
     """
     Create TSV file with `sinethesizer` events from a piece.
@@ -82,8 +113,10 @@ def create_events_from_piece(
         path to a file where result is going to be saved
     :param measure_in_seconds:
         duration of one measure in seconds
-    :param timbre:
-        timbre to be used
+    :param cantus_firmus_timbre:
+        timbre to be used to play cantus firmus
+    :param counterpoint_timbre:
+        timbre to be used to play counterpoint line
     :param volume:
         relative volume of sound to be played
     :param location:
@@ -95,24 +128,34 @@ def create_events_from_piece(
     """
     all_notes = get_list_of_notes()
     events = []
-    for line in piece.lines:
-        for measure, element in enumerate(line):
-            if element is None:  # Dead end occurred during piece creation.
-                continue
-            start_time = measure * measure_in_seconds
-            duration = measure_in_seconds
+    lines = [piece.cantus_firmus, piece.counterpoint]
+    timbres = [cantus_firmus_timbre, counterpoint_timbre]
+    for line, timbre in zip(lines, timbres):
+        for element in line:
+            start_time = (
+                element.start_time_in_eights
+                / N_EIGHTS_PER_MEASURE
+                * measure_in_seconds
+            )
+            duration = (
+                (element.end_time_in_eights - element.start_time_in_eights)
+                / N_EIGHTS_PER_MEASURE
+                * measure_in_seconds
+            )
             note = all_notes[element.absolute_position]
-            event = (start_time, duration, note, element.absolute_position)
+            event = (
+                timbre, start_time, duration, note, element.absolute_position
+            )
             events.append(event)
-    events = sorted(events, key=lambda x: (x[0], x[3], x[1]))
+    events = sorted(events, key=lambda x: (x[1], x[4], x[2]))
     events = [
-        f"{timbre}\t{x[0]}\t{x[1]}\t{x[2]}\t{volume}\t{location}\t{effects}"
+        f"{x[0]}\t{x[1]}\t{x[2]}\t{x[3]}\t{volume}\t{location}\t{effects}"
         for x in events
     ]
 
     columns = [
-        'timbre', 'start_time', 'duration', 'frequency', 'volume',
-        'location', 'effects'
+        'timbre', 'start_time', 'duration', 'frequency',
+        'volume', 'location', 'effects'
     ]
     header = '\t'.join(columns)
     results = [header] + events
