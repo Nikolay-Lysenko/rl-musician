@@ -11,61 +11,101 @@ from sinethesizer.io.utils import get_note_to_position_mapping
 
 
 NOTE_TO_POSITION = get_note_to_position_mapping()
+TONIC_TRIAD_DEGREES = (1, 3, 5)
 
 
 class ScaleElement(NamedTuple):
-    """A pitch from a scale."""
+    """A pitch from a diatonic scale."""
 
-    absolute_position: int
+    note: str
+    position_in_semitones: int
+    position_in_degrees: int
     degree: int
+    is_from_tonic_triad: bool
 
 
-def create_scale(tonic: str, scale_type: str) -> List[ScaleElement]:
-    """
-    Create scale.
+class Scale:
+    """A diatonic scale."""
 
-    :param tonic:
-        tonic pitch class represented by letter (like C or A#)
-    :param scale_type:
-        type of scale (currently, 'major', 'natural_minor', and
-        'harmonic_minor' are supported)
-    :return:
-        scale
-    """
-    patterns = {
-        'major': [1, 0, 2, 0, 3, 4, 0, 5, 0, 6, 0, 7],
-        'natural_minor': [1, 0, 2, 3, 0, 4, 0, 5, 6, 0, 7, 0],
-        'harmonic_minor': [1, 0, 2, 3, 0, 4, 0, 5, 6, 0, 0, 7],
-    }
-    pattern = patterns[scale_type]
-    tonic_position = NOTE_TO_POSITION[tonic + '1']
-    scale = []
-    for x in range(len(NOTE_TO_POSITION)):
-        degree = pattern[(x - tonic_position) % len(pattern)]
-        if degree > 0:
-            scale.append(ScaleElement(absolute_position=x, degree=degree))
-    return scale
+    def __init__(self, tonic: str, scale_type: str):
+        """
+        Initialize an instance.
 
+        :param tonic:
+            tonic pitch class represented by letter (like C or A#)
+        :param scale_type:
+            type of scale (currently, 'major', 'natural_minor', and
+            'harmonic_minor' are supported)
+        """
+        self.tonic = tonic
+        self.scale_type = scale_type
 
-def slice_scale(
-        scale: List[ScaleElement], lowest_note: str, highest_note: str
-) -> List[ScaleElement]:
-    """
-    Keep only pitches that are within a specified range.
+        self.elements = self.__create_elements()
+        self.note_to_element = {
+            element.note: element for element in self.elements
+        }
+        self.position_in_semitones_to_element = {
+            element.position_in_semitones: element for element in self.elements
+        }
+        self.position_in_degrees_to_element = {
+            element.position_in_degrees: element for element in self.elements
+        }
 
-    :param scale:
-        list of pitches
-    :param lowest_note:
-        lowest note (inclusively) represented like C3 or A#4
-    :param highest_note:
-        highest note (inclusively) represented like C3 or A#4
-    :return:
-        list of pitches from a specified range
-    """
-    lowest_position = NOTE_TO_POSITION[lowest_note]
-    highest_position = NOTE_TO_POSITION[highest_note]
-    sliced_scale = [
-        x for x in scale
-        if lowest_position <= x.absolute_position <= highest_position
-    ]
-    return sliced_scale
+    def __create_elements(self) -> List[ScaleElement]:
+        """Create sorted list of scale elements."""
+        patterns = {
+            'major': [
+                1, None, 2, None, 3, 4, None, 5, None, 6, None, 7
+            ],
+            'natural_minor': [
+                1, None, 2, 3, None, 4, None, 5, 6, None, 7, None
+            ],
+            'harmonic_minor': [
+                1, None, 2, 3, None, 4, None, 5, 6, None, None, 7
+            ],
+        }
+        pattern = patterns[self.scale_type]
+        tonic_position = NOTE_TO_POSITION[self.tonic + '1']
+        elements = []
+        position_in_degrees = 0
+        for note, position_in_semitones in NOTE_TO_POSITION.items():
+            remainder = (position_in_semitones - tonic_position) % len(pattern)
+            degree = pattern[remainder]
+            if degree is not None:
+                element = ScaleElement(
+                    note=note,
+                    position_in_semitones=position_in_semitones,
+                    position_in_degrees=position_in_degrees,
+                    degree=degree,
+                    is_from_tonic_triad=(degree in TONIC_TRIAD_DEGREES)
+                )
+                elements.append(element)
+                position_in_degrees += 1
+        return elements
+
+    def get_element_by_note(self, note: str) -> ScaleElement:
+        """Get scale element by its note (like 'C4' or 'A#5')."""
+        try:
+            return self.note_to_element[note]
+        except KeyError:
+            raise ValueError(
+                f"Note {note} is not from {self.tonic}-{self.scale_type}."
+            )
+
+    def get_element_by_position_in_semitones(self, pos: int) -> ScaleElement:
+        """Get scale element by its position in semitones."""
+        try:
+            return self.position_in_semitones_to_element[pos]
+        except KeyError:
+            raise ValueError(
+                f"Position {pos} is not from {self.tonic}-{self.scale_type}."
+            )
+
+    def get_element_by_position_in_degrees(self, pos: int) -> ScaleElement:
+        """Get scale element by its position in scale degrees."""
+        try:
+            return self.position_in_degrees_to_element[pos]
+        except KeyError:
+            raise ValueError(
+                f"Position {pos} is out of available positions range."
+            )
