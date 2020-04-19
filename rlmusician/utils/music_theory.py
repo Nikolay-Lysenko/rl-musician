@@ -109,3 +109,39 @@ class Scale:
             raise ValueError(
                 f"Position {pos} is out of available positions range."
             )
+
+
+def check_consonance(
+        first: ScaleElement, second: ScaleElement,
+        is_perfect_fourth_consonant: bool = False
+) -> bool:
+    """
+    Check whether an interval between two pitches is consonant.
+
+    :param first:
+        first pitch
+    :param second:
+        second pitch
+    :param is_perfect_fourth_consonant:
+        indicator whether to consider perfect fourth a consonant interval
+        (for two voices, it usually considered dissonant)
+    :return:
+        indicator whether the interval is consonant
+    """
+    n_semitones_to_consonance = {
+        0: True,
+        1: False,
+        2: False,
+        3: True,
+        4: True,
+        5: is_perfect_fourth_consonant,
+        6: False,
+        7: True,
+        8: True,
+        9: True,
+        10: False,
+        11: False
+    }
+    interval = first.position_in_semitones - second.position_in_semitones
+    interval %= len(n_semitones_to_consonance)
+    return n_semitones_to_consonance[interval]

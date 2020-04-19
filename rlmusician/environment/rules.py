@@ -9,7 +9,7 @@ import itertools
 from typing import Callable, Dict, List, Optional
 
 
-def check_validity_of_rhythmic_pattern(durations: List[int]) -> bool:
+def check_validity_of_rhythmic_pattern(durations: List[int], **kwargs) -> bool:
     """
     Check that current measure is properly divided by notes.
 

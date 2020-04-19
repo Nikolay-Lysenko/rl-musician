@@ -25,6 +25,7 @@ from rlmusician.environment.rules import get_rules_registry
 from rlmusician.utils import (
     Scale,
     ScaleElement,
+    check_consonance,
     create_events_from_piece,
     create_midi_from_piece,
     create_wav_from_events,
@@ -75,6 +76,7 @@ class Piece:
         :param rendering_params:
             settings of saving the piece to TSV, MIDI, and WAV files
         """
+        # Initial inputs.
         self.tonic = tonic
         self.scale_type = scale_type
         self.n_measures = n_measures
@@ -83,22 +85,21 @@ class Piece:
         self.rules_params = rules['params']
         self.rendering_params = rendering_params
 
+        # Calculated attributes.
         self.scale = Scale(tonic, scale_type)
         self.max_skip = counterpoint_specifications['max_skip']
         self.all_movements = list(range(-self.max_skip, self.max_skip + 1))
 
-        self.current_time_in_eights = None
-        self.current_measure_durations = None
-        self.past_movements = None
-        self.__set_defaults_to_runtime_variables()
-
+        # Melodic lines.
         self.cantus_firmus = self.__create_cantus_firmus(cantus_firmus)
         self.counterpoint = self.__create_beginning_of_counterpoint()
 
+        # Boundaries.
         end_note = counterpoint_specifications['end_note']
         self.end_scale_element = self.scale.get_element_by_note(end_note)
         self.__validate_boundary_notes()
 
+        # Vertical range of a counterpoint line.
         self.lowest_element = self.scale.get_element_by_note(
             counterpoint_specifications['lowest_note']
         )
@@ -106,17 +107,20 @@ class Piece:
             counterpoint_specifications['highest_note']
         )
 
+        # Piano roll.
         self._piano_roll = None
         self.__initialize_piano_roll()
         self.lowest_row_to_show = None
         self.highest_row_to_show = None
         self.__set_range_to_show()
 
-    def __set_defaults_to_runtime_variables(self) -> None:
-        """Set default values to variables that change at runtime."""
-        self.current_time_in_eights = N_EIGHTS_PER_MEASURE
-        self.current_measure_durations = []
-        self.past_movements = []
+        # Runtime variables.
+        self.current_time_in_eights = None
+        self.current_measure_durations = None
+        self.past_movements = None
+        self.current_motion_start_element = None
+        self.is_last_element_dissonant = None
+        self.__set_defaults_to_runtime_variables()
 
     def __create_cantus_firmus(
             self, cantus_firmus_as_notes: List[str]
@@ -207,6 +211,14 @@ class Piece:
             counterpoint_upper_bound
         )
 
+    def __set_defaults_to_runtime_variables(self) -> None:
+        """Set default values to variables that change at runtime."""
+        self.current_time_in_eights = N_EIGHTS_PER_MEASURE
+        self.current_measure_durations = []
+        self.past_movements = []
+        self.current_motion_start_element = self.counterpoint[0]
+        self.is_last_element_dissonant = False
+
     def __find_next_position_in_degrees(self, movement: int) -> int:
         """Find position (in scale degrees) that is reached by movement."""
         next_position = (
@@ -229,14 +241,10 @@ class Piece:
             self, duration: int
     ) -> List[LineElement]:
         """Find what in cantus firmus sounds simultaneously with a new note."""
-        results = []
-        for element in self.cantus_firmus:
-            if element.end_time_in_eights <= self.current_time_in_eights:
-                continue
-            new_note_end_time = self.current_time_in_eights + duration
-            if element.start_time_in_eights >= new_note_end_time:
-                break
-            results.append(element)
+        start_index = self.current_time_in_eights // N_EIGHTS_PER_MEASURE
+        end_time = self.current_time_in_eights + duration
+        end_index = (end_time - 1) // N_EIGHTS_PER_MEASURE + 1
+        results = self.cantus_firmus[start_index:end_index]
         return results
 
     def __check_range(self, movement: int) -> bool:
@@ -248,33 +256,40 @@ class Piece:
             return False
         return True
 
+    def __check_total_duration(self, duration: int) -> bool:
+        """Check that nothing is suspended to the last measure."""
+        available_duration = N_EIGHTS_PER_MEASURE * (self.n_measures - 1)
+        return self.current_time_in_eights + duration <= available_duration
+
     def __check_rules(self, movement: int, duration: int) -> bool:
         """Check compliance with the rules."""
         registry = get_rules_registry()
         next_line_element = self.__find_next_element(movement, duration)
         cantus_firmus_elements = self.__find_cantus_firmus_elements(duration)
         durations = [x for x in self.current_measure_durations] + [duration]
-        inputs = {
+        state = {
             'line': self.counterpoint,
+            'next_line_element': next_line_element,
             'movement': movement,
             'past_movements': self.past_movements,
             'current_time': self.current_time_in_eights,
-            'next_line_element': next_line_element,
             'cantus_firmus_elements': cantus_firmus_elements,
             'current_measure_durations': self.current_measure_durations,
             'durations': durations,
+            'current_motion_start_element': self.current_motion_start_element,
+            'is_last_element_dissonant': self.is_last_element_dissonant
         }
         for rule_name in self.names_of_rules:
             rule_fn = registry[rule_name]
             rule_fn_params = self.rules_params.get(rule_name, {})
-            is_compliant = rule_fn(**inputs, **rule_fn_params)
+            is_compliant = rule_fn(**state, **rule_fn_params)
             if not is_compliant:
                 return False
         return True
 
-    def check_rules(self, movement: int, duration: int) -> bool:
+    def check_validity(self, movement: int, duration: int) -> bool:
         """
-        Check whether suggested continuation is compliant with the rules.
+        Check whether suggested continuation is valid.
 
         :param movement:
             shift (in scale degrees) from previous element to a new one
@@ -285,6 +300,8 @@ class Piece:
             `False` else
         """
         if not self.__check_range(movement):
+            return False
+        if not self.__check_total_duration(duration):
             return False
         if not self.__check_rules(movement, duration):
             return False
@@ -300,6 +317,30 @@ class Piece:
         elif total_duration > N_EIGHTS_PER_MEASURE:
             syncopated_duration = total_duration - N_EIGHTS_PER_MEASURE
             self.current_measure_durations = [syncopated_duration]
+
+    def __update_current_motion_start(self) -> None:
+        """Update element opening continuous motion in one direction."""
+        if len(self.past_movements) < 2:
+            return
+        if self.past_movements[-1] * self.past_movements[-2] < 0:
+            self.current_motion_start_element = self.counterpoint[-1]
+
+    def __update_indicator_of_dissonance(self, duration: int) -> None:
+        """Update indicator of current vertical dissonance between lines."""
+        cantus_firmus_elements = self.__find_cantus_firmus_elements(duration)
+        cantus_firmus_element = cantus_firmus_elements[-1].scale_element
+        counterpoint_element = self.counterpoint[-1].scale_element
+        self.is_last_element_dissonant = not check_consonance(
+            cantus_firmus_element, counterpoint_element
+        )
+
+    def __update_runtime_variables(self, movement: int, duration: int) -> None:
+        """Update runtime variables representing current state."""
+        self.current_time_in_eights += duration
+        self.past_movements.append(movement)
+        self.__update_current_measure_durations(duration)
+        self.__update_current_motion_start()
+        self.__update_indicator_of_dissonance(duration)
 
     def __finalize_if_needed(self) -> None:
         """Add final measure of counterpoint line if the piece is finished."""
@@ -333,14 +374,15 @@ class Piece:
         piece_duration = N_EIGHTS_PER_MEASURE * self.n_measures
         if self.current_time_in_eights == piece_duration:
             raise RuntimeError("Attempt to add notes to a finished piece.")
-        if not self.check_rules(movement, duration):
-            raise ValueError('The suggested continuation breaks some rules.')
+        if not self.check_validity(movement, duration):
+            raise ValueError(
+                "The suggested continuation is not valid. "
+                "It either breaks some rules or goes beyond ranges."
+            )
         next_line_element = self.__find_next_element(movement, duration)
         self.counterpoint.append(next_line_element)
         self.__add_to_piano_roll(next_line_element)
-        self.current_time_in_eights += duration
-        self.past_movements.append(movement)
-        self.__update_current_measure_durations(duration)
+        self.__update_runtime_variables(movement, duration)
         self.__finalize_if_needed()
 
     def reset(self) -> None:
