@@ -24,15 +24,18 @@ piece:
     max_skip_in_degrees: 7
   rules:
     names:
-      - pattern_validity
+      - rhythmic_pattern_validity
       - rearticulation
       - destination_of_skip
       - turn_after_skip
       - VI_VII_resolution
       - step_motion_to_end
-      - consonance
+      - consonance_on_strong_beat
+      - step_motion_to_dissonance
+      - step_motion_from_dissonance
+      - resolution_of_suspended_dissonance
       - absence_of_large_intervals
-      - absence_of_pitch_class_clashes
+      - absence_of_lines_crossing
     params:
       turn_after_skip:
         min_n_scale_degrees: 3
@@ -40,6 +43,8 @@ piece:
         prohibit_rearticulation: true
       absence_of_large_intervals:
         max_n_semitones: 16
+      absence_of_lines_crossing:
+        prohibit_unisons: true
   rendering_params:
     dir: rlmusician_data
     measure_in_seconds: 1.0

@@ -93,6 +93,10 @@ class Piece:
         # Melodic lines.
         self.cantus_firmus = self.__create_cantus_firmus(cantus_firmus)
         self.counterpoint = self.__create_beginning_of_counterpoint()
+        self.is_counterpoint_above = (
+            self.counterpoint[0].scale_element.position_in_semitones
+            > self.cantus_firmus[0].scale_element.position_in_semitones
+        )
 
         # Boundaries.
         end_note = counterpoint_specifications['end_note']
@@ -264,20 +268,21 @@ class Piece:
     def __check_rules(self, movement: int, duration: int) -> bool:
         """Check compliance with the rules."""
         registry = get_rules_registry()
-        next_line_element = self.__find_next_element(movement, duration)
-        cantus_firmus_elements = self.__find_cantus_firmus_elements(duration)
+        counterpoint_element = self.__find_next_element(movement, duration)
         durations = [x for x in self.current_measure_durations] + [duration]
+        cantus_firmus_elements = self.__find_cantus_firmus_elements(duration)
         state = {
             'line': self.counterpoint,
-            'next_line_element': next_line_element,
+            'counterpoint_element': counterpoint_element,
             'movement': movement,
             'past_movements': self.past_movements,
             'current_time': self.current_time_in_eights,
-            'cantus_firmus_elements': cantus_firmus_elements,
             'current_measure_durations': self.current_measure_durations,
             'durations': durations,
+            'cantus_firmus_elements': cantus_firmus_elements,
             'current_motion_start_element': self.current_motion_start_element,
-            'is_last_element_dissonant': self.is_last_element_dissonant
+            'is_last_element_dissonant': self.is_last_element_dissonant,
+            'is_counterpoint_above': self.is_counterpoint_above,
         }
         for rule_name in self.names_of_rules:
             rule_fn = registry[rule_name]
