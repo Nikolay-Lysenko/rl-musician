@@ -25,8 +25,10 @@ piece:
   rules:
     names:
       - rhythmic_pattern_validity
-      - rearticulation
-      - destination_of_skip
+      - rearticulation_stability
+      - absence_of_stalled_pitches
+      - absence_of_long_motion
+      - absence_of_skip_series
       - turn_after_skip
       - VI_VII_resolution
       - step_motion_to_end
@@ -37,6 +39,12 @@ piece:
       - absence_of_large_intervals
       - absence_of_lines_crossing
     params:
+      absence_of_stalled_pitches:
+        max_n_repetitions: 2
+      absence_of_long_motion:
+        max_distance_in_semitones: 9
+      absence_of_skip_series:
+        max_n_skips: 2
       turn_after_skip:
         min_n_scale_degrees: 3
       step_motion_to_end:

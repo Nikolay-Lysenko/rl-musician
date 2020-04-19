@@ -232,7 +232,7 @@ class Piece:
         return next_position
 
     def __find_next_element(self, movement: int, duration: int) -> LineElement:
-        """Find line element that can be added with movement and duration."""
+        """Find continuation of counterpoint line by movement and duration."""
         next_position = self.__find_next_position_in_degrees(movement)
         next_line_element = LineElement(
             self.scale.get_element_by_position_in_degrees(next_position),
@@ -268,21 +268,24 @@ class Piece:
     def __check_rules(self, movement: int, duration: int) -> bool:
         """Check compliance with the rules."""
         registry = get_rules_registry()
-        counterpoint_element = self.__find_next_element(movement, duration)
+        continuation = self.__find_next_element(movement, duration)
+        piece_duration = N_EIGHTS_PER_MEASURE * self.n_measures
         durations = [x for x in self.current_measure_durations] + [duration]
         cantus_firmus_elements = self.__find_cantus_firmus_elements(duration)
         state = {
             'line': self.counterpoint,
-            'counterpoint_element': counterpoint_element,
+            'counterpoint_continuation': continuation,
             'movement': movement,
             'past_movements': self.past_movements,
             'current_time': self.current_time_in_eights,
+            'piece_duration': piece_duration,
             'current_measure_durations': self.current_measure_durations,
             'durations': durations,
             'cantus_firmus_elements': cantus_firmus_elements,
             'current_motion_start_element': self.current_motion_start_element,
             'is_last_element_dissonant': self.is_last_element_dissonant,
             'is_counterpoint_above': self.is_counterpoint_above,
+            'counterpoint_end': self.end_scale_element,
         }
         for rule_name in self.names_of_rules:
             rule_fn = registry[rule_name]
