@@ -89,6 +89,7 @@ class Piece:
         self.scale = Scale(tonic, scale_type)
         self.max_skip = counterpoint_specifications['max_skip']
         self.all_movements = list(range(-self.max_skip, self.max_skip + 1))
+        self.total_duration_in_eights = N_EIGHTS_PER_MEASURE * self.n_measures
 
         # Melodic lines.
         self.cantus_firmus = self.__create_cantus_firmus(cantus_firmus)
@@ -180,7 +181,7 @@ class Piece:
 
     def __initialize_piano_roll(self) -> None:
         """Create piano roll and place all pre-defined notes to it."""
-        shape = (len(NOTE_TO_POSITION), N_EIGHTS_PER_MEASURE * self.n_measures)
+        shape = (len(NOTE_TO_POSITION), self.total_duration_in_eights)
         self._piano_roll = np.zeros(shape, dtype=np.int32)
 
         for line_element in self.cantus_firmus:
@@ -269,7 +270,6 @@ class Piece:
         """Check compliance with the rules."""
         registry = get_rules_registry()
         continuation = self.__find_next_element(movement, duration)
-        piece_duration = N_EIGHTS_PER_MEASURE * self.n_measures
         durations = [x for x in self.current_measure_durations] + [duration]
         cantus_firmus_elements = self.__find_cantus_firmus_elements(duration)
         state = {
@@ -278,7 +278,7 @@ class Piece:
             'movement': movement,
             'past_movements': self.past_movements,
             'current_time': self.current_time_in_eights,
-            'piece_duration': piece_duration,
+            'piece_duration': self.total_duration_in_eights,
             'current_measure_durations': self.current_measure_durations,
             'durations': durations,
             'cantus_firmus_elements': cantus_firmus_elements,
@@ -357,7 +357,7 @@ class Piece:
             end_line_element = LineElement(
                 self.end_scale_element,
                 penultimate_measure_end,
-                N_EIGHTS_PER_MEASURE * self.n_measures
+                self.total_duration_in_eights
             )
             self.counterpoint.append(end_line_element)
             self.__add_to_piano_roll(end_line_element)
@@ -366,7 +366,7 @@ class Piece:
             - self.counterpoint[-2].scale_element.position_in_degrees
         )
         self.past_movements.append(last_movement)
-        self.current_time_in_eights = N_EIGHTS_PER_MEASURE * self.n_measures
+        self.current_time_in_eights = self.total_duration_in_eights
 
     def add_line_element(self, movement: int, duration: int) -> None:
         """
@@ -379,8 +379,7 @@ class Piece:
         :return:
             None
         """
-        piece_duration = N_EIGHTS_PER_MEASURE * self.n_measures
-        if self.current_time_in_eights == piece_duration:
+        if self.current_time_in_eights == self.total_duration_in_eights:
             raise RuntimeError("Attempt to add notes to a finished piece.")
         if not self.check_validity(movement, duration):
             raise ValueError(

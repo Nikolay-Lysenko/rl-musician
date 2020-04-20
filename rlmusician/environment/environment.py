@@ -15,9 +15,6 @@ from rlmusician.environment.evaluation import evaluate
 from rlmusician.utils import convert_to_base
 
 
-N_EIGHTS_PER_MEASURE = 8
-
-
 class CounterpointEnv(gym.Env):
     """
     An environment where counterpoint line is composed given cantus firmus.
@@ -109,12 +106,13 @@ class CounterpointEnv(gym.Env):
         observation = self.piece.piano_roll
         info = {'next_actions': self.valid_actions}
 
-        total_duration_in_eights = N_EIGHTS_PER_MEASURE * self.piece.n_measures
-        finish = self.piece.current_time_in_eights == total_duration_in_eights
+        past_duration = self.piece.current_time_in_eights
+        piece_duration = self.piece.total_duration_in_eights
+        finished = past_duration == piece_duration
         no_more_actions = len(info['next_actions']) == 0
-        done = finish or no_more_actions
+        done = finished or no_more_actions
 
-        if finish:
+        if finished:
             reward = evaluate(
                 self.piece,
                 self.scoring_coefs,
