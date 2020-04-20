@@ -65,7 +65,6 @@ piece:
       counterpoint_timbre: default_timbre
       volume: 0.3
 environment:
-  observation_decay: 0.75
   reward_for_dead_end: -3
   scoring_coefs:
     climax_explicity: 3

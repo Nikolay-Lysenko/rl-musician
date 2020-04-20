@@ -181,7 +181,7 @@ class Piece:
     def __initialize_piano_roll(self) -> None:
         """Create piano roll and place all pre-defined notes to it."""
         shape = (len(NOTE_TO_POSITION), N_EIGHTS_PER_MEASURE * self.n_measures)
-        self._piano_roll = np.zeros(shape, dtype=int)
+        self._piano_roll = np.zeros(shape, dtype=np.int32)
 
         for line_element in self.cantus_firmus:
             self.__add_to_piano_roll(line_element)
