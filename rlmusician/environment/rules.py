@@ -65,7 +65,7 @@ def check_stability_of_rearticulated_pitch(
     """
     if movement != 0:
         return True
-    return counterpoint_continuation.is_from_tonic_triad
+    return counterpoint_continuation.scale_element.is_from_tonic_triad
 
 
 def check_absence_of_stalled_pitches(
@@ -97,7 +97,8 @@ def check_absence_of_stalled_pitches(
 def check_absence_of_monotonous_long_motion(
         counterpoint_continuation: 'LineElement',
         current_motion_start_element: 'LineElement',
-        max_distance_in_semitones: int = 9
+        max_distance_in_semitones: int = 9,
+        **kwargs
 ) -> bool:
     """
     Check that line does not move too far without any changes in direction.
@@ -193,9 +194,9 @@ def check_resolution_of_submediant_and_leading_tone(
     """
     if len(line) < 2:
         return True
-    elif line[-1].degree == 6 and line[-2].degree == 7:
+    elif line[-1].scale_element.degree == 6 and line[-2].scale_element.degree == 7:
         return movement == -1
-    elif line[-1].degree == 7 and line[-2].degree == 6:
+    elif line[-1].scale_element.degree == 7 and line[-2].scale_element.degree == 6:
         return movement == 1
     return True
 
@@ -260,8 +261,8 @@ def check_consonance_on_strong_beat(
     if current_time % 4 != 0:
         return True
     return check_consonance(
-        counterpoint_continuation,
-        cantus_firmus_elements[0]
+        counterpoint_continuation.scale_element,
+        cantus_firmus_elements[0].scale_element
     )
 
 
@@ -431,7 +432,7 @@ def get_rules_registry() -> Dict[str, Callable]:
         # Rhythm rules:
         'rhythmic_pattern_validity': check_validity_of_rhythmic_pattern,
         # Voice leading rules:
-        'stability_of_rearticulation': check_stability_of_rearticulated_pitch,
+        'rearticulation_stability': check_stability_of_rearticulated_pitch,
         'absence_of_stalled_pitches': check_absence_of_stalled_pitches,
         'absence_of_long_motion': check_absence_of_monotonous_long_motion,
         'absence_of_skip_series': check_absence_of_skip_series,

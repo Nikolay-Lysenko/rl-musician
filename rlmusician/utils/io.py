@@ -59,6 +59,10 @@ def create_midi_from_piece(
     ]
     for line, pretty_midi_instrument in zip(lines, pretty_midi_instruments):
         for element in line:
+            pitch = (
+                element.scale_element.position_in_semitones
+                + numeration_shift
+            )
             start_time = (
                 element.start_time_in_eights
                 / N_EIGHTS_PER_MEASURE
@@ -71,7 +75,7 @@ def create_midi_from_piece(
             )
             note = pretty_midi.Note(
                 velocity=velocity,
-                pitch=element.absolute_position + numeration_shift,
+                pitch=pitch,
                 start=start_time,
                 end=end_time
             )
@@ -142,10 +146,9 @@ def create_events_from_piece(
                 / N_EIGHTS_PER_MEASURE
                 * measure_in_seconds
             )
-            note = all_notes[element.absolute_position]
-            event = (
-                timbre, start_time, duration, note, element.absolute_position
-            )
+            pitch_id = element.scale_element.position_in_semitones
+            note = all_notes[pitch_id]
+            event = (timbre, start_time, duration, note, pitch_id)
             events.append(event)
     events = sorted(events, key=lambda x: (x[1], x[4], x[2]))
     events = [

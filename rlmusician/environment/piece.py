@@ -87,7 +87,7 @@ class Piece:
 
         # Calculated attributes.
         self.scale = Scale(tonic, scale_type)
-        self.max_skip = counterpoint_specifications['max_skip']
+        self.max_skip = counterpoint_specifications['max_skip_in_degrees']
         self.all_movements = list(range(-self.max_skip, self.max_skip + 1))
         self.total_duration_in_eights = N_EIGHTS_PER_MEASURE * self.n_measures
 
@@ -353,14 +353,15 @@ class Piece:
     def __finalize_if_needed(self) -> None:
         """Add final measure of counterpoint line if the piece is finished."""
         penultimate_measure_end = N_EIGHTS_PER_MEASURE * (self.n_measures - 1)
-        if self.current_time_in_eights == penultimate_measure_end:
-            end_line_element = LineElement(
-                self.end_scale_element,
-                penultimate_measure_end,
-                self.total_duration_in_eights
-            )
-            self.counterpoint.append(end_line_element)
-            self.__add_to_piano_roll(end_line_element)
+        if self.current_time_in_eights < penultimate_measure_end:
+            return
+        end_line_element = LineElement(
+            self.end_scale_element,
+            penultimate_measure_end,
+            self.total_duration_in_eights
+        )
+        self.counterpoint.append(end_line_element)
+        self.__add_to_piano_roll(end_line_element)
         last_movement = (
             self.end_scale_element.position_in_degrees
             - self.counterpoint[-2].scale_element.position_in_degrees
