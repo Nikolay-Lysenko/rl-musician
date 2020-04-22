@@ -142,6 +142,6 @@ def check_consonance(
         10: False,
         11: False
     }
-    interval = first.position_in_semitones - second.position_in_semitones
+    interval = abs(first.position_in_semitones - second.position_in_semitones)
     interval %= len(n_semitones_to_consonance)
     return n_semitones_to_consonance[interval]
