@@ -102,15 +102,13 @@ class Piece:
         # Boundaries.
         end_note = counterpoint_specifications['end_note']
         self.end_scale_element = self.scale.get_element_by_note(end_note)
-        self.__validate_boundary_notes()
-
-        # Vertical range of a counterpoint line.
         self.lowest_element = self.scale.get_element_by_note(
             counterpoint_specifications['lowest_note']
         )
         self.highest_element = self.scale.get_element_by_note(
             counterpoint_specifications['highest_note']
         )
+        self.__validate_boundary_notes()
 
         # Piano roll.
         self._piano_roll = None
@@ -153,7 +151,7 @@ class Piece:
         return counterpoint
 
     def __validate_boundary_notes(self) -> None:
-        """Check that boundary notes for both lines are from tonic triad."""
+        """Check that boundary notes for both lines are valid."""
         if not self.cantus_firmus[0].scale_element.is_from_tonic_triad:
             raise ValueError(
                 f"{self.cantus_firmus[0].scale_element.note} is not "
@@ -177,6 +175,15 @@ class Piece:
                 f"{self.end_scale_element.note} is not "
                 f"a tonic triad member for {self.tonic}-{self.scale_type}; "
                 f"therefore, counterpoint line can not end with it."
+            )
+        lowest_position = self.lowest_element.position_in_semitones
+        highest_position = self.highest_element.position_in_semitones
+        if lowest_position >= highest_position:
+            raise ValueError(
+                "Lowest note and highest note are in wrong order: "
+                f"{self.counterpoint_specifications['lowest_note']} "
+                "is higher than "
+                f"{self.counterpoint_specifications['highest_note']}."
             )
 
     def __initialize_piano_roll(self) -> None:
