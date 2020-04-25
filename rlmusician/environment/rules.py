@@ -242,7 +242,6 @@ def check_step_motion_to_final_pitch(
 def check_consonance_on_strong_beat(
         counterpoint_continuation: 'LineElement',
         cantus_firmus_elements: List['LineElement'],
-        current_time: int,
         **kwargs
 ) -> bool:
     """
@@ -253,12 +252,10 @@ def check_consonance_on_strong_beat(
     :param cantus_firmus_elements:
         list of elements from cantus firmus that sound simultaneously with
         the counterpoint element
-    :param current_time:
-        time of counterpoint element start (in eights)
     :return:
         indicator whether a continuation is in accordance with the rule
     """
-    if current_time % 4 != 0:
+    if counterpoint_continuation.start_time_in_eights % 4 != 0:
         return True
     return check_consonance(
         counterpoint_continuation.scale_element,

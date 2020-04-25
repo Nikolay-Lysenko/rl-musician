@@ -284,7 +284,6 @@ class Piece:
             'counterpoint_continuation': continuation,
             'movement': movement,
             'past_movements': self.past_movements,
-            'current_time': self.current_time_in_eights,
             'piece_duration': self.total_duration_in_eights,
             'current_measure_durations': self.current_measure_durations,
             'durations': durations,
