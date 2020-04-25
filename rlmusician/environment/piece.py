@@ -122,7 +122,7 @@ class Piece:
         self.current_measure_durations = None
         self.past_movements = None
         self.current_motion_start_element = None
-        self.is_last_element_dissonant = None
+        self.is_last_element_consonant = None
         self.__set_defaults_to_runtime_variables()
 
     def __create_cantus_firmus(
@@ -229,7 +229,7 @@ class Piece:
         self.current_measure_durations = []
         self.past_movements = []
         self.current_motion_start_element = self.counterpoint[0]
-        self.is_last_element_dissonant = False
+        self.is_last_element_consonant = True
 
     def __find_next_position_in_degrees(self, movement: int) -> int:
         """Find position (in scale degrees) that is reached by movement."""
@@ -290,7 +290,7 @@ class Piece:
             'durations': durations,
             'cantus_firmus_elements': cantus_firmus_elements,
             'current_motion_start_element': self.current_motion_start_element,
-            'is_last_element_dissonant': self.is_last_element_dissonant,
+            'is_last_element_consonant': self.is_last_element_consonant,
             'is_counterpoint_above': self.is_counterpoint_above,
             'counterpoint_end': self.end_scale_element,
         }
@@ -311,9 +311,10 @@ class Piece:
         :param duration:
             duration (in eights) of a new element
         :return:
-            `True` if the continuation is in accordance with the rules,
-            `False` else
+            `True` if the continuation is valid, `False` else
         """
+        if movement not in self.all_movements:
+            return False
         if not self.__check_range(movement):
             return False
         if not self.__check_total_duration(duration):
@@ -340,12 +341,12 @@ class Piece:
         if self.past_movements[-1] * self.past_movements[-2] < 0:
             self.current_motion_start_element = self.counterpoint[-1]
 
-    def __update_indicator_of_dissonance(self, duration: int) -> None:
-        """Update indicator of current vertical dissonance between lines."""
+    def __update_indicator_of_consonance(self, duration: int) -> None:
+        """Update indicator of current vertical consonance between lines."""
         cantus_firmus_elements = self.__find_cantus_firmus_elements(duration)
         cantus_firmus_element = cantus_firmus_elements[-1].scale_element
         counterpoint_element = self.counterpoint[-1].scale_element
-        self.is_last_element_dissonant = not check_consonance(
+        self.is_last_element_consonant = check_consonance(
             cantus_firmus_element, counterpoint_element
         )
 
@@ -355,7 +356,7 @@ class Piece:
         self.past_movements.append(movement)
         self.__update_current_measure_durations(duration)
         self.__update_current_motion_start()
-        self.__update_indicator_of_dissonance(duration)
+        self.__update_indicator_of_consonance(duration)
 
     def __finalize_if_needed(self) -> None:
         """Add final measure of counterpoint line if the piece is finished."""

@@ -296,7 +296,7 @@ def check_step_motion_to_dissonance(
 
 def check_step_motion_from_dissonance(
         movement: int,
-        is_last_element_dissonant: bool,
+        is_last_element_consonant: bool,
         **kwargs
 ) -> bool:
     """
@@ -306,13 +306,13 @@ def check_step_motion_from_dissonance(
 
     :param movement:
         melodic interval (in scale degrees) for line continuation
-    :param is_last_element_dissonant:
+    :param is_last_element_consonant:
         indicator whether last element of counterpoint line (not including
-        a new continuation in question) forms dissonance with cantus firmus
+        a new continuation in question) forms consonance with cantus firmus
     :return:
         indicator whether a continuation is in accordance with the rule
     """
-    if not is_last_element_dissonant:
+    if is_last_element_consonant:
         return True
     return movement in [-1, 1]
 
@@ -322,7 +322,7 @@ def check_resolution_of_suspended_dissonance(
         movement: int,
         counterpoint_continuation: 'LineElement',
         cantus_firmus_elements: List['LineElement'],
-        is_last_element_dissonant: bool,
+        is_last_element_consonant: bool,
         **kwargs
 ) -> bool:
     """
@@ -337,16 +337,16 @@ def check_resolution_of_suspended_dissonance(
     :param cantus_firmus_elements:
         list of elements from cantus firmus that sound simultaneously with
         the counterpoint element
-    :param is_last_element_dissonant:
+    :param is_last_element_consonant:
         indicator whether last element of counterpoint line (not including
-        a new continuation in question) forms dissonance with cantus firmus
+        a new continuation in question) forms consonance with cantus firmus
     :return:
         indicator whether a continuation is in accordance with the rule
     """
     last_duration = line[-1].end_time_in_eights - line[-1].start_time_in_eights
     if last_duration != N_EIGHTS_PER_MEASURE:
         return True
-    if not is_last_element_dissonant:
+    if is_last_element_consonant:
         return True
     if movement != -1:
         return False
