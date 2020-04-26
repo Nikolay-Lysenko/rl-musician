@@ -22,6 +22,7 @@ def roll_in(env: CounterpointEnv, actions: List[int]) -> CounterpointEnv:
     :param actions:
         sequence of roll-in actions
     :return:
+        environment after roll-in actions
     """
     env.reset()
     for action in actions:
@@ -43,8 +44,8 @@ def roll_out_randomly(
     :return:
         finalized sequence of actions and reward for the episode
     """
-    valid_actions = env.valid_actions
     done = False
+    valid_actions = env.valid_actions
     while not done:
         action = choice(valid_actions)
         observation, reward, done, info = env.step(action)
@@ -57,7 +58,8 @@ def roll_out_randomly(
 def create_stubs(
         records: List[Tuple[List[int], float]],
         n_stubs: int,
-        stub_length: int
+        stub_length: int,
+        include_finalized_sequences: bool = True
 ) -> List[List[int]]:
     """
     Create roll-in sequences (stubs) based on collected statistics.
@@ -70,14 +72,23 @@ def create_stubs(
         number of stubs to be created
     :param stub_length:
         number of actions in each stub
+    :param include_finalized_sequences:
+        if it is set to `True`, resulting number of stubs can be less than
+        `n_stubs`, because finalized sequences are also counted
     :return:
-        new stubs
+        new stubs that can be extended further (i.e., without those of them
+        that are finalized)
     """
     stubs = []
-    for record in records:  # pragma: no branch
-        key = record[0][:stub_length]
-        if key not in stubs:
-            stubs.append(key)
+    for past_actions, reward in records:
+        key = past_actions[:stub_length]
+        if key in stubs:
+            continue
+        if len(past_actions) <= stub_length:
+            if include_finalized_sequences:
+                n_stubs -= 1
+            continue
+        stubs.append(key)
         if len(stubs) == n_stubs:
             break
     return stubs
@@ -114,13 +125,15 @@ def optimize_with_monte_carlo_beam_search(
     stubs = [[]]
     records = []
     paralleling_params = paralleling_params or {}
-    n_measures_to_fill = env.piece.n_measures - 2
-    for i in range(n_measures_to_fill):
-        n_trials = n_trials_schedule[min(i, len(n_trials_schedule) - 1)]
+    stub_length = 0
+    while len(stubs) > 0:
+        n_trials_index = min(stub_length, len(n_trials_schedule) - 1)
+        n_trials = n_trials_schedule[n_trials_index]
         for stub in stubs:
             env = roll_in(env, stub)
             records_for_stub = map_in_parallel(
                 roll_out_randomly,
+                # FIXME: Excessive memory consumption happens here.
                 [(deepcopy(env), deepcopy(stub)) for _ in range(n_trials)],
                 paralleling_params
             )
@@ -130,6 +143,8 @@ def optimize_with_monte_carlo_beam_search(
             f"Current best reward: {records[0][1]:.5f}, "
             f"achieved with: {records[0][0]}."
         )
-        stubs = create_stubs(records, beam_width, i + 1)
+        stub_length += 1
+        stubs = create_stubs(records, beam_width, stub_length)
         records = records[:n_records_to_keep]
-    return stubs
+    results = records[:beam_width]
+    return results
