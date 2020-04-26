@@ -82,7 +82,7 @@ environment:
   reward_for_dead_end: -3
 agent:
   beam_width: 5
-  n_records_to_keep: 5000
+  n_records_to_keep: 10
   n_trials_schedule:
     - 10000
     - 10000
