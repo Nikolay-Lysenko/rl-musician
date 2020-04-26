@@ -324,7 +324,7 @@ class TestPiece:
         "tonic, scale_type, n_measures, cantus_firmus, "
         "counterpoint_specifications, rules, steps, expected_positions, "
         "expected_current_measure_durations, expected_current_motion_start, "
-        "expected_roll",
+        "expected_is_last_element_consonant, expected_roll",
         [
             (
                 # `tonic`
@@ -357,6 +357,8 @@ class TestPiece:
                 [],
                 # `expected_current_motion_start`
                 LineElement(ScaleElement('E4', 43, 25, 3, True), 4, 8),
+                # `expected_is_last_element_consonant`
+                False,
                 # `expected_roll`
                 np.array([
                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -405,6 +407,8 @@ class TestPiece:
                 [4],
                 # `expected_current_motion_start`
                 LineElement(ScaleElement('E4', 43, 25, 3, True), 4, 8),
+                # `expected_is_last_element_consonant`
+                True,
                 # `expected_roll`
                 np.array([
                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -452,7 +456,9 @@ class TestPiece:
                 # `expected_current_measure_durations`
                 [4, 2, 1],
                 # `expected_current_motion_start`
-                LineElement(ScaleElement('B3', 38, 22, 7, False), 20, 28),
+                LineElement(ScaleElement('G3', 34, 20, 5, True), 16, 20),
+                # `expected_is_last_element_consonant`
+                False,
                 # `expected_roll`
                 np.array([
                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -470,6 +476,56 @@ class TestPiece:
                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 ])
             ),
+            (
+                # `tonic`
+                'C',
+                # `scale_type`
+                'major',
+                # `n_measures`
+                5,
+                # `cantus_firmus`
+                ['C4', 'D4', 'E4', 'D4', 'C4'],
+                # `counterpoint_specifications`
+                {
+                    'start_note': 'E4',
+                    'end_note': 'E4',
+                    'lowest_note': 'G3',
+                    'highest_note': 'G4',
+                    'start_pause_in_eights': 4,
+                    'max_skip_in_degrees': 2,
+                },
+                # `rules`
+                {
+                    'names': ['rearticulation_stability'],
+                    'params': {}
+                },
+                # `steps`
+                [(1, 4), (-2, 8)],
+                # `expected_positions`
+                [43, 44, 41],
+                # `expected_current_measure_durations`
+                [4],
+                # `expected_current_motion_start`
+                LineElement(ScaleElement('F4', 44, 26, 4, False), 8, 12),
+                # `expected_is_last_element_consonant`
+                False,
+                # `expected_roll`
+                np.array([
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ])
+            ),
         ]
     )
     def test_add_line_element(
@@ -480,6 +536,7 @@ class TestPiece:
             expected_positions: List[int],
             expected_current_measure_durations: List[int],
             expected_current_motion_start: LineElement,
+            expected_is_last_element_consonant: bool,
             expected_roll: np.ndarray
     ) -> None:
         """Test `add_line_element` method."""
@@ -495,6 +552,7 @@ class TestPiece:
         assert positions == expected_positions
         assert piece.current_measure_durations == expected_current_measure_durations
         assert piece.current_motion_start_element == expected_current_motion_start
+        assert piece.is_last_element_consonant == expected_is_last_element_consonant
         np.testing.assert_equal(piece.piano_roll, expected_roll)
 
     @pytest.mark.parametrize(

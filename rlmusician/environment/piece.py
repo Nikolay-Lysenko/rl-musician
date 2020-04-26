@@ -338,7 +338,7 @@ class Piece:
         if len(self.past_movements) < 2:
             return
         if self.past_movements[-1] * self.past_movements[-2] < 0:
-            self.current_motion_start_element = self.counterpoint[-1]
+            self.current_motion_start_element = self.counterpoint[-2]
 
     def __update_indicator_of_consonance(self, duration: int) -> None:
         """Update indicator of current vertical consonance between lines."""
@@ -351,11 +351,11 @@ class Piece:
 
     def __update_runtime_variables(self, movement: int, duration: int) -> None:
         """Update runtime variables representing current state."""
+        self.__update_indicator_of_consonance(duration)
         self.current_time_in_eights += duration
         self.past_movements.append(movement)
         self.__update_current_measure_durations(duration)
         self.__update_current_motion_start()
-        self.__update_indicator_of_consonance(duration)
 
     def __finalize_if_needed(self) -> None:
         """Add final measure of counterpoint line if the piece is finished."""
