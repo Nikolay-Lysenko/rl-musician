@@ -196,6 +196,42 @@ class TestCounterpointEnv:
                 # `expected`
                 1
             ),
+            (
+                # `env`
+                CounterpointEnv(
+                    piece=Piece(
+                        tonic='C',
+                        scale_type='major',
+                        cantus_firmus=['C4', 'C4', 'C3', 'C4', 'C4'],
+                        counterpoint_specifications={
+                            'start_note': 'E4',
+                            'end_note': 'E4',
+                            'lowest_note': 'G3',
+                            'highest_note': 'G4',
+                            'start_pause_in_eights': 4,
+                            'max_skip_in_degrees': 2,
+                        },
+                        rules={
+                            'names': ['absence_of_large_intervals'],
+                            'params': {
+                                'absence_of_large_intervals': {
+                                    'max_n_semitones': 7
+                                }
+                            }
+                        },
+                        rendering_params={}
+                    ),
+                    scoring_coefs={'number_of_skips': 1},
+                    scoring_fn_params={
+                        'number_of_skips': {'min_n_skips': 1, 'max_n_skips': 1}
+                    },
+                    reward_for_dead_end=-100,
+                ),
+                # `actions`
+                [14, 12],
+                # `expected`
+                -100
+            ),
         ]
     )
     def test_reward(

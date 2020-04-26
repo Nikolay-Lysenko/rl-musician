@@ -326,7 +326,7 @@ class Piece:
             self.current_measure_durations.append(duration)
         elif total_duration == N_EIGHTS_PER_MEASURE:
             self.current_measure_durations = []
-        elif total_duration > N_EIGHTS_PER_MEASURE:
+        else:
             syncopated_duration = total_duration - N_EIGHTS_PER_MEASURE
             self.current_measure_durations = [syncopated_duration]
 

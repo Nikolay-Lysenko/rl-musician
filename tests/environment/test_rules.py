@@ -216,6 +216,13 @@ def test_check_consonance_on_strong_beat(
     [
         (
             [
+                LineElement(ScaleElement('G1', 10, 6, 5, True), 4, 8)
+            ],
+            1,
+            True
+        ),
+        (
+            [
                 LineElement(ScaleElement('G1', 10, 6, 5, True), 4, 8),
                 LineElement(ScaleElement('A1', 12, 7, 6, False), 8, 12),
                 LineElement(ScaleElement('B1', 14, 8, 7, False), 12, 16),
@@ -249,6 +256,14 @@ def test_check_consonance_on_strong_beat(
             ],
             1,
             False
+        ),
+        (
+            [
+                LineElement(ScaleElement('C2', 15, 7, 1, True), 8, 12),
+                LineElement(ScaleElement('C2', 15, 7, 1, True), 12, 16),
+            ],
+            1,
+            True
         ),
     ]
 )
