@@ -25,50 +25,45 @@ class TestCounterpointEnv:
                     piece=Piece(
                         tonic='C',
                         scale_type='major',
-                        n_measures=10,
-                        max_skip=2,
-                        line_specifications=[
-                            {
-                                'lowest_note': 'C4',
-                                'highest_note': 'C5',
-                                'start_note': 'E4',
-                                'end_note': 'C4'
-                            },
-                        ],
-                        voice_leading_rules={
-                            'names': [
-                                'rearticulation',
-                                'destination_of_skip',
-                                'turn_after_skip',
-                                'VI_VII_resolution',
-                                'step_motion_to_end'
-                            ],
-                            'params': {
-                                'turn_after_skip': {
-                                    'min_n_scale_degrees': 3
-                                },
-                                'step_motion_to_end': {
-                                    'prohibit_rearticulation': False
-                                }
-                            }
+                        n_measures=5,
+                        cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
+                        counterpoint_specifications={
+                            'start_note': 'E4',
+                            'end_note': 'E4',
+                            'lowest_note': 'G3',
+                            'highest_note': 'G4',
+                            'start_pause_in_eights': 4,
+                            'max_skip_in_degrees': 2,
                         },
-                        harmony_rules={
-                            'names': [],
+                        rules={
+                            'names': ['rearticulation_stability'],
                             'params': {}
                         },
                         rendering_params={}
                     ),
-                    observation_decay=0.75,
+                    scoring_coefs={'number_of_skips': 1},
+                    scoring_fn_params={
+                        'number_of_skips': {'min_n_skips': 1, 'max_n_skips': 1}
+                    },
                     reward_for_dead_end=-100,
-                    scoring_coefs={'climax_explicity': 1},
-                    scoring_fn_params={},
                 ),
                 # `actions`
-                [2, 3, 3, 0, 0],
+                [14, 6, 8],
                 # `expected`
                 np.array([
-                    0, 0, 0, 0, 0, 0.5625, 0, 0.421875,
-                    1.3037109375, 0, 0, 0, 1
+                    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 ])
             ),
         ]
@@ -92,61 +87,37 @@ class TestCounterpointEnv:
                     piece=Piece(
                         tonic='C',
                         scale_type='major',
-                        n_measures=10,
-                        max_skip=2,
-                        line_specifications=[
-                            {
-                                'lowest_note': 'G3',
-                                'highest_note': 'G4',
-                                'start_note': 'C4',
-                                'end_note': 'C4'
-                            },
-                            {
-                                'lowest_note': 'G4',
-                                'highest_note': 'G5',
-                                'start_note': 'G5',
-                                'end_note': 'C5'
-                            },
-                        ],
-                        voice_leading_rules={
-                            'names': [
-                                'rearticulation',
-                                'destination_of_skip',
-                                'turn_after_skip',
-                                'VI_VII_resolution',
-                                'step_motion_to_end'
-                            ],
-                            'params': {
-                                'turn_after_skip': {
-                                    'min_n_scale_degrees': 3
-                                },
-                                'step_motion_to_end': {
-                                    'prohibit_rearticulation': False
-                                }
-                            }
+                        n_measures=5,
+                        cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
+                        counterpoint_specifications={
+                            'start_note': 'E4',
+                            'end_note': 'E4',
+                            'lowest_note': 'G3',
+                            'highest_note': 'G4',
+                            'start_pause_in_eights': 4,
+                            'max_skip_in_degrees': 2,
                         },
-                        harmony_rules={
+                        rules={
                             'names': [
-                                'consonance',
-                                'absence_of_large_intervals'
+                                'rhythmic_pattern_validity',
+                                'rearticulation_stability',
+                                'consonance_on_strong_beat',
+                                'resolution_of_suspended_dissonance',
                             ],
-                            'params': {
-                                'absence_of_large_intervals': {
-                                    'max_n_semitones': 16
-                                }
-                            }
+                            'params': {}
                         },
                         rendering_params={}
                     ),
-                    observation_decay=0.75,
+                    scoring_coefs={'number_of_skips': 1},
+                    scoring_fn_params={
+                        'number_of_skips': {'min_n_skips': 1, 'max_n_skips': 1}
+                    },
                     reward_for_dead_end=-100,
-                    scoring_coefs={'lines_correlation': 1},
-                    scoring_fn_params={},
                 ),
                 # `actions`
-                [16, 6],
+                [13, 15],
                 # `expected`
-                [6, 10, 12, 16, 18, 20, 22, 24]
+                [6, 11]
             ),
         ]
     )
@@ -170,66 +141,31 @@ class TestCounterpointEnv:
                         tonic='C',
                         scale_type='major',
                         n_measures=5,
-                        max_skip=2,
-                        line_specifications=[
-                            {
-                                'lowest_note': 'G3',
-                                'highest_note': 'G4',
-                                'start_note': 'C4',
-                                'end_note': 'G4'
-                            },
-                            {
-                                'lowest_note': 'G4',
-                                'highest_note': 'G5',
-                                'start_note': 'C5',
-                                'end_note': 'G5'
-                            },
-                            {
-                                'lowest_note': 'G5',
-                                'highest_note': 'G6',
-                                'start_note': 'G6',
-                                'end_note': 'C6'
-                            },
-                        ],
-                        voice_leading_rules={
-                            'names': [
-                                'rearticulation',
-                                'destination_of_skip',
-                                'turn_after_skip',
-                                'VI_VII_resolution',
-                                'step_motion_to_end'
-                            ],
-                            'params': {
-                                'turn_after_skip': {
-                                    'min_n_scale_degrees': 3
-                                },
-                                'step_motion_to_end': {
-                                    'prohibit_rearticulation': False
-                                }
-                            }
+                        cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
+                        counterpoint_specifications={
+                            'start_note': 'E4',
+                            'end_note': 'E4',
+                            'lowest_note': 'G3',
+                            'highest_note': 'G4',
+                            'start_pause_in_eights': 4,
+                            'max_skip_in_degrees': 2,
                         },
-                        harmony_rules={
-                            'names': [
-                                'consonance',
-                                'absence_of_large_intervals'
-                            ],
-                            'params': {
-                                'absence_of_large_intervals': {
-                                    'max_n_semitones': 16
-                                }
-                            }
+                        rules={
+                            'names': ['rearticulation_stability'],
+                            'params': {}
                         },
                         rendering_params={}
                     ),
-                    observation_decay=0.75,
+                    scoring_coefs={'number_of_skips': 1},
+                    scoring_fn_params={
+                        'number_of_skips': {'min_n_skips': 1, 'max_n_skips': 1}
+                    },
                     reward_for_dead_end=-100,
-                    scoring_coefs={'lines_correlation': 1},
-                    scoring_fn_params={},
                 ),
                 # `actions`
-                [91, 91, 91],
+                [14, 6, 8, 11, 5, 15, 9],
                 # `expected`
-                0.6621
+                0
             ),
             (
                 # `env`
@@ -238,54 +174,31 @@ class TestCounterpointEnv:
                         tonic='C',
                         scale_type='major',
                         n_measures=5,
-                        max_skip=2,
-                        line_specifications=[
-                            {
-                                'lowest_note': 'A3',
-                                'highest_note': 'G4',
-                                'start_note': 'C4',
-                                'end_note': 'C4'
-                            },
-                        ],
-                        voice_leading_rules={
-                            'names': [
-                                'rearticulation',
-                                'destination_of_skip',
-                                'turn_after_skip',
-                                'VI_VII_resolution',
-                                'step_motion_to_end'
-                            ],
-                            'params': {
-                                'turn_after_skip': {
-                                    'min_n_scale_degrees': 3
-                                },
-                                'step_motion_to_end': {
-                                    'prohibit_rearticulation': False
-                                }
-                            }
+                        cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
+                        counterpoint_specifications={
+                            'start_note': 'E4',
+                            'end_note': 'E4',
+                            'lowest_note': 'G3',
+                            'highest_note': 'G4',
+                            'start_pause_in_eights': 4,
+                            'max_skip_in_degrees': 2,
                         },
-                        harmony_rules={
-                            'names': [
-                                'consonance',
-                                'absence_of_large_intervals'
-                            ],
-                            'params': {
-                                'absence_of_large_intervals': {
-                                    'max_n_semitones': 16
-                                }
-                            }
+                        rules={
+                            'names': ['rearticulation_stability'],
+                            'params': {}
                         },
                         rendering_params={}
                     ),
-                    observation_decay=0.75,
+                    scoring_coefs={'number_of_skips': 1},
+                    scoring_fn_params={
+                        'number_of_skips': {'min_n_skips': 4, 'max_n_skips': 4}
+                    },
                     reward_for_dead_end=-100,
-                    scoring_coefs={'climax_explicity': 1},
-                    scoring_fn_params={},
                 ),
                 # `actions`
-                [1, 1],
+                [14, 6, 8, 11, 5, 15, 9],
                 # `expected`
-                -100
+                1
             ),
         ]
     )
@@ -307,48 +220,46 @@ class TestCounterpointEnv:
                     piece=Piece(
                         tonic='C',
                         scale_type='major',
-                        n_measures=10,
-                        max_skip=2,
-                        line_specifications=[
-                            {
-                                'lowest_note': 'C4',
-                                'highest_note': 'C5',
-                                'start_note': 'E4',
-                                'end_note': 'C4'
-                            },
-                        ],
-                        voice_leading_rules={
-                            'names': [
-                                'rearticulation',
-                                'destination_of_skip',
-                                'turn_after_skip',
-                                'VI_VII_resolution',
-                                'step_motion_to_end'
-                            ],
-                            'params': {
-                                'turn_after_skip': {
-                                    'min_n_scale_degrees': 3
-                                },
-                                'step_motion_to_end': {
-                                    'prohibit_rearticulation': False
-                                }
-                            }
+                        n_measures=5,
+                        cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
+                        counterpoint_specifications={
+                            'start_note': 'E4',
+                            'end_note': 'E4',
+                            'lowest_note': 'G3',
+                            'highest_note': 'G4',
+                            'start_pause_in_eights': 4,
+                            'max_skip_in_degrees': 2,
                         },
-                        harmony_rules={
-                            'names': [],
+                        rules={
+                            'names': ['rearticulation_stability'],
                             'params': {}
                         },
                         rendering_params={}
                     ),
-                    observation_decay=0.75,
+                    scoring_coefs={'number_of_skips': 1},
+                    scoring_fn_params={
+                        'number_of_skips': {'min_n_skips': 1, 'max_n_skips': 1}
+                    },
                     reward_for_dead_end=-100,
-                    scoring_coefs={'climax_explicity': 1},
-                    scoring_fn_params={},
                 ),
                 # `actions`
-                [2, 3, 3, 0, 0],
+                [14, 6, 8, 11, 5, 15],
                 # `expected`
-                np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]),
+                np.array([
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                ])
             ),
         ]
     )
@@ -361,4 +272,4 @@ class TestCounterpointEnv:
             env.step(action)
         observation = env.reset()
         np.testing.assert_equal(observation, expected)
-        assert env.piece.last_finished_measure == 0
+        assert env.piece.current_time_in_eights == 8
