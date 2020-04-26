@@ -51,7 +51,6 @@ class Piece:
             self,
             tonic: str,
             scale_type: str,
-            n_measures: int,
             cantus_firmus: List[str],
             counterpoint_specifications: Dict[str, Any],
             rules: Dict[str, Any],
@@ -65,8 +64,6 @@ class Piece:
         :param scale_type:
             type of scale (currently, 'major', 'natural_minor', and
             'harmonic_minor' are supported)
-        :param n_measures:
-            duration of piece in measures
         :param cantus_firmus:
             cantus firmus as a sequence of notes
         :param counterpoint_specifications:
@@ -79,7 +76,6 @@ class Piece:
         # Initial inputs.
         self.tonic = tonic
         self.scale_type = scale_type
-        self.n_measures = n_measures
         self.counterpoint_specifications = counterpoint_specifications
         self.names_of_rules = rules['names']
         self.rules_params = rules['params']
@@ -89,6 +85,7 @@ class Piece:
         self.scale = Scale(tonic, scale_type)
         self.max_skip = counterpoint_specifications['max_skip_in_degrees']
         self.all_movements = list(range(-self.max_skip, self.max_skip + 1))
+        self.n_measures = len(cantus_firmus)
         self.total_duration_in_eights = N_EIGHTS_PER_MEASURE * self.n_measures
 
         # Melodic lines.

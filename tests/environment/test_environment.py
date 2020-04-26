@@ -25,7 +25,6 @@ class TestCounterpointEnv:
                     piece=Piece(
                         tonic='C',
                         scale_type='major',
-                        n_measures=5,
                         cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
                         counterpoint_specifications={
                             'start_note': 'E4',
@@ -87,7 +86,6 @@ class TestCounterpointEnv:
                     piece=Piece(
                         tonic='C',
                         scale_type='major',
-                        n_measures=5,
                         cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
                         counterpoint_specifications={
                             'start_note': 'E4',
@@ -140,7 +138,6 @@ class TestCounterpointEnv:
                     piece=Piece(
                         tonic='C',
                         scale_type='major',
-                        n_measures=5,
                         cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
                         counterpoint_specifications={
                             'start_note': 'E4',
@@ -173,7 +170,6 @@ class TestCounterpointEnv:
                     piece=Piece(
                         tonic='C',
                         scale_type='major',
-                        n_measures=5,
                         cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
                         counterpoint_specifications={
                             'start_note': 'E4',
@@ -220,7 +216,6 @@ class TestCounterpointEnv:
                     piece=Piece(
                         tonic='C',
                         scale_type='major',
-                        n_measures=5,
                         cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
                         counterpoint_specifications={
                             'start_note': 'E4',

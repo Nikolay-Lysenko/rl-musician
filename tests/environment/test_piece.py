@@ -19,16 +19,14 @@ class TestPiece:
     """Tests for `Piece` class."""
 
     @pytest.mark.parametrize(
-        "tonic, scale_type, n_measures, cantus_firmus, "
-        "counterpoint_specifications, rules, match",
+        "tonic, scale_type, cantus_firmus, counterpoint_specifications, "
+        "rules, match",
         [
             (
                 # `tonic`
                 'C',
                 # `scale_type`
                 'major',
-                # `n_measures`
-                5,
                 # `cantus_firmus`
                 ['C4', 'D4', 'E4', 'D4', 'C4'],
                 # `counterpoint_specifications`
@@ -53,8 +51,6 @@ class TestPiece:
                 'C',
                 # `scale_type`
                 'major',
-                # `n_measures`
-                5,
                 # `cantus_firmus`
                 ['D4', 'D4', 'E4', 'D4', 'C4'],
                 # `counterpoint_specifications`
@@ -79,8 +75,6 @@ class TestPiece:
                 'C',
                 # `scale_type`
                 'major',
-                # `n_measures`
-                5,
                 # `cantus_firmus`
                 ['C4', 'D4', 'E4', 'D4', 'C4'],
                 # `counterpoint_specifications`
@@ -105,8 +99,6 @@ class TestPiece:
                 'C',
                 # `scale_type`
                 'major',
-                # `n_measures`
-                5,
                 # `cantus_firmus`
                 ['C4', 'D#4', 'E4', 'D4', 'C4'],
                 # `counterpoint_specifications`
@@ -131,8 +123,6 @@ class TestPiece:
                 'C',
                 # `scale_type`
                 'major',
-                # `n_measures`
-                5,
                 # `cantus_firmus`
                 ['C4', 'D4', 'E4', 'D4', 'C4'],
                 # `counterpoint_specifications`
@@ -155,29 +145,26 @@ class TestPiece:
         ]
     )
     def test_improper_initialization(
-            self, tonic: str, scale_type: str, n_measures: int,
-            cantus_firmus: List[str],
-            counterpoint_specifications: Dict[str, Any],
-            rules: Dict[str, Any], match: str
+            self, tonic: str, scale_type: str, cantus_firmus: List[str],
+            counterpoint_specifications: Dict[str, Any], rules: Dict[str, Any],
+            match: str
     ) -> None:
         """Test that initialization with invalid values is prohibited."""
         with pytest.raises(ValueError, match=match):
             _ = Piece(
-                tonic, scale_type, n_measures, cantus_firmus,
-                counterpoint_specifications, rules, rendering_params={}
+                tonic, scale_type, cantus_firmus, counterpoint_specifications,
+                rules, rendering_params={}
             )
 
     @pytest.mark.parametrize(
-        "tonic, scale_type, n_measures, cantus_firmus, "
-        "counterpoint_specifications, rules, rng, roll",
+        "tonic, scale_type, cantus_firmus, counterpoint_specifications, "
+        "rules, rng, roll",
         [
             (
                 # `tonic`
                 'D',
                 # `scale_type`
                 'major',
-                # `n_measures`
-                5,
                 # `cantus_firmus`,
                 ['A3', 'G3', 'F#3', 'B3', 'A3'],
                 # `counterpoint_specifications`
@@ -217,32 +204,28 @@ class TestPiece:
         ]
     )
     def test_initialization(
-            self, tonic: str, scale_type: str, n_measures: int,
-            cantus_firmus: List[str],
-            counterpoint_specifications: Dict[str, Any],
-            rules: Dict[str, Any], rng: Tuple[int, int], roll: np.ndarray
+            self, tonic: str, scale_type: str, cantus_firmus: List[str],
+            counterpoint_specifications: Dict[str, Any], rules: Dict[str, Any],
+            rng: Tuple[int, int], roll: np.ndarray
     ) -> None:
         """Test that initialization with valid values works as expected."""
         piece = Piece(
-            tonic, scale_type, n_measures, cantus_firmus,
-            counterpoint_specifications, rules, rendering_params={}
+            tonic, scale_type, cantus_firmus, counterpoint_specifications,
+            rules, rendering_params={}
         )
         assert piece.current_measure_durations == []
         assert (piece.lowest_row_to_show, piece.highest_row_to_show) == rng
         np.testing.assert_equal(piece.piano_roll, roll)
 
     @pytest.mark.parametrize(
-        "tonic, scale_type, n_measures, cantus_firmus, "
-        "counterpoint_specifications, rules, previous_steps, "
-        "candidate_steps, expected",
+        "tonic, scale_type, cantus_firmus, counterpoint_specifications, "
+        "rules, previous_steps, candidate_steps, expected",
         [
             (
                 # `tonic`
                 'C',
                 # `scale_type`
                 'major',
-                # `n_measures`
-                5,
                 # `cantus_firmus`
                 ['C4', 'D4', 'E4', 'D4', 'C4'],
                 # `counterpoint_specifications`
@@ -271,8 +254,6 @@ class TestPiece:
                 'C',
                 # `scale_type`
                 'major',
-                # `n_measures`
-                5,
                 # `cantus_firmus`
                 ['C4', 'D4', 'D4', 'D4', 'C4'],
                 # `counterpoint_specifications`
@@ -299,18 +280,16 @@ class TestPiece:
         ]
     )
     def test_check_validity(
-            self, tonic: str, scale_type: str, n_measures: int,
-            cantus_firmus: List[str],
-            counterpoint_specifications: Dict[str, Any],
-            rules: Dict[str, Any],
+            self, tonic: str, scale_type: str, cantus_firmus: List[str],
+            counterpoint_specifications: Dict[str, Any], rules: Dict[str, Any],
             previous_steps: List[Tuple[int, int]],
             candidate_steps: List[Tuple[int, int]],
             expected: List[bool]
     ) -> None:
         """Test `check_validity` method."""
         piece = Piece(
-            tonic, scale_type, n_measures, cantus_firmus,
-            counterpoint_specifications, rules, rendering_params={}
+            tonic, scale_type, cantus_firmus, counterpoint_specifications,
+            rules, rendering_params={}
         )
         for movement, duration in previous_steps:
             piece.add_line_element(movement, duration)
@@ -321,8 +300,8 @@ class TestPiece:
         assert result == expected
 
     @pytest.mark.parametrize(
-        "tonic, scale_type, n_measures, cantus_firmus, "
-        "counterpoint_specifications, rules, steps, expected_positions, "
+        "tonic, scale_type, cantus_firmus, counterpoint_specifications, "
+        "rules, steps, expected_positions, "
         "expected_current_measure_durations, expected_current_motion_start, "
         "expected_is_last_element_consonant, expected_roll",
         [
@@ -331,8 +310,6 @@ class TestPiece:
                 'C',
                 # `scale_type`
                 'major',
-                # `n_measures`
-                5,
                 # `cantus_firmus`
                 ['C4', 'D4', 'E4', 'D4', 'C4'],
                 # `counterpoint_specifications`
@@ -381,8 +358,6 @@ class TestPiece:
                 'C',
                 # `scale_type`
                 'major',
-                # `n_measures`
-                5,
                 # `cantus_firmus`
                 ['C4', 'D4', 'E4', 'D4', 'C4'],
                 # `counterpoint_specifications`
@@ -431,8 +406,6 @@ class TestPiece:
                 'C',
                 # `scale_type`
                 'major',
-                # `n_measures`
-                5,
                 # `cantus_firmus`
                 ['C4', 'D4', 'E4', 'D4', 'C4'],
                 # `counterpoint_specifications`
@@ -481,8 +454,6 @@ class TestPiece:
                 'C',
                 # `scale_type`
                 'major',
-                # `n_measures`
-                5,
                 # `cantus_firmus`
                 ['C4', 'D4', 'E4', 'D4', 'C4'],
                 # `counterpoint_specifications`
@@ -529,20 +500,17 @@ class TestPiece:
         ]
     )
     def test_add_line_element(
-            self, tonic: str, scale_type: str, n_measures: int,
-            cantus_firmus: List[str],
-            counterpoint_specifications: Dict[str, Any],
-            rules: Dict[str, Any], steps: List[Tuple[int, int]],
-            expected_positions: List[int],
+            self, tonic: str, scale_type: str, cantus_firmus: List[str],
+            counterpoint_specifications: Dict[str, Any], rules: Dict[str, Any],
+            steps: List[Tuple[int, int]], expected_positions: List[int],
             expected_current_measure_durations: List[int],
             expected_current_motion_start: LineElement,
-            expected_is_last_element_consonant: bool,
-            expected_roll: np.ndarray
+            expected_is_last_element_consonant: bool, expected_roll: np.ndarray
     ) -> None:
         """Test `add_line_element` method."""
         piece = Piece(
-            tonic, scale_type, n_measures, cantus_firmus,
-            counterpoint_specifications, rules, rendering_params={}
+            tonic, scale_type, cantus_firmus, counterpoint_specifications,
+            rules, rendering_params={}
         )
         for movement, duration in steps:
             piece.add_line_element(movement, duration)
@@ -556,16 +524,14 @@ class TestPiece:
         np.testing.assert_equal(piece.piano_roll, expected_roll)
 
     @pytest.mark.parametrize(
-        "tonic, scale_type, n_measures, cantus_firmus, "
-        "counterpoint_specifications, rules, steps, expected_roll",
+        "tonic, scale_type, cantus_firmus, counterpoint_specifications, "
+        "rules, steps, expected_roll",
         [
             (
                 # `tonic`
                 'C',
                 # `scale_type`
                 'major',
-                # `n_measures`
-                5,
                 # `cantus_firmus`
                 ['C4', 'D4', 'E4', 'D4', 'C4'],
                 # `counterpoint_specifications`
@@ -604,16 +570,14 @@ class TestPiece:
         ]
     )
     def test_reset(
-            self, tonic: str, scale_type: str, n_measures: int,
-            cantus_firmus: List[str],
-            counterpoint_specifications: Dict[str, Any],
-            rules: Dict[str, Any], steps: List[Tuple[int, int]],
-            expected_roll: np.ndarray
+            self, tonic: str, scale_type: str, cantus_firmus: List[str],
+            counterpoint_specifications: Dict[str, Any], rules: Dict[str, Any],
+            steps: List[Tuple[int, int]], expected_roll: np.ndarray
     ) -> None:
         """Test `reset` method."""
         piece = Piece(
-            tonic, scale_type, n_measures, cantus_firmus,
-            counterpoint_specifications, rules, rendering_params={}
+            tonic, scale_type, cantus_firmus, counterpoint_specifications,
+            rules, rendering_params={}
         )
         for movement, duration in steps:
             piece.add_line_element(movement, duration)
@@ -621,4 +585,3 @@ class TestPiece:
         assert piece.past_movements == []
         assert piece.current_time_in_eights == 8
         np.testing.assert_equal(piece.piano_roll, expected_roll)
-

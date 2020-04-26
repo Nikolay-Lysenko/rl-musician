@@ -1,7 +1,6 @@
 piece:
   tonic: C
   scale_type: major
-  n_measures: 12
   cantus_firmus:
     - C4
     - D4
@@ -65,19 +64,22 @@ piece:
       counterpoint_timbre: default_timbre
       volume: 0.3
 environment:
-  reward_for_dead_end: -3
   scoring_coefs:
     climax_explicity: 1
+    entropy: 1
     looped_fragments: 1
     number_of_skips: 1
-    entropy: 1
   scoring_fn_params:
     climax_explicity:
       shortage_penalty: 0.3
       duplication_penalty: 0.5
+    looped_fragments:
+      min_size: 8
+      max_size:
     number_of_skips:
       min_n_skips: 1
       max_n_skips: 3
+  reward_for_dead_end: -3
 agent:
   beam_width: 5
   n_records_to_keep: 5000
