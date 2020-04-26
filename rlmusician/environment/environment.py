@@ -134,7 +134,7 @@ class CounterpointEnv(gym.Env):
             initial observation
         """
         self.piece.reset()
-        initial_observation = self.piece.piano_roll[:, 0]
+        initial_observation = self.piece.piano_roll
         return initial_observation
 
     def render(self, mode='human'):  # pragma: no cover.
