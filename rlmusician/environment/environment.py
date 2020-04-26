@@ -29,6 +29,7 @@ class CounterpointEnv(gym.Env):
             scoring_coefs: Dict[str, float],
             scoring_fn_params: Dict[str, Dict[str, Any]],
             reward_for_dead_end: float,
+            verbose: bool = False
     ):
         """
         Initialize instance.
@@ -42,13 +43,15 @@ class CounterpointEnv(gym.Env):
         :param reward_for_dead_end:
             reward for situations where there aren't any allowed actions, but
             piece is not finished
+        :param verbose:
+            if it is set to `True`, breakdown of reward is printed at episode
+            end
         """
         self.piece = piece
         self.scoring_coefs = scoring_coefs
         self.scoring_fn_params = scoring_fn_params
         self.reward_for_dead_end = reward_for_dead_end
-
-        self.verbose = False
+        self.verbose = verbose
 
         n_actions = len(piece.all_movements) * len(self.valid_durations)
         self.action_space = gym.spaces.Discrete(n_actions)
