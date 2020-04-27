@@ -5,12 +5,19 @@ Author: Nikolay Lysenko
 """
 
 
+import random
 from copy import deepcopy
-from random import choice
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, NamedTuple
 
 from rlmusician.environment import CounterpointEnv
 from rlmusician.utils import map_in_parallel
+
+
+class Record(NamedTuple):
+    """A record with finalized sequence of actions and resulting reward."""
+
+    actions: List[int]
+    reward: float
 
 
 def roll_in(env: CounterpointEnv, actions: List[int]) -> CounterpointEnv:
@@ -33,7 +40,7 @@ def roll_in(env: CounterpointEnv, actions: List[int]) -> CounterpointEnv:
 def roll_out_randomly(
         env: CounterpointEnv,
         past_actions: List[int]
-) -> Tuple[List[int], float]:
+) -> Record:
     """
     Continue an episode in progress with random actions until it is finished.
 
@@ -44,19 +51,56 @@ def roll_out_randomly(
     :return:
         finalized sequence of actions and reward for the episode
     """
+    random.seed()  # Reseed to have independent results amongst processes.
     done = False
     valid_actions = env.valid_actions
     while not done:
-        action = choice(valid_actions)
+        action = random.choice(valid_actions)
         observation, reward, done, info = env.step(action)
         past_actions.append(action)
         valid_actions = info['next_actions']
-    record = (past_actions, reward)
+    record = Record(past_actions, reward)
     return record
 
 
+def add_records(
+        env: CounterpointEnv,
+        stubs: List[List[int]],
+        records: List[Record],
+        n_trials: int,
+        paralleling_params: Dict[str, Any]
+) -> List[Record]:
+    """
+    Play new episodes given roll-in sequences and add new records with results.
+
+    :param env:
+        environment
+    :param stubs:
+        roll-in sequences
+    :param records:
+        previously collected statistics of finished episodes
+    :param n_trials:
+        number of episodes to play per stub
+    :param paralleling_params:
+        settings of parallel playing of episodes
+    :return:
+        extended statistics of finished episodes as sequences of actions and
+        corresponding to them rewards
+    """
+    for stub in stubs:
+        env = roll_in(env, stub)
+        records_for_stub = map_in_parallel(
+            roll_out_randomly,
+            # FIXME: Excessive memory consumption happens here.
+            [(deepcopy(env), deepcopy(stub)) for _ in range(n_trials)],
+            paralleling_params
+        )
+        records.extend(records_for_stub)
+    return records
+
+
 def create_stubs(
-        records: List[Tuple[List[int], float]],
+        records: List[Record],
         n_stubs: int,
         stub_length: int,
         include_finalized_sequences: bool = True
@@ -80,11 +124,11 @@ def create_stubs(
         that are finalized)
     """
     stubs = []
-    for past_actions, reward in records:
-        key = past_actions[:stub_length]
+    for record in records:
+        key = record.actions[:stub_length]
         if key in stubs:
             continue
-        if len(past_actions) <= stub_length:
+        if len(record.actions) <= stub_length:
             if include_finalized_sequences:
                 n_stubs -= 1
             continue
@@ -92,6 +136,31 @@ def create_stubs(
         if len(stubs) == n_stubs:
             break
     return stubs
+
+
+def select_distinct_best_records(
+        records: List[Record],
+        n_records: int
+) -> List[Record]:
+    """
+    Select records related to highest rewards (without duplicates).
+
+    :param records:
+        sorted statistics of played episodes as sequences of actions
+        and corresponding to them rewards; elements must be sorted by reward
+        in descending order
+    :param n_records:
+        number of unique records to select
+    :return:
+        best records
+    """
+    results = []
+    for record in records:
+        if record not in results:
+            results.append(record)
+        if len(results) == n_records:
+            break
+    return results
 
 
 def optimize_with_monte_carlo_beam_search(
@@ -129,22 +198,16 @@ def optimize_with_monte_carlo_beam_search(
     while len(stubs) > 0:
         n_trials_index = min(stub_length, len(n_trials_schedule) - 1)
         n_trials = n_trials_schedule[n_trials_index]
-        for stub in stubs:
-            env = roll_in(env, stub)
-            records_for_stub = map_in_parallel(
-                roll_out_randomly,
-                # FIXME: Excessive memory consumption happens here.
-                [(deepcopy(env), deepcopy(stub)) for _ in range(n_trials)],
-                paralleling_params
-            )
-            records.extend(records_for_stub)
-        records = sorted(records, key=lambda x: x[1], reverse=True)
+        records = add_records(
+            env, stubs, records, n_trials, paralleling_params
+        )
+        records = sorted(records, key=lambda x: x.reward, reverse=True)
         print(
-            f"Current best reward: {records[0][1]:.5f}, "
-            f"achieved with: {records[0][0]}."
+            f"Current best reward: {records[0].reward:.5f}, "
+            f"achieved with: {records[0].actions}."
         )
         stub_length += 1
         stubs = create_stubs(records, beam_width, stub_length)
-        records = records[:n_records_to_keep]
-    results = records[:beam_width]
+        records = select_distinct_best_records(records, n_records_to_keep)
+    results = [past_actions for past_actions, reward in records[:beam_width]]
     return results
