@@ -78,7 +78,8 @@ def add_records(
     :param stubs:
         roll-in sequences
     :param records:
-        previously collected statistics of finished episodes
+        previously collected statistics of finished episodes as sequences
+        of actions and corresponding to them rewards
     :param n_trials:
         number of episodes to play per stub
     :param paralleling_params:
