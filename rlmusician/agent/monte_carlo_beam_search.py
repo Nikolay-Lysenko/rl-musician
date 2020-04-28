@@ -125,16 +125,16 @@ def create_stubs(
     """
     stubs = []
     for record in records:
+        if len(stubs) == n_stubs:
+            break
         key = record.actions[:stub_length]
         if key in stubs:
             continue
         if len(record.actions) <= stub_length:
-            if include_finalized_sequences:
+            if include_finalized_sequences:  # pragma: no branch
                 n_stubs -= 1
             continue
         stubs.append(key)
-        if len(stubs) == n_stubs:
-            break
     return stubs
 
 
