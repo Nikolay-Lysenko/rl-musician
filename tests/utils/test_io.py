@@ -5,8 +5,9 @@ Author: Nikolay Lysenko
 """
 
 
-from typing import List
+from typing import Dict, List, Tuple
 
+import pretty_midi
 import pytest
 
 from rlmusician.environment import Piece
@@ -16,224 +17,152 @@ from rlmusician.utils import (
 
 
 @pytest.mark.parametrize(
-    "piece, all_movements, measure_in_seconds, volume, expected",
+    "piece, all_steps, instrument_number, note_number, expected",
     [
         (
             # `piece`
             Piece(
                 tonic='C',
                 scale_type='major',
-                n_measures=5,
-                max_skip=2,
-                line_specifications=[
-                    {
-                        'lowest_note': 'C5',
-                        'highest_note': 'G5',
-                        'start_note': 'C5',
-                        'end_note': 'C5'
-                    }
-                ],
-                voice_leading_rules={
-                    'names': [
-                        'rearticulation',
-                        'destination_of_skip',
-                        'turn_after_skip',
-                        'VI_VII_resolution',
-                        'step_motion_to_end'
-                    ],
-                    'params': {
-                        'turn_after_skip': {
-                            'min_n_scale_degrees': 3
-                        },
-                        'step_motion_to_end': {
-                            'prohibit_rearticulation': False
-                        }
-                    }
+                cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
+                counterpoint_specifications={
+                    'start_note': 'G4',
+                    'end_note': 'C5',
+                    'lowest_note': 'C4',
+                    'highest_note': 'C6',
+                    'start_pause_in_eights': 4,
+                    'max_skip_in_degrees': 2
                 },
-                harmony_rules={
-                    'names': [],
+                rules={
+                    'names': ['rearticulation_stability'],
                     'params': {}
                 },
                 rendering_params={}
             ),
-            # `all_movements`,
-            [[0], [0], [0]],
-            # `measure_in_seconds`
+            # `all_steps`,
+            [(2, 4), [2, 8], [-1, 1]],
+            # `instrument_number`
             1,
-            # `volume`
-            0.2,
+            # `note_number`
+            3,
             # `expected`
-            'default_timbre\t0\t1\tC5\t0.2\t0\t\n'
-        ),
-        (
-            # `piece`
-            Piece(
-                tonic='C',
-                scale_type='major',
-                n_measures=5,
-                max_skip=2,
-                line_specifications=[
-                    {
-                        'lowest_note': 'C5',
-                        'highest_note': 'G5',
-                        'start_note': 'C5',
-                        'end_note': 'C5'
-                    }
-                ],
-                voice_leading_rules={
-                    'names': [
-                        'rearticulation',
-                        'destination_of_skip',
-                        'turn_after_skip',
-                        'VI_VII_resolution',
-                        'step_motion_to_end'
-                    ],
-                    'params': {
-                        'turn_after_skip': {
-                            'min_n_scale_degrees': 3
-                        },
-                        'step_motion_to_end': {
-                            'prohibit_rearticulation': False
-                        }
-                    }
-                },
-                harmony_rules={
-                    'names': [],
-                    'params': {}
-                },
-                rendering_params={}
-            ),
-            # `all_movements`,
-            [[0], [0]],
-            # `measure_in_seconds`
-            1,
-            # `volume`
-            0.2,
-            # `expected`
-            'default_timbre\t0\t1\tC5\t0.2\t0\t\n'
-        ),
-    ]
-)
-def test_create_events_from_piece(
-        path_to_tmp_file: str, piece: Piece, all_movements: List[List[int]],
-        measure_in_seconds: int, volume: float, expected: str
-) -> None:
-    """Test `create_events_from_piece` function."""
-    for movements in all_movements:
-        piece.add_measure(movements)
-    create_events_from_piece(
-        piece,
-        path_to_tmp_file,
-        measure_in_seconds=measure_in_seconds,
-        timbre='default_timbre',
-        volume=volume
-    )
-    with open(path_to_tmp_file) as in_file:
-        header = in_file.readline()
-        result = in_file.readline()
-        assert result == expected
-
-
-@pytest.mark.parametrize(
-    "piece, all_movements",
-    [
-        (
-            # `piece`
-            Piece(
-                tonic='C',
-                scale_type='major',
-                n_measures=5,
-                max_skip=2,
-                line_specifications=[
-                    {
-                        'lowest_note': 'C5',
-                        'highest_note': 'G5',
-                        'start_note': 'C5',
-                        'end_note': 'C5'
-                    }
-                ],
-                voice_leading_rules={
-                    'names': [
-                        'rearticulation',
-                        'destination_of_skip',
-                        'turn_after_skip',
-                        'VI_VII_resolution',
-                        'step_motion_to_end'
-                    ],
-                    'params': {
-                        'turn_after_skip': {
-                            'min_n_scale_degrees': 3
-                        },
-                        'step_motion_to_end': {
-                            'prohibit_rearticulation': False
-                        }
-                    }
-                },
-                harmony_rules={
-                    'names': [],
-                    'params': {}
-                },
-                rendering_params={}
-            ),
-            # `all_movements`,
-            [[0], [0], [0]]
-        ),
-        (
-            # `piece`
-            Piece(
-                tonic='C',
-                scale_type='major',
-                n_measures=5,
-                max_skip=2,
-                line_specifications=[
-                    {
-                        'lowest_note': 'C5',
-                        'highest_note': 'G5',
-                        'start_note': 'C5',
-                        'end_note': 'C5'
-                    }
-                ],
-                voice_leading_rules={
-                    'names': [
-                        'rearticulation',
-                        'destination_of_skip',
-                        'turn_after_skip',
-                        'VI_VII_resolution',
-                        'step_motion_to_end'
-                    ],
-                    'params': {
-                        'turn_after_skip': {
-                            'min_n_scale_degrees': 3
-                        },
-                        'step_motion_to_end': {
-                            'prohibit_rearticulation': False
-                        }
-                    }
-                },
-                harmony_rules={
-                    'names': [],
-                    'params': {}
-                },
-                rendering_params={}
-            ),
-            # `all_movements`,
-            [[0], [0]]
+            {'pitch': 72, 'start': 2.5, 'end': 2.625}
         ),
     ]
 )
 def test_create_midi_from_piece(
-        path_to_tmp_file: str, piece: Piece, all_movements: List[List[int]]
+        path_to_tmp_file: str, piece: Piece, all_steps: List[Tuple[int, int]],
+        instrument_number: int, note_number: int, expected: Dict[str, float]
 ) -> None:
     """Test `create_midi_from_piece` function."""
-    for movements in all_movements:
-        piece.add_measure(movements)
+    for movement, duration in all_steps:
+        piece.add_line_element(movement, duration)
     create_midi_from_piece(
         piece,
         path_to_tmp_file,
         measure_in_seconds=1,
-        instrument=0,
+        cantus_firmus_instrument=0,
+        counterpoint_instrument=0,
         velocity=100
     )
+    midi_data = pretty_midi.PrettyMIDI(path_to_tmp_file)
+    instrument = midi_data.instruments[instrument_number]
+    midi_note = instrument.notes[note_number]
+    result = {
+        'pitch': midi_note.pitch,
+        'start': midi_note.start,
+        'end': midi_note.end
+    }
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "piece, all_steps, measure_in_seconds, volume, row_number, expected",
+    [
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale_type='major',
+                cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
+                counterpoint_specifications={
+                    'start_note': 'G4',
+                    'end_note': 'C5',
+                    'lowest_note': 'C4',
+                    'highest_note': 'C6',
+                    'start_pause_in_eights': 4,
+                    'max_skip_in_degrees': 2
+                },
+                rules={
+                    'names': ['rearticulation_stability'],
+                    'params': {}
+                },
+                rendering_params={}
+            ),
+            # `all_steps`,
+            [(2, 4), [-2, 8], [0, 1]],
+            # `measure_in_seconds`
+            1,
+            # `volume`
+            0.2,
+            # `row_number`
+            2,
+            # `expected`
+            'default_timbre\t0.5\t0.5\tG4\t0.2\t0\t\n'
+        ),
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale_type='major',
+                cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
+                counterpoint_specifications={
+                    'start_note': 'G4',
+                    'end_note': 'C5',
+                    'lowest_note': 'C4',
+                    'highest_note': 'C6',
+                    'start_pause_in_eights': 4,
+                    'max_skip_in_degrees': 2
+                },
+                rules={
+                    'names': ['rearticulation_stability'],
+                    'params': {}
+                },
+                rendering_params={}
+            ),
+            # `all_steps`,
+            [(2, 4), [2, 8], [-1, 1]],
+            # `measure_in_seconds`
+            1,
+            # `volume`
+            0.2,
+            # `row_number`
+            5,
+            # `expected`
+            'default_timbre\t1.5\t1.0\tD5\t0.2\t0\t\n'
+        ),
+    ]
+)
+def test_create_events_from_piece(
+        path_to_tmp_file: str, piece: Piece, all_steps: List[Tuple[int, int]],
+        measure_in_seconds: int, volume: float, row_number: int, expected: str
+) -> None:
+    """Test `create_events_from_piece` function."""
+    for movement, duration in all_steps:
+        piece.add_line_element(movement, duration)
+    create_events_from_piece(
+        piece,
+        path_to_tmp_file,
+        measure_in_seconds=measure_in_seconds,
+        cantus_firmus_timbre='default_timbre',
+        counterpoint_timbre='default_timbre',
+        volume=volume
+    )
+    with open(path_to_tmp_file) as in_file:
+        for i in range(row_number):
+            in_file.readline()
+        result = in_file.readline()
+        assert result == expected
 
 
 @pytest.mark.parametrize(

@@ -1,87 +1,180 @@
 """
-Check compliance with some rules of voice leading and harmony.
+Check compliance with some rules of rhythm, voice leading, and harmony.
 
 Author: Nikolay Lysenko
 """
 
 
-import itertools
-from typing import Callable, Dict, List, Optional
+from math import ceil
+from typing import Callable, Dict, List
 
+from rlmusician.utils.music_theory import ScaleElement, check_consonance
+
+
+N_EIGHTS_PER_MEASURE = 8
+
+
+# Rhythm rules.
+
+def check_validity_of_rhythmic_pattern(durations: List[int], **kwargs) -> bool:
+    """
+    Check that current measure is properly divided by notes.
+
+    :param durations:
+        durations (in eights) of all notes from a current measure
+        (including a new note); if a new note prolongs to the next measure,
+        its full duration is included; however, if the first note starts
+        in the previous measure, only its duration within the current measure
+        is included
+    :return:
+        indicator whether a continuation is in accordance with the rule
+    """
+    valid_patterns = [
+        [4, 4],
+        [4, 2, 2],
+        [4, 2, 1, 1],
+        [2, 2, 2, 2],
+        [2, 2, 2, 1, 1],
+        [2, 1, 1, 2, 2],
+        [4, 8],
+        [2, 2, 8],
+        [2, 1, 1, 8],
+    ]
+    for valid_pattern in valid_patterns:
+        if valid_pattern[:len(durations)] == durations:
+            return True
+    return False
+
+
+# Voice leading rules.
 
 def check_stability_of_rearticulated_pitch(
-        line: List[Optional['LineElement']], measure: int, movement: int,
+        counterpoint_continuation: 'LineElement',
+        movement: int,
         **kwargs
 ) -> bool:
     """
     Check that a pitch to be rearticulated (repeated) is stable.
 
-    :param line:
-        melodic line as list of pitches
-    :param measure:
-        last finished measure in a line
+    :param counterpoint_continuation:
+        current continuation of counterpoint line
     :param movement:
-        melodic interval in scale degrees for line continuation
+        melodic interval (in scale degrees) for line continuation
     :return:
-        indicator whether a movement is in accordance with the rule
+        indicator whether a continuation is in accordance with the rule
     """
     if movement != 0:
         return True
-    return line[measure].is_from_tonic_triad
+    return counterpoint_continuation.scale_element.is_from_tonic_triad
 
 
-def check_that_skip_leads_to_stable_pitch(
-        line: List[Optional['LineElement']],
-        line_elements: List['LineElement'],
-        measure: int, movement: int, **kwargs
+def check_absence_of_stalled_pitches(
+        movement: int,
+        past_movements: List[int],
+        max_n_repetitions: int = 2,
+        **kwargs
 ) -> bool:
     """
-    Check that a skip (leap) leads to a stable pitch.
+    Check that a pitch is not excessively repeated.
 
-    :param line:
-        melodic line as list of pitches
-    :param line_elements:
-        list of pitches available for the line
-    :param measure:
-        last finished measure in a line
     :param movement:
-        melodic interval in scale degrees for line continuation
+        melodic interval (in scale degrees) for line continuation
+    :param past_movements:
+        list of past movements
+    :param max_n_repetitions:
+        maximum allowed number of repetitions in a row
     :return:
-        indicator whether a movement is in accordance with the rule
+        indicator whether a continuation is in accordance with the rule
+    """
+    if movement != 0:
+        return True
+    if len(past_movements) < max_n_repetitions - 1:
+        return True
+    changes = [x for x in past_movements[-max_n_repetitions+1:] if x != 0]
+    return len(changes) > 0
+
+
+def check_absence_of_monotonous_long_motion(
+        counterpoint_continuation: 'LineElement',
+        current_motion_start_element: 'LineElement',
+        max_distance_in_semitones: int = 9,
+        **kwargs
+) -> bool:
+    """
+    Check that line does not move too far without any changes in direction.
+
+    :param counterpoint_continuation:
+        current continuation of counterpoint line
+    :param current_motion_start_element:
+        element of counterpoint line such that there are no
+        changes in direction after it
+    :param max_distance_in_semitones:
+        maximum allowed distance (in semitones)
+    :return:
+        indicator whether a continuation is in accordance with the rule
+    """
+    current = counterpoint_continuation.scale_element.position_in_semitones
+    start = current_motion_start_element.scale_element.position_in_semitones
+    if abs(current - start) > max_distance_in_semitones:
+        return False
+    return True
+
+
+def check_absence_of_skip_series(
+        movement: int,
+        past_movements: List[int],
+        max_n_skips: int = 2,
+        **kwargs
+) -> bool:
+    """
+    Check that there are no long series of skips.
+
+    :param movement:
+        melodic interval (in scale degrees) for line continuation
+    :param past_movements:
+        list of past movements
+    :param max_n_skips:
+        maximum allowed number of skips in a row
+    :return:
+        indicator whether a continuation is in accordance with the rule
     """
     if abs(movement) <= 1:
         return True
-    next_position = line[measure].relative_position + movement
-    next_element = line_elements[next_position]
-    return next_element.is_from_tonic_triad
+    if len(past_movements) < max_n_skips:
+        return True
+    only_skips = all(abs(x) > 1 for x in past_movements[-max_n_skips:])
+    return not only_skips
 
 
 def check_that_skip_is_followed_by_opposite_step_motion(
-        movement: int, previous_movements: List[int],
-        min_n_scale_degrees: int = 3, **kwargs
+        movement: int,
+        past_movements: List[int],
+        min_n_scale_degrees: int = 3,
+        **kwargs
 ) -> bool:
     """
     Check that after a large skip there is a step motion in opposite direction.
 
     :param movement:
-        melodic interval in scale degrees for line continuation
-    :param previous_movements:
-        list of previous movements
+        melodic interval (in scale degrees) for line continuation
+    :param past_movements:
+        list of past movements
     :param min_n_scale_degrees:
         minimum size of a large enough skip (in scale degrees)
     :return:
-        indicator whether a movement is in accordance with the rule
+        indicator whether a continuation is in accordance with the rule
     """
-    if len(previous_movements) == 0:
+    if len(past_movements) == 0:
         return True
-    previous_movement = previous_movements[-1]
+    previous_movement = past_movements[-1]
     if abs(previous_movement) < min_n_scale_degrees:
         return True
     return movement == -previous_movement / abs(previous_movement)
 
 
 def check_resolution_of_submediant_and_leading_tone(
-        line: List[Optional['LineElement']], measure: int, movement: int,
+        line: List['LineElement'],
+        movement: int,
         **kwargs
 ) -> bool:
     """
@@ -93,144 +186,262 @@ def check_resolution_of_submediant_and_leading_tone(
     dominant must be used after submediant.
 
     :param line:
-        melodic line as list of pitches
-    :param measure:
-        last finished measure in a line
+        counterpoint line in progress
     :param movement:
-        melodic interval in scale degrees for line continuation
+        melodic interval (in scale degrees) for line continuation
     :return:
-        indicator whether a movement is in accordance with the rule
+        indicator whether a continuation is in accordance with the rule
     """
-    if measure < 2:
+    if len(line) < 2:
         return True
-    elif line[measure].degree == 6 and line[measure - 1].degree == 7:
+    elif line[-1].scale_element.degree == 6 and line[-2].scale_element.degree == 7:
         return movement == -1
-    elif line[measure].degree == 7 and line[measure - 1].degree == 6:
+    elif line[-1].scale_element.degree == 7 and line[-2].scale_element.degree == 6:
         return movement == 1
     return True
 
 
 def check_step_motion_to_final_pitch(
-        line: List[Optional['LineElement']],
-        line_elements: List['LineElement'],
-        measure: int, movement: int, prohibit_rearticulation: bool = True,
+        counterpoint_continuation: 'LineElement',
+        counterpoint_end: ScaleElement,
+        piece_duration: int,
+        prohibit_rearticulation: bool = True,
         **kwargs
 ) -> bool:
     """
     Check that there is a way to reach final pitch with step motion.
 
-    :param line:
-        melodic line as list of pitches
-    :param line_elements:
-        list of pitches available for the line
-    :param measure:
-        last finished measure in a line
-    :param movement:
-        melodic interval in scale degrees for line continuation
+    :param counterpoint_continuation:
+        current continuation of counterpoint line
+    :param counterpoint_end:
+        element that ends counterpoint line
+    :param piece_duration:
+        total duration of piece (in eights)
     :param prohibit_rearticulation:
         if it is set to `True`, the last but one pitch can not be the same as
         the final pitch
     :return:
-        indicator whether a movement is in accordance with the rule
+        indicator whether a continuation is in accordance with the rule
     """
-    next_position = line[measure].relative_position + movement
-    next_element = line_elements[next_position]
-    next_degree = next_element.relative_position
-    final_degree = line[-1].relative_position
-    degrees_to_end_note = abs(next_degree - final_degree)
-    measures_left = len(line) - measure - 2
-    if measures_left == 1 and degrees_to_end_note == 0:
+    degrees_to_end_note = abs(
+        counterpoint_continuation.scale_element.position_in_degrees
+        - counterpoint_end.position_in_degrees
+    )
+    eights_left = (
+        (piece_duration - N_EIGHTS_PER_MEASURE)
+        - counterpoint_continuation.end_time_in_eights
+    )
+    quarters_left = ceil(eights_left / 2)
+    if quarters_left == 0 and degrees_to_end_note == 0:
         return not prohibit_rearticulation
-    return degrees_to_end_note <= measures_left
+    return degrees_to_end_note <= quarters_left + 1
 
 
-def get_voice_leading_rules_registry() -> Dict[str, Callable]:
+# Harmony rules.
+
+def check_consonance_on_strong_beat(
+        counterpoint_continuation: 'LineElement',
+        cantus_firmus_elements: List['LineElement'],
+        **kwargs
+) -> bool:
     """
-    Get mapping from names to functions checking voice leading rules.
+    Check that there is consonance if current beat is strong.
 
+    :param counterpoint_continuation:
+        current continuation of counterpoint line
+    :param cantus_firmus_elements:
+        list of elements from cantus firmus that sound simultaneously with
+        the counterpoint element
     :return:
-        registry of functions checking voice leading rules
+        indicator whether a continuation is in accordance with the rule
     """
-    registry = {
-        'rearticulation': check_stability_of_rearticulated_pitch,
-        'destination_of_skip': check_that_skip_leads_to_stable_pitch,
-        'turn_after_skip': check_that_skip_is_followed_by_opposite_step_motion,
-        'VI_VII_resolution': check_resolution_of_submediant_and_leading_tone,
-        'step_motion_to_end': check_step_motion_to_final_pitch
-    }
-    return registry
+    if counterpoint_continuation.start_time_in_eights % 4 != 0:
+        return True
+    return check_consonance(
+        counterpoint_continuation.scale_element,
+        cantus_firmus_elements[0].scale_element
+    )
 
 
-def check_consonance_of_sonority(sonority: List['LineElement']) -> bool:
+def check_step_motion_to_dissonance(
+        counterpoint_continuation: 'LineElement',
+        cantus_firmus_elements: List['LineElement'],
+        movement: int,
+        **kwargs
+) -> bool:
     """
-    Check that sonority is consonant.
+    Check that there is step motion to a dissonating element.
 
-    :param sonority:
-        list of simultaneously sounding pitches
+    Note that this rule prohibits double neighboring tones.
+
+    :param counterpoint_continuation:
+        current continuation of counterpoint line
+    :param cantus_firmus_elements:
+        list of elements from cantus firmus that sound simultaneously with
+        the counterpoint element
+    :param movement:
+        melodic interval (in scale degrees) for line continuation
     :return:
-        indicator whether a sonority is consonant
+        indicator whether a continuation is in accordance with the rule
     """
-    n_semitones_to_consonance = {
-        0: True, 1: False, 2: False, 3: True, 4: True, 5: True,
-        6: False, 7: True, 8: True, 9: True, 10: False, 11: False
-    }
-    for first, second in itertools.combinations(sonority, 2):
-        interval = first.absolute_position - second.absolute_position
-        interval %= len(n_semitones_to_consonance)
-        if not n_semitones_to_consonance[interval]:
-            return False
-    return True
+    ctp_scale_element = counterpoint_continuation.scale_element
+    cf_scale_element = cantus_firmus_elements[0].scale_element
+    if check_consonance(ctp_scale_element, cf_scale_element):
+        return True
+    return movement in [-1, 1]
+
+
+def check_step_motion_from_dissonance(
+        movement: int,
+        is_last_element_consonant: bool,
+        **kwargs
+) -> bool:
+    """
+    Check that there is step motion from a dissonating element.
+
+    Note that this rule prohibits double neighboring tones.
+
+    :param movement:
+        melodic interval (in scale degrees) for line continuation
+    :param is_last_element_consonant:
+        indicator whether last element of counterpoint line (not including
+        a new continuation in question) forms consonance with cantus firmus
+    :return:
+        indicator whether a continuation is in accordance with the rule
+    """
+    if is_last_element_consonant:
+        return True
+    return movement in [-1, 1]
+
+
+def check_resolution_of_suspended_dissonance(
+        line: List['LineElement'],
+        movement: int,
+        counterpoint_continuation: 'LineElement',
+        cantus_firmus_elements: List['LineElement'],
+        is_last_element_consonant: bool,
+        **kwargs
+) -> bool:
+    """
+    Check that suspended dissonance is resolved by downward step motion.
+
+    :param line:
+        counterpoint line in progress
+    :param movement:
+        melodic interval (in scale degrees) for line continuation
+    :param counterpoint_continuation:
+        current continuation of counterpoint line
+    :param cantus_firmus_elements:
+        list of elements from cantus firmus that sound simultaneously with
+        the counterpoint element
+    :param is_last_element_consonant:
+        indicator whether last element of counterpoint line (not including
+        a new continuation in question) forms consonance with cantus firmus
+    :return:
+        indicator whether a continuation is in accordance with the rule
+    """
+    last_duration = line[-1].end_time_in_eights - line[-1].start_time_in_eights
+    if last_duration != N_EIGHTS_PER_MEASURE:
+        return True
+    if is_last_element_consonant:
+        return True
+    if movement != -1:
+        return False
+    return check_consonance(
+        counterpoint_continuation.scale_element,
+        cantus_firmus_elements[-1].scale_element
+    )
 
 
 def check_absence_of_large_intervals(
-        sonority: List['LineElement'], max_n_semitones: int = 16
+        counterpoint_continuation: 'LineElement',
+        cantus_firmus_elements: List['LineElement'],
+        max_n_semitones: int = 16,
+        **kwargs
 ) -> bool:
     """
     Check that there are no large intervals between adjacent pitches.
 
-    :param sonority:
-        list of simultaneously sounding pitches
+    :param counterpoint_continuation:
+        current continuation of counterpoint line
+    :param cantus_firmus_elements:
+        list of elements from cantus firmus that sound simultaneously with
+        the counterpoint element
     :param max_n_semitones:
-        maximum allowed interval in semitones between two adjacent pitches
+        maximum allowed interval in semitones between two
+        simultaneously sounding pitches
     :return:
-        indicator whether a sonority has no excessive intervals
+        indicator whether a continuation is in accordance with the rule
     """
-    if len(sonority) == 1:
-        return True
-    positions = sorted(x.absolute_position for x in sonority)
-    adjacent_pairs = zip(positions, positions[1:])
-    intervals_in_semitones = [y - x for x, y in adjacent_pairs]
-    return max(intervals_in_semitones) <= max_n_semitones
-
-
-def check_absence_of_pitch_class_clashes(
-        sonority: List['LineElement']
-) -> bool:
-    """
-    Check that there are no unison or octave intervals.
-
-    :param sonority:
-        list of simultaneously sounding pitches
-    :return:
-        indicator whether all pitches from the sonority belong to different
-        pitch classes
-    """
-    for first, second in itertools.combinations(sonority, 2):
-        if first.degree == second.degree:
+    cpt_pitch = counterpoint_continuation.scale_element.position_in_semitones
+    for cantus_firmus_element in cantus_firmus_elements:
+        cf_pitch = cantus_firmus_element.scale_element.position_in_semitones
+        if abs(cpt_pitch - cf_pitch) > max_n_semitones:
             return False
     return True
 
 
-def get_harmony_rules_registry() -> Dict[str, Callable]:
+def check_absence_of_lines_crossing(
+        counterpoint_continuation: 'LineElement',
+        cantus_firmus_elements: List['LineElement'],
+        is_counterpoint_above: bool,
+        prohibit_unisons: bool = True,
+        **kwargs
+) -> bool:
     """
-    Get mapping from names to functions checking harmony rules.
+    Check that there are no lines crossings.
+
+    :param counterpoint_continuation:
+        current continuation of counterpoint line
+    :param cantus_firmus_elements:
+        list of elements from cantus firmus that sound simultaneously with
+        the counterpoint element
+    :param is_counterpoint_above:
+        indicator whether counterpoint must be above cantus firmus
+    :param prohibit_unisons:
+        if it is set to `True`, unison are considered a special case of
+        lines crossing
+    :return:
+        indicator whether a continuation is in accordance with the rule
+    """
+    initial_sign = 1 if is_counterpoint_above else -1
+    cpt_pitch = counterpoint_continuation.scale_element.position_in_semitones
+    for cantus_firmus_element in cantus_firmus_elements:
+        cf_pitch = cantus_firmus_element.scale_element.position_in_semitones
+        if prohibit_unisons and cpt_pitch == cf_pitch:
+            return False
+        elif initial_sign * (cpt_pitch - cf_pitch) < 0:
+            return False
+    return True
+
+
+# Registry.
+
+def get_rules_registry() -> Dict[str, Callable]:
+    """
+    Get mapping from names to corresponding functions that check rules.
 
     :return:
-        registry of functions checking harmony rules
+        registry of functions checking rules of rhythm, voice leading,
+        and harmony
     """
     registry = {
-        'consonance': check_consonance_of_sonority,
+        # Rhythm rules:
+        'rhythmic_pattern_validity': check_validity_of_rhythmic_pattern,
+        # Voice leading rules:
+        'rearticulation_stability': check_stability_of_rearticulated_pitch,
+        'absence_of_stalled_pitches': check_absence_of_stalled_pitches,
+        'absence_of_long_motion': check_absence_of_monotonous_long_motion,
+        'absence_of_skip_series': check_absence_of_skip_series,
+        'turn_after_skip': check_that_skip_is_followed_by_opposite_step_motion,
+        'VI_VII_resolution': check_resolution_of_submediant_and_leading_tone,
+        'step_motion_to_end': check_step_motion_to_final_pitch,
+        # Harmony rules:
+        'consonance_on_strong_beat': check_consonance_on_strong_beat,
+        'step_motion_to_dissonance': check_step_motion_to_dissonance,
+        'step_motion_from_dissonance': check_step_motion_from_dissonance,
+        'resolution_of_suspended_dissonance': check_resolution_of_suspended_dissonance,
         'absence_of_large_intervals': check_absence_of_large_intervals,
-        'absence_of_pitch_class_clashes': check_absence_of_pitch_class_clashes,
+        'absence_of_lines_crossing': check_absence_of_lines_crossing,
     }
     return registry

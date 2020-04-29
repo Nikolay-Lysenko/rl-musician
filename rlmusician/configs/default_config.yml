@@ -1,76 +1,88 @@
 piece:
   tonic: C
   scale_type: major
-  n_measures: 16
-  max_skip: 3
-  line_specifications:
-    - lowest_note: C4
-      highest_note: C5
-      start_note: G4
-      end_note: C4
-    - lowest_note: G4
-      highest_note: C6
-      start_note: C5
-      end_note: C5
-  voice_leading_rules:
+  cantus_firmus:
+    - C4
+    - D4
+    - E4
+    - C4
+    - A3
+    - B3
+    - C4
+    - G4
+    - E4
+    - C4
+    - D4
+    - C4
+  counterpoint_specifications:
+    start_note: G4
+    end_note: C5
+    lowest_note: C4
+    highest_note: C6
+    start_pause_in_eights: 4
+    max_skip_in_degrees: 7
+  rules:
     names:
-      - rearticulation
-      - destination_of_skip
+      - rhythmic_pattern_validity
+      - rearticulation_stability
+      - absence_of_stalled_pitches
+      - absence_of_long_motion
+      - absence_of_skip_series
       - turn_after_skip
       - VI_VII_resolution
       - step_motion_to_end
+      - consonance_on_strong_beat
+      - step_motion_to_dissonance
+      - step_motion_from_dissonance
+      - resolution_of_suspended_dissonance
+      - absence_of_large_intervals
+      - absence_of_lines_crossing
     params:
+      absence_of_stalled_pitches:
+        max_n_repetitions: 2
+      absence_of_long_motion:
+        max_distance_in_semitones: 9
+      absence_of_skip_series:
+        max_n_skips: 2
       turn_after_skip:
         min_n_scale_degrees: 3
       step_motion_to_end:
         prohibit_rearticulation: true
-  harmony_rules:
-    names:
-      - consonance
-      - absence_of_large_intervals
-      - absence_of_pitch_class_clashes
-    params:
       absence_of_large_intervals:
         max_n_semitones: 16
+      absence_of_lines_crossing:
+        prohibit_unisons: true
   rendering_params:
     dir: rlmusician_data
     measure_in_seconds: 1.0
     midi:
-      instrument: 0
+      cantus_firmus_instrument: 0
+      counterpoint_instrument: 0
       velocity: 100
     sinethesizer:
-      timbre: default_timbre
+      cantus_firmus_timbre: default_timbre
+      counterpoint_timbre: default_timbre
       volume: 0.3
 environment:
-  observation_decay: 0.75
-  reward_for_dead_end: -3
   scoring_coefs:
-    climax_explicity: 3
-    looped_pitches: 1
+    climax_explicity: 1
+    entropy: 1
     looped_fragments: 1
-    lines_correlation: 1
-    types_of_motion: 1
     number_of_skips: 1
-    downward_skips: 0.05
   scoring_fn_params:
     climax_explicity:
       shortage_penalty: 0.3
       duplication_penalty: 0.5
-    looped_pitches:
-      max_n_repetitions: 2
-    types_of_motion:
-      parallel_coef: -1
-      similar_coef: -0.5
-      oblique_coef: 0
-      contrary_coef: 1
+    looped_fragments:
+      min_size: 8
+      max_size:
     number_of_skips:
       min_n_skips: 1
       max_n_skips: 3
-    downward_skips:
-      size_penalty_power: 2.0
+  reward_for_dead_end: -3
 agent:
   beam_width: 5
-  n_records_to_keep: 5000
+  n_records_to_keep: 10
   n_trials_schedule:
     - 10000
     - 10000
@@ -79,5 +91,8 @@ agent:
     - 5000
     - 5000
     - 1000
+    - 1000
+    - 1000
+    - 100
   paralleling_params:
     n_processes:
