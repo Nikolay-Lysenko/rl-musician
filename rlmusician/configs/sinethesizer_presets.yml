@@ -3,52 +3,111 @@
   fundamental_waveform: sine
   fundamental_volume_envelope:
     name: relative_adsr
-    attack_share: 0.15
-    decay_share: 0.15
-    sustain_level: 0.6
-    release_share: 0.2
+    attack_share: 0.1
+    decay_share: 0.8
+    sustain_level: 0.9
+    release_share: 0.1
   fundamental_effects:
-  - name: vibrato
-    frequency: 4
-    width: 0.2
+    - name: vibrato
+      frequency: 4
+      width: 0.05
+    - name: tremolo
+      frequency: 3
+      amplitude: 0.05
   overtones_specs:
   - waveform: sine
     frequency_ratio: 3
-    volume_share: 0.2
+    volume_share: 0.236
     volume_envelope:
       name: relative_adsr
-      attack_share: 0.15
-      decay_share: 0.15
-      sustain_level: 0.6
-      release_share: 0.3
+      attack_share: 0.11
+      decay_share: 0.78
+      sustain_level: 0.89
+      release_share: 0.11
     effects:
-    - name: vibrato
-      frequency: 4
-      width: 0.2
-  - waveform: triangle
+      - name: vibrato
+        frequency: 4
+        width: 0.05
+      - name: tremolo
+        frequency: 3
+        amplitude: 0.05
+  - waveform: sine
     frequency_ratio: 5
-    volume_share: 0.1
+    volume_share: 0.157
     volume_envelope:
       name: relative_adsr
-      attack_share: 0.15
-      decay_share: 0.15
-      sustain_level: 0.5
-      release_share: 0.4
-  - waveform: triangle
+      attack_share: 0.12
+      decay_share: 0.76
+      sustain_level: 0.88
+      release_share: 0.12
+    effects:
+      - name: vibrato
+        frequency: 4
+        width: 0.05
+      - name: tremolo
+        frequency: 3
+        amplitude: 0.05
+  - waveform: sine
     frequency_ratio: 7
-    volume_share: 0.05
+    volume_share: 0.044
     volume_envelope:
       name: relative_adsr
-      attack_share: 0.15
-      decay_share: 0.15
-      sustain_level: 0.4
-      release_share: 0.5
-  - waveform: triangle
+      attack_share: 0.13
+      decay_share: 0.74
+      sustain_level: 0.87
+      release_share: 0.13
+    effects:
+      - name: vibrato
+        frequency: 4
+        width: 0.05
+      - name: tremolo
+        frequency: 3
+        amplitude: 0.05
+  - waveform: sine
     frequency_ratio: 9
-    volume_share: 0.025
+    volume_share: 0.157
+    volume_envelope:
+      name: relative_adsr
+      attack_share: 0.14
+      decay_share: 0.72
+      sustain_level: 0.76
+      release_share: 0.14
+    effects:
+      - name: vibrato
+        frequency: 4
+        width: 0.05
+      - name: tremolo
+        frequency: 3
+        amplitude: 0.05
+  - waveform: sine
+    frequency_ratio: 11
+    volume_share: 0.038
     volume_envelope:
       name: relative_adsr
       attack_share: 0.15
-      decay_share: 0.15
-      sustain_level: 0.3
-      release_share: 0.6
+      decay_share: 0.7
+      sustain_level: 0.75
+      release_share: 0.15
+    effects:
+      - name: vibrato
+        frequency: 4
+        width: 0.05
+      - name: tremolo
+        frequency: 3
+        amplitude: 0.05
+  - waveform: sine
+    frequency_ratio: 13
+    volume_share: 0.053
+    volume_envelope:
+      name: relative_adsr
+      attack_share: 0.16
+      decay_share: 0.68
+      sustain_level: 0.74
+      release_share: 0.16
+    effects:
+      - name: vibrato
+        frequency: 4
+        width: 0.05
+      - name: tremolo
+        frequency: 3
+        amplitude: 0.05
