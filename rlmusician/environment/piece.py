@@ -246,15 +246,19 @@ class Piece:
         )
         return next_line_element
 
-    def __find_cantus_firmus_elements(
-            self, duration: int
-    ) -> List[LineElement]:
+    def __find_cf_elements(self, duration: int) -> List[LineElement]:
         """Find what in cantus firmus sounds simultaneously with a new note."""
         start_index = self.current_time_in_eights // N_EIGHTS_PER_MEASURE
         end_time = self.current_time_in_eights + duration
         end_index = (end_time - 1) // N_EIGHTS_PER_MEASURE + 1
         results = self.cantus_firmus[start_index:end_index]
         return results
+
+    def __find_previous_cf_element(self) -> LineElement:
+        """Find what in cantus firmus sounds before a new note."""
+        index = (self.current_time_in_eights - 1) // N_EIGHTS_PER_MEASURE
+        result = self.cantus_firmus[index]
+        return result
 
     def __check_range(self, movement: int) -> bool:
         """Check that movement does not lead beyond a range of a line."""
@@ -275,7 +279,8 @@ class Piece:
         registry = get_rules_registry()
         continuation = self.__find_next_element(movement, duration)
         durations = [x for x in self.current_measure_durations] + [duration]
-        cantus_firmus_elements = self.__find_cantus_firmus_elements(duration)
+        cantus_firmus_elements = self.__find_cf_elements(duration)
+        previous_cantus_firmus_element = self.__find_previous_cf_element()
         state = {
             'line': self.counterpoint,
             'counterpoint_continuation': continuation,
@@ -285,6 +290,7 @@ class Piece:
             'current_measure_durations': self.current_measure_durations,
             'durations': durations,
             'cantus_firmus_elements': cantus_firmus_elements,
+            'previous_cantus_firmus_element': previous_cantus_firmus_element,
             'current_motion_start_element': self.current_motion_start_element,
             'is_last_element_consonant': self.is_last_element_consonant,
             'is_counterpoint_above': self.is_counterpoint_above,
@@ -339,7 +345,7 @@ class Piece:
 
     def __update_indicator_of_consonance(self, duration: int) -> None:
         """Update indicator of current vertical consonance between lines."""
-        cantus_firmus_elements = self.__find_cantus_firmus_elements(duration)
+        cantus_firmus_elements = self.__find_cf_elements(duration)
         cantus_firmus_element = cantus_firmus_elements[-1].scale_element
         counterpoint_element = self.counterpoint[-1].scale_element
         self.is_last_element_consonant = check_consonance(

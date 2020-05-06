@@ -14,6 +14,7 @@ from rlmusician.environment.rules import (
     check_absence_of_large_intervals,
     check_absence_of_lines_crossing,
     check_absence_of_monotonous_long_motion,
+    check_absence_of_overlapping_motion,
     check_absence_of_skip_series,
     check_absence_of_stalled_pitches,
     check_consonance_on_strong_beat,
@@ -129,6 +130,49 @@ def test_check_absence_of_monotonous_long_motion(
         counterpoint_continuation,
         current_motion_start_element,
         max_distance_in_semitones
+    )
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "counterpoint_continuation, previous_cantus_firmus_element, "
+    "is_counterpoint_above, expected",
+    [
+        (
+            LineElement(ScaleElement('C1', 3, 2, 1, True), 24, 28),
+            LineElement(ScaleElement('C2', 15, 9, 1, True), 16, 24),
+            True,
+            False
+        ),
+        (
+            LineElement(ScaleElement('C1', 3, 2, 1, True), 24, 28),
+            LineElement(ScaleElement('C2', 15, 9, 1, True), 16, 24),
+            False,
+            True
+        ),
+        (
+            LineElement(ScaleElement('C1', 3, 2, 1, True), 24, 28),
+            LineElement(ScaleElement('C1', 3, 2, 1, True), 16, 24),
+            True,
+            False
+        ),
+        (
+            LineElement(ScaleElement('C1', 3, 2, 1, True), 24, 28),
+            LineElement(ScaleElement('C1', 3, 2, 1, True), 16, 24),
+            False,
+            False
+        ),
+    ]
+)
+def test_check_absence_of_overlapping_motion(
+        counterpoint_continuation: LineElement,
+        previous_cantus_firmus_element: LineElement,
+        is_counterpoint_above: bool, expected: bool
+) -> None:
+    """Test `check_absence_of_overlapping_motion` function."""
+    result = check_absence_of_overlapping_motion(
+        counterpoint_continuation, previous_cantus_firmus_element,
+        is_counterpoint_above
     )
     assert result == expected
 

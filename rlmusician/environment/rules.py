@@ -415,6 +415,31 @@ def check_absence_of_lines_crossing(
     return True
 
 
+def check_absence_of_overlapping_motion(
+        counterpoint_continuation: 'LineElement',
+        previous_cantus_firmus_element: 'LineElement',
+        is_counterpoint_above: bool,
+        **kwargs
+) -> bool:
+    """
+    Check that there is no overlapping motion.
+
+    :param counterpoint_continuation:
+        current continuation of counterpoint line
+    :param previous_cantus_firmus_element:
+        the latest element of cantus firmus that sounds simultaneously
+        with the last counterpoint element (excluding its continuation)
+    :param is_counterpoint_above:
+        indicator whether counterpoint must be above cantus firmus
+    :return:
+        indicator whether a continuation is in accordance with the rule
+    """
+    initial_sign = 1 if is_counterpoint_above else -1
+    cpt_pitch = counterpoint_continuation.scale_element.position_in_semitones
+    cf_pitch = previous_cantus_firmus_element.scale_element.position_in_semitones
+    return initial_sign * (cpt_pitch - cf_pitch) > 0
+
+
 # Registry.
 
 def get_rules_registry() -> Dict[str, Callable]:
@@ -443,5 +468,6 @@ def get_rules_registry() -> Dict[str, Callable]:
         'resolution_of_suspended_dissonance': check_resolution_of_suspended_dissonance,
         'absence_of_large_intervals': check_absence_of_large_intervals,
         'absence_of_lines_crossing': check_absence_of_lines_crossing,
+        'absence_of_overlapping_motion': check_absence_of_overlapping_motion,
     }
     return registry

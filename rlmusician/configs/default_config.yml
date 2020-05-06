@@ -37,6 +37,7 @@ piece:
       - resolution_of_suspended_dissonance
       - absence_of_large_intervals
       - absence_of_lines_crossing
+      - absence_of_overlapping_motion
     params:
       absence_of_stalled_pitches:
         max_n_repetitions: 2
