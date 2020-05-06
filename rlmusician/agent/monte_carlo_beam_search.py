@@ -6,11 +6,17 @@ Author: Nikolay Lysenko
 
 
 import random
-from copy import deepcopy
 from typing import Any, Dict, List, Optional, NamedTuple
 
 from rlmusician.environment import CounterpointEnv
-from rlmusician.utils import map_in_parallel
+from rlmusician.utils import generate_deep_copies, imap_in_parallel
+
+
+class EnvWithActions(NamedTuple):
+    """A tuple of `CounterpointEnv` and actions previously applied to it."""
+
+    env: CounterpointEnv
+    actions: List[int]
 
 
 class Record(NamedTuple):
@@ -20,7 +26,7 @@ class Record(NamedTuple):
     reward: float
 
 
-def roll_in(env: CounterpointEnv, actions: List[int]) -> CounterpointEnv:
+def roll_in(env: CounterpointEnv, actions: List[int]) -> EnvWithActions:
     """
     Do roll-in actions.
 
@@ -34,24 +40,22 @@ def roll_in(env: CounterpointEnv, actions: List[int]) -> CounterpointEnv:
     env.reset()
     for action in actions:
         env.step(action)
-    return env
+    env_with_actions = EnvWithActions(env, actions)
+    return env_with_actions
 
 
-def roll_out_randomly(
-        env: CounterpointEnv,
-        past_actions: List[int]
-) -> Record:
+def roll_out_randomly(env_with_actions: EnvWithActions) -> Record:
     """
     Continue an episode in progress with random actions until it is finished.
 
-    :param env:
-        environment
-    :param past_actions:
-        sequence of actions that have been taken before
+    :param env_with_actions:
+        environment and sequence of actions that have been taken before
     :return:
         finalized sequence of actions and reward for the episode
     """
     random.seed()  # Reseed to have independent results amongst processes.
+    env = env_with_actions.env
+    past_actions = env_with_actions.actions
     done = False
     valid_actions = env.valid_actions
     while not done:
@@ -89,11 +93,10 @@ def add_records(
         corresponding to them rewards
     """
     for stub in stubs:
-        env = roll_in(env, stub)
-        records_for_stub = map_in_parallel(
+        env_with_actions = roll_in(env, stub)
+        records_for_stub = imap_in_parallel(
             roll_out_randomly,
-            # FIXME: Excessive memory consumption happens here.
-            [(deepcopy(env), deepcopy(stub)) for _ in range(n_trials)],
+            generate_deep_copies(env_with_actions, n_trials),
             paralleling_params
         )
         records.extend(records_for_stub)
