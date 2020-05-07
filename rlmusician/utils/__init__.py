@@ -8,9 +8,14 @@ Author: Nikolay Lysenko
 from .io import (
     create_events_from_piece,
     create_midi_from_piece,
-    create_wav_from_events
+    create_wav_from_events,
 )
-from .misc import convert_to_base, imap_in_parallel, generate_deep_copies
+from .misc import (
+    convert_to_base,
+    imap_in_parallel,
+    generate_deep_copies,
+    rolling_aggregate,
+)
 from .music_theory import Scale, ScaleElement, check_consonance
 
 
@@ -24,4 +29,5 @@ __all__ = [
     'create_wav_from_events',
     'imap_in_parallel',
     'generate_deep_copies',
+    'rolling_aggregate',
 ]

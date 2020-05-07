@@ -12,6 +12,7 @@ import numpy as np
 from scipy.stats import entropy
 
 from rlmusician.environment.piece import Piece
+from rlmusician.utils import rolling_aggregate
 
 
 def evaluate_absence_of_looped_fragments(
@@ -65,6 +66,37 @@ def evaluate_entropy(piece: Piece) -> float:
     max_entropy_distribution = [1 / len(elements) for _ in elements]
     denominator = entropy(max_entropy_distribution)
     score = raw_score / denominator
+    return score
+
+
+def evaluate_absence_of_narrow_ranges(
+        piece: Piece, min_size: int = 9,
+        penalties: Optional[Dict[int, float]] = None
+) -> float:
+    """
+    Evaluate melodic fluency based on absence of narrow ranges.
+
+    :param piece:
+        `Piece` instance
+    :param min_size:
+        minimum size of narrow range (in line elements)
+    :param penalties:
+        mapping from width of a range (in scale degrees) to penalty
+        applicable to ranges of not greater width
+    :return:
+        multiplied by -1 count of narrow ranges weighted based on their width
+    """
+    penalties = penalties or {2: 1, 3: 0.5}
+    pitches = [x.scale_element.position_in_degrees for x in piece.counterpoint]
+    rolling_mins = rolling_aggregate(pitches, min, min_size)[min_size-1:]
+    rolling_maxs = rolling_aggregate(pitches, max, min_size)[min_size-1:]
+    borders = zip(rolling_mins, rolling_maxs)
+    score = 0
+    for lower_border, upper_border in borders:
+        range_width = upper_border - lower_border
+        curr_penalties = [v for k, v in penalties.items() if k >= range_width]
+        penalty = max(curr_penalties) if curr_penalties else 0
+        score -= penalty
     return score
 
 
@@ -136,6 +168,7 @@ def get_scoring_functions_registry() -> Dict[str, Callable]:
     registry = {
         'looped_fragments': evaluate_absence_of_looped_fragments,
         'entropy': evaluate_entropy,
+        'narrow_ranges': evaluate_absence_of_narrow_ranges,
         'climax_explicity': evaluate_climax_explicity,
         'number_of_skips': evaluate_number_of_skips,
     }

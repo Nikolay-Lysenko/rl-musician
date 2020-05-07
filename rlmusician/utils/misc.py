@@ -86,9 +86,36 @@ def generate_deep_copies(something: Any, n_copies: int) -> Iterator[Any]:
     :param something:
         object to be copied
     :param n_copies:
-        requested number of copies
+        number of copies to be generated
     :return:
         deep copies
     """
     for _ in range(n_copies):
         yield deepcopy(something)
+
+
+def rolling_aggregate(
+        values: List[float],
+        aggregation_fn: Callable[[List[float]], float],
+        window_size: int
+) -> List[float]:
+    """
+    Compute rolling aggregate.
+
+    :param values:
+        list of values to be aggregated
+    :param aggregation_fn:
+        aggregation function
+    :param window_size:
+        size of rolling window
+    :return:
+        list of rolling aggregates
+    """
+    window = []
+    results = []
+    for value in values:
+        if len(window) == window_size:
+            window.pop(0)
+        window.append(value)
+        results.append(aggregation_fn(window))
+    return results
