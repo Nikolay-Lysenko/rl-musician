@@ -82,7 +82,7 @@ There are other optimization-based approaches as well. Instead of local search m
 
 For example, reinforcement learning can be used for altering weights of recurrent neural networks (RNNs) trained to generate music sequentially \cite{jaques2016generating, kotecha2018bach}. The goal is to make generated pieces more structured and conformed with music theory rules. To define an environment, let its state be composed of recurrent neural networks states and previously played notes, let an action be an output for current time step and let reward depend on both evaluational rules and probability of output according to initial RNN. Rewards are granted immediately after a step and DQN (Deep Q-Networks \cite{mnih2013playing}) are preferred as a training algorithm.
 
-Usually, softmax activation function is used in the last layer of generative RNN. However, it is a common practice in reinforcement learning domain to generalize it with Boltzmann softmax which is a family of activation functions parametrized by one parameter called temperature and denoted as $t$. Depending on temperature, output distribution can vary from atomic distribution concentrated at the most probable action ($t = 0$) to distribution returned with softmax activation ($t = 1$) and to uniform distribution ($t \to +\infty$). In \cite{kumar2019polyphonic}, Boltzmann softmax is used and also input vector is extended by introducing an additional part (so called plan) indicating origination of initial input. An environment is defined so that state is a pair of temperature and plan, actions are changes in either temperature or plan, and reward depends on evaluation of produced with these settings piece.
+Usually, softmax activation function is used in the last layer of generative RNN. However, it is a common practice in reinforcement learning domain to generalize it with Boltzmann softmax which is a family of activation functions parametrized by one parameter called temperature and denoted by $t$. Depending on temperature, output distribution can vary from atomic distribution concentrated at the most probable action ($t = 0$) to distribution returned with softmax activation ($t = 1$) and to uniform distribution ($t \to +\infty$). In \cite{kumar2019polyphonic}, Boltzmann softmax is used and also input vector is extended by introducing an additional part (so called plan) indicating origination of initial input. An environment is defined so that state is a pair of temperature and plan, actions are changes in either temperature or plan, and reward depends on evaluation of produced with these settings piece.
 
 Since algorithmic composition can be framed as training of a generative model, it sounds natural to try one of the most salient examples of generative models -- generative adversarial networks (GANs) \cite{goodfellow2014gan}. However, widespread notations for music assume sequences of discrete values but classical GANs work well only with continuous data, because gradient of discrete-valued functions is uninformative. Techniques originating from reinforcement learning can be used to overcome this obstacle \cite{yu2016seqgan,hjelm2017boundary}. Namely, generator is trained with policy gradient method \cite{williams1992simple}. Such methodology is applied to various tasks and music composition is amongst them \cite{limaguimaraes2017objective}.
 
@@ -100,7 +100,7 @@ Consider a tree search problem. To be more detailed, suppose that there is a tre
 
 The described in Section \ref{sec:introduction} procedure of fifth species counterpoint writing can be considered a tree search problem. The root is the initial state of an environment. Each valid option to extend counterpoint line is an edge from the current node of the tree to a new node. Leaves are pieces where counterpoint line is finished. 
 
-If size of a tree is small enough, exhaustive search is possible. There are well-known classical algorithms such as depth-first search (DFS) that allow iterating over all paths from the root to leaves. Unfortunately, trees are large in numerous real problems.
+If size of a tree is small enough, exhaustive search is possible. There are well-known classical algorithms such as depth-first search (DFS) that allow iterating over all paths from the root to leaves. Unfortunately, trees are large in numerous real-world problems.
 
 An obvious idea for a large tree is to use random search. To create a path, every next node is chosen at random until a leaf is reached. After specified number of paths are created, the best one amongst them is chosen as an approximate solution.
 
@@ -118,26 +118,38 @@ Nevertheless, here, beam search is based on Monte Carlo Search. The reason for i
 \subsection{Setup}
 \label{subsec:setup}
 
-To start with, define representation of a musical piece. Suppose that counterpoint is written in $l$ melodic lines (parts, voices), where $l$ is usually 2 or 3. Suppose also that a diatonic scale (like C-major or A-minor) is chosen. Let each line be a list of pitches from the scale (i.e., only 7 out of 12 notes per octave can be used and so chromaticism is prohibited). Set length of all lines to the same number $m$, where $m$ is usually between 8 and 24. From music point of view, this means that a piece to be created is rather a phrase that can be inserted into a longer composition. Such limitation goes back to species counterpoint, because it is designed exactly for writing short phrases. This way or that, define a piece as a matrix $P$ of size $l \times m$ where element $P_{ij}$ is a pitch played in $i$-th line in $j$-th measure.
+To start with, define representation of a musical piece. Suppose that a diatonic scale (like C-major or A-minor) is chosen. Let a line be a list of $(\mathrm{pitch}, \mathrm{duration})$ pairs where $\mathrm{pitch}$ must be from the scale (i.e., only 7 out of 12 notes per octave can be used and so chromaticism is prohibited) and $\mathrm{duration} \in \{1, 2, 4, 8\}$ (i.e., it is measured in eights of measure). In this study, pieces are written exactly in 2 melodic lines (parts, voices) where one of them is cantus firmus and the other one is counterpoint. Definition of cantus firmus implies that very element of cantus firmus has duration equal to 8 and duration of a piece in measures is equal to length of cantus firmus. Denote this length by $m$, where $m$ is usually between 8 and 24. From music point of view, this means that a piece to be created is rather a phrase that can be inserted into a longer composition. Such limitation goes back to species counterpoint, because it is designed exactly for writing short phrases.
 
-Every line must have only small intervals between its successive elements in order to be perceived as a single line and not as a heterogeneous collection of sounds. Suppose that maximum allowed melodic interval is $s$ scale degrees (here, $s = 3$). If so, there are no more than $(2s + 1)^l$ options to fill the next measure given current measure. Actually, the number is smaller, because some options are filtered out by counterpoint rules. The rules enforced in this study can be either rules of voice leading (part writing) or rules of harmony.
+Every line must have only small intervals between its successive elements in order to be perceived as a single line and not as a heterogeneous collection of sounds. Suppose that maximum allowed melodic interval is $s$ scale degrees (here, $s = 7$). If so, there are no more than $(2s + 1)$ options to select the next pitch given the current pitch and there are no more than $4(2s + 1)$ options to add the next note given the current note (where $4 = \#\{1, 2, 4, 8\}$). Actually, the number is smaller, because some options are filtered out by counterpoint rules. The rules enforced in this study can be rules of rhythm, rules of voice leading (part writing), and rules of harmony.
 
-Here, five rules of voice leading are imposed:
+Here, only one rule of rhythm is present:
+\begin{itemize}
+	\item There must be no conflicts between strong beats and longer notes. In other words, every measure must be split in a manner that allows a listener to unambiguously define meter. For example, if a measure is split like this: (4, 2, 1, 1) or (2, 1, 1, 8) where 8 stands for a tied over bar note, this is correct, but if a measure is split like this: (2, 4, 2), this is not correct, because downbeat note is shorter than the next note and intermediate strong beat is inside a note, not at a beginning of a note.
+\end{itemize}
+Further, seven rules of voice leading are imposed:
 \begin{itemize}
 	\item Only pitches from tonic triad (i.e., tonic, mediant, and dominant) can be rearticulated (repeated), because only they are stable;
+	\item No pitches can be rearticulated two times in a row, because it makes a line stalling;
+	\item A line can not move from an intermediate pitch by more than 9 semitones without any changes in direction (rearticulation is not a change of direction);
 	\item If a line has submediant followed by leading tone, tonic must be used after leading tone, because there is strong attraction to it; similarly, if a line has leading tone followed by submediant, dominant must be used after submediant;
-	\item If a melodic interval between two successive pitches from the same line is larger than second (i.e., if there is a skip), the second pitch must be from tonic triad, because skip creates enough tension and something stable is needed;
+	\item There can be no more than 2 skips (leaps) in a row;
 	\item Movement by step in the opposite direction must happen immediately after a skip larger than third in order to resolve tension associated with the skip;
 	\item For every pitch, there must be a way to reach the final pitch of this line with step motion (the final measure is filled initially with user-defined sonority), because resolution must be present during last measures.
 \end{itemize}
-In addition, there are three rules of harmony:
+Finally, there are seven rules of harmony:
 \begin{itemize}
-	\item All harmonic intervals between two simultaneously sounding pitches from different lines must be consonant;
-	\item Within a measure, all pitch classes must be different unless the measure is the first one or the last one;
-	\item For every pitch, the closest to it pitch from the same measure must be no more than tenth apart.
+	\item If a note from a counterpoint line starts on a strong beat (downbeat or measure middle), harmonic interval between the pitch and simultaneously sounding pitch from cantus firmus, must be consonant (although, if counterpoint note is suspended, it can be dissonant with the second simultaneously sounding note from cantus firmus);
+	\item If a note from a counterpoint line forms a dissonance with cantus firmus, it must be reached by step motion;
+	\item If a note from a counterpoint line forms a dissonance with cantus firmus, it must be left by step motion;
+	\item If a dissonance is created by suspended note, this dissonance must be resolved by downward step motion;
+	\item Harmonic intervals larger than tenth are prohibited;
+	\item Voice crossing is prohibited (i.e., counterpoint can be either strictly above cantus firmus or strictly below it);
+	\item Overlapping motion is prohibited (i.e., counterpoint can be either strictly above lagged cantus firmus or strictly below it).
 \end{itemize}
 
-Above rules are absolute and it is not possible to break any of them, because pitches for the next measure can be selected only from options that are filtered according to these rules. If a set of such options is empty, episode terminates and an unfinished sequence of actions receives negative reward for dead end.
+Above rules are absolute and it is not possible to break any of them, because line continuations can be selected only from options that are filtered according to these rules. If a set of such options is empty, episode terminates and an unfinished sequence of actions receives negative reward for dead end.
+
+It worths to be mentioned that the listed rules are based on counterpoint theory, but they do not reproduce it exactly. For example, there is a pattern named Double Neighbor and it is allowed in counterpoint music, but it is prohibited by the rule about step motion to a dissonating element.
 
 
 \subsection{Evaluational Rules}
