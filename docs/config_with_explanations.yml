@@ -1,0 +1,108 @@
+# This is an elucidated copy of `default_config.yml`.
+# The file is updated for v0.4.1.
+
+piece:  # Parameters of a piece to be composed automatically.
+  tonic: C  # Main pitch class (also known as key). You can use octothorp/hash if needed (like D#).
+  scale_type: major  # Valid values are: 'major', 'natural_minor', and 'harmonic_minor'.
+  cantus_firmus:  # Pre-defined melodic line (voice) consisting of whole (semibreve) notes only.
+    - C4
+    - D4
+    - E4
+    - C4
+    - A3
+    - B3
+    - C4
+    - G4
+    - E4
+    - C4
+    - D4
+    - C4
+  counterpoint_specifications:  # Parameters of a melodic line (voice) that is going to be composed automatically.
+    start_note: G4
+    end_note: C5
+    lowest_note: C4  # This means that notes below it can not be used, but there is no guarantee that this note occurs.
+    highest_note: B5  # This means that notes above it can not be used, but there is no guarantee that this note occurs.
+    start_pause_in_eights: 4  # Delay in eights of measure between cantus firmus start and counterpoint line start.
+    max_skip_in_degrees: 7  # Maximum skip (leap) that can occur in counterpoint line (in scale degrees).
+  rules:  # Rules of counterpoint composition that can not be violated.
+    names:  # See implementations from `rlmusician.environment.rules.py` to find more details.
+      - rhythmic_pattern_validity
+      - rearticulation_stability
+      - absence_of_stalled_pitches
+      - absence_of_long_motion
+      - absence_of_skip_series
+      - turn_after_skip
+      - VI_VII_resolution
+      - step_motion_to_end
+      - consonance_on_strong_beat
+      - step_motion_to_dissonance
+      - step_motion_from_dissonance
+      - resolution_of_suspended_dissonance
+      - absence_of_large_intervals
+      - absence_of_lines_crossing
+      - absence_of_overlapping_motion
+    params:  # See implementations from `rlmusician.environment.rules.py` to find more details.
+      absence_of_stalled_pitches:
+        max_n_repetitions: 2
+      absence_of_long_motion:
+        max_distance_in_semitones: 9
+      absence_of_skip_series:
+        max_n_skips: 2
+      turn_after_skip:
+        min_n_scale_degrees: 3
+      step_motion_to_end:
+        prohibit_rearticulation: true
+      absence_of_large_intervals:
+        max_n_semitones: 16
+      absence_of_lines_crossing:
+        prohibit_unisons: true
+  rendering_params:  # Parameters of converting created piece to TSV, MIDI, and WAV files.
+    dir: rlmusician_data  # Relative path to directory with results.
+    measure_in_seconds: 1.0  # Duration of one measure in seconds.
+    midi:
+      cantus_firmus_instrument: 0  # ID (according to General MIDI specification) of instrument that plays cantus firmus.
+      counterpoint_instrument: 0  # ID (according to General MIDI specification) of instrument that plays counterpoint line.
+      velocity: 100  # MIDI velocity (loosely speaking, loudness).
+    sinethesizer:  # Settings of a tool that creates WAV files.
+      cantus_firmus_timbre: default_timbre  # Name of timbre (from `rlmusician.configs.sinethesizer_presets.yml`) for cantus firmus.
+      counterpoint_timbre: default_timbre  # Name of timbre (from `rlmusician.configs.sinethesizer_presets.yml`) for counterpoint line.
+      volume: 0.3
+environment:  # Parameters of environment that provides rewards and observations.
+  scoring_coefs:  # See implementations from `rlmusician.environment.evaluation.py` to find more details.
+    climax_explicity: 1
+    entropy: 1
+    looped_fragments: 1
+    narrow_ranges: 1
+    number_of_skips: 1
+  scoring_fn_params:
+    climax_explicity:
+      shortage_penalty: 0.3
+      duplication_penalty: 0.5
+    looped_fragments:
+      min_size: 8
+      max_size:
+    narrow_ranges:
+      min_size: 9
+      penalties:
+        2: 1
+        3: 0.5
+    number_of_skips:
+      min_n_skips: 1
+      max_n_skips: 3
+  reward_for_dead_end: -3
+agent:  # Parameters of optimization algorithm (currently, it is Monte Carlo Beam Search).
+  beam_width: 5  # Number of best subsequences of actions to explore further.
+  n_records_to_keep: 10  # Number of best previously played episodes to keep.
+  n_trials_schedule:  # Numbers of random continuations of each subsequence at corresponding iteration. The last element is propagated further.
+    - 30000
+    - 10000
+    - 10000
+    - 10000
+    - 10000
+    - 10000
+    - 5000
+    - 5000
+    - 5000
+    - 1000
+  paralleling_params:  # Parameters of `mp.Pool` (like `n_processes` or `max_tasks_per_child`).
+    n_processes:  # Blank value is `None` and so all cores are used.
