@@ -76,7 +76,7 @@ environment:
       shortage_penalty: 0.3
       duplication_penalty: 0.5
     looped_fragments:
-      min_size: 8
+      min_size: 4
       max_size:
     narrow_ranges:
       min_size: 9

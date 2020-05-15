@@ -16,7 +16,7 @@ from rlmusician.utils import rolling_aggregate
 
 
 def evaluate_absence_of_looped_fragments(
-        piece: Piece, min_size: int = 8, max_size: Optional[int] = None
+        piece: Piece, min_size: int = 4, max_size: Optional[int] = None
 ) -> float:
     """
     Evaluate non-triviality of a piece based on absence of looped fragments.
@@ -33,7 +33,10 @@ def evaluate_absence_of_looped_fragments(
     score = 0
     max_size = max_size or piece.total_duration_in_eights // 2
     for size in range(min_size, max_size + 1):
-        for position in range(0, piece.total_duration_in_eights - 2*size + 1):
+        max_position = piece.total_duration_in_eights - 2 * size
+        penultimate_measure_end = piece.total_duration_in_eights - 8 - 1
+        max_position = min(max_position, penultimate_measure_end)
+        for position in range(0, max_position + 1):
             fragment = piece.piano_roll[:, position:position+size]
             next_fragment = piece.piano_roll[:, position+size:position+2*size]
             if np.array_equal(fragment, next_fragment):
