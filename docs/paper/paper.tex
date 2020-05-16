@@ -12,11 +12,12 @@
 \usepackage{microtype}      % microtypography
 \usepackage{algorithm}      % environment for algorithms
 \usepackage{algorithmic}    % pseudocode
+\usepackage{graphicx}       % images
 
 
 \title{RL-Musician: A Configurable Open-Source Tool for Species Counterpoint Composition}
 
-\date{May 11, 2020}
+\date{May 16, 2020}
 
 \author{
   Nikolay~Lysenko\\
@@ -30,7 +31,7 @@
 \maketitle
 
 \begin{abstract}
-In this paper, automatic composition of fifth species counterpoint is framed as a tree search problem close to reinforcement learning. The goal in this problem is to compose a melodic line given another melodic line consisting of whole notes only. The line in progress has fixed ends and the rest is filled sequentially from start to finish. Once it is done, an episode terminates and the resulting piece is evaluated based on some hand-written rules derived from music theory. Best sequences of notes are found with a variation of Monte Carlo Beam Search.
+In this paper, automatic composition of fifth species counterpoint is framed as a tree search problem close to reinforcement learning. The goal in this problem is to compose a melodic line given another melodic line consisting of whole notes only. The line in progress has fixed ends and the gap between these ends is filled sequentially from start to finish. Once it is done, an episode terminates and the resulting piece is evaluated based on some hand-written rules derived from music theory. Best sequences of notes are found with a variation of Monte Carlo Beam Search.
 
 Although current setup of the problem may seem simplistic, it is a step in a promising direction. Numerous recent advances in music generation are achieved with supervisedly trained neural networks and reinforcement learning is not used there as a standalone paradigm. Since collections of existing pieces are involved as datasets, results are "inspired" by these reference pieces. However, the notion of creativity is wider -- it also includes generation of something that meets criteria of being an art, but is not backed by existing pieces. Thus, new aspects of creativity can be revealed by further research of pure reinforcement learning approaches.
 \end{abstract}
@@ -73,7 +74,7 @@ These examples can be divided into two groups. The first one is formed by approa
 The closest to the current study works \cite{herremans2012first, herremans2013fifth} belong to the first group. A local search algorithm named Variable Neighborhood Search (VNS) is used there in order to create first and fifth species counterpoint pieces that maximize fitness function. What these studies and the current one share in common is that fitness (reward) function is backed by the theory of species counterpoint. Despite that, there are important differences:
 \begin{itemize}
 	\item In \cite{herremans2012first, herremans2013fifth}, the whole piece is created at random and then improved by applying small alterations. As a result, there are only evaluation rules and there are no rules of composition. If a piece breaks some fundamental rules of counterpoint, it is still evaluated (but it can receive score making it unfeasible). Conversely, in the current study, both rules of composition and rules of evaluation are present as separate entities. An action that contradicts a rule of composition can not be done and so only compliant pieces are evaluated.
-	\item In \cite{herremans2012first, herremans2013fifth}, evaluation rules accurately follow counterpoint theory, but here it is not reproduced too literally. From a modern listener point of view, violation of counterpoint prescriptions does not necessarily sound unpleasant, because some of these prescriptions are style-specific.
+	\item In \cite{herremans2012first, herremans2013fifth}, evaluation rules accurately follow counterpoint theory, but here it is not reproduced too literally. From a modern listener point of view, violation of counterpoint prescriptions does not necessarily sounds unpleasant, because some of these prescriptions are style-specific.
 	\item Output of VNS is a fixed piece. If cantus firmus is changed, VNS should be run from scratch. Actually, output of Monte Carlo Beam Search is a fixed piece too and search should be run from scratch for every new cantus firmus as well. However, the current approach can be upgraded to a true reinforcement learning approach. Such upgrade is possible, because the problem is formulated in RL terms: composition of a piece is considered an episode consisting of sequential steps after each of which a list of valid actions updates. If so, there can be an agent that observes current state of a piece and writes counterpoint line based on observations. Cantus firmus can be changed from episode to episode during training of the agent in order to teach the agent to deal with various cantus firmi. After each episode played by the trained agent, a new output piece can be created even for a fixed cantus firmus.
 	\item Methodology of the two discussed papers has a software implementation named Optimuse, but download links are broken and so results can not be reproduced. Unlike this, links from the present paper lead to time-tested sites such as GitHub and PyPI.
 \end{itemize}
@@ -118,13 +119,15 @@ Nevertheless, here, beam search is based on Monte Carlo Search. The reason for i
 \subsection{Setup}
 \label{subsec:setup}
 
-To start with, define representation of a musical piece. Suppose that a diatonic scale (like C-major or A-minor) is chosen. Let a line be a list of $(\mathrm{pitch}, \mathrm{duration})$ pairs where $\mathrm{pitch}$ must be from the scale (i.e., only 7 out of 12 notes per octave can be used and so chromaticism is prohibited) and $\mathrm{duration} \in \{1, 2, 4, 8\}$ (i.e., it is measured in eights of measure). In this study, pieces are written exactly in 2 melodic lines (parts, voices) where one of them is cantus firmus and the other one is counterpoint. Definition of cantus firmus implies that very element of cantus firmus has duration equal to 8 and duration of a piece in measures is equal to length of cantus firmus. Denote this length by $m$, where $m$ is usually between 8 and 24. From music point of view, this means that a piece to be created is rather a phrase that can be inserted into a longer composition. Such limitation goes back to species counterpoint, because it is designed exactly for writing short phrases.
+To start with, define representation of a musical piece. Suppose that a diatonic scale (like C-major or A-minor) is chosen. Let a line be a list of $(\mathrm{pitch}, \mathrm{duration})$ pairs where $\mathrm{pitch}$ must be from the scale (i.e., only 7 out of 12 notes per octave can be used and so chromaticism is prohibited) and $\mathrm{duration} \in \{1, 2, 4, 8\}$ (i.e., it is measured in eights of measure). In this study, pieces are written exactly in 2 melodic lines (parts, voices) where one of them is cantus firmus and the other one is counterpoint. Definition of cantus firmus implies that every its element has duration equal to 8 and duration of a piece in measures is equal to length of cantus firmus. Denote this length by $m$, where $m$ is usually between 8 and 24. From music point of view, this means that a piece to be created is rather a phrase that can be inserted into a longer composition. Such limitation goes back to species counterpoint, because it is designed exactly for writing short phrases.
 
-Every line must have only small intervals between its successive elements in order to be perceived as a single line and not as a heterogeneous collection of sounds. Suppose that maximum allowed melodic interval is $s$ scale degrees (here, $s = 7$). If so, there are no more than $(2s + 1)$ options to select the next pitch given the current pitch and there are no more than $4(2s + 1)$ options to add the next note given the current note (where $4 = \#\{1, 2, 4, 8\}$). Actually, the number is smaller, because some options are filtered out by counterpoint rules. The rules enforced in this study can be rules of rhythm, rules of voice leading (part writing), and rules of harmony.
+Alternatively, a piece can be represented by a piano roll which is a matrix $P$ of size $n \times 8m$ where $n$ is size of available pitches range (hence, $n \le 88$, since there are 88 piano keys) and $8m$ is number of eights of measure in a piece lasting $m$ measures. Matrix element $P_{ij}$ is 1 if $i$-th pitch is sounding at $j$-th eight and 0 otherwise.
+
+Every line must have only small intervals between its successive elements in order to be perceived as a single line and not as a heterogeneous collection of sounds. Suppose that maximum allowed melodic interval is $s$ scale degrees (here, $s = 7$). If so, there are no more than $(2s + 1)$ options to select the next pitch given the current pitch and there are no more than $4(2s + 1)$ options to add the next note given the current note (where $4 = \#\{1, 2, 4, 8\}$). Actually, the number is smaller, because some options are filtered out by counterpoint rules. The rules enforced in this study can be rules of rhythm, rules of voice leading, and rules of harmony.
 
 Here, only one rule of rhythm is present:
 \begin{itemize}
-	\item There must be no conflicts between strong beats and longer notes. In other words, every measure must be split in a manner that allows a listener to unambiguously define meter. For example, if a measure is split like this: (4, 2, 1, 1) or (2, 1, 1, 8) where 8 stands for a tied over bar note, this is correct, but if a measure is split like this: (2, 4, 2), this is not correct, because downbeat note is shorter than the next note and intermediate strong beat is inside a note, not at a beginning of a note.
+	\item There must be no conflicts between strong beats and longer notes. In other words, every measure must be split in a manner that allows a listener to unambiguously define meter. For example, if a measure is split like this: (4, 2, 1, 1) or (2, 1, 1, 8) where 8 stands for a tied over bar note, this is correct, but if a measure is split like this: (2, 4, 2), this is not correct, because downbeat note is shorter than the next note and intermediate strong beat is inside a span of a note, not at a beginning of a note.
 \end{itemize}
 Further, seven rules of voice leading are imposed:
 \begin{itemize}
@@ -134,7 +137,7 @@ Further, seven rules of voice leading are imposed:
 	\item If a line has submediant followed by leading tone, tonic must be used after leading tone, because there is strong attraction to it; similarly, if a line has leading tone followed by submediant, dominant must be used after submediant;
 	\item There can be no more than 2 skips (leaps) in a row;
 	\item Movement by step in the opposite direction must happen immediately after a skip larger than third in order to resolve tension associated with the skip;
-	\item For every pitch, there must be a way to reach the final pitch of this line with step motion (the final measure is filled initially with user-defined sonority), because resolution must be present during last measures.
+	\item For every note from counterpoint line, there must be a way to reach the final note of this line with step motion (remember that the final note is set initially), because resolution must be present during last measures.
 \end{itemize}
 Finally, there are seven rules of harmony:
 \begin{itemize}
@@ -151,139 +154,86 @@ Above rules are absolute and it is not possible to break any of them, because li
 
 It worths to be mentioned that the listed rules are based on counterpoint theory, but they do not reproduce it exactly. For example, there is a pattern named Double Neighbor and it is allowed in counterpoint music, but it is prohibited by the rule about step motion to a dissonating element.
 
+Initially, cantus firmus, start note of counterpoint line (occupying the whole first measure except opening pause), end note of counterpoint line (occupying the whole last measure), and range of pitches available for usage in counterpoint line, are set externally. These values are the same for all episodes of Monte Carlo Beam Search. During each episode, a gap between the first note and the last note is reduced by one new note added to the left. This is done until the counterpoint line is finished.
+
 
 \subsection{Evaluational Rules}
 \label{subsec:setup}
 
-At the current revision of the study, seven properties of a final piece are evaluated separately and total reward is a weighted sum of these seven scores.
+At the current revision of the study, five properties of a final piece are evaluated separately and total reward is a weighted sum of these five scores.
 
 \begin{itemize}
-	\item \textbf{Absence of looped pitches.} A stable pitch may be rearticulated, but not more than once in a row. Every excessive occurrence of the same pitch within a line adds constant negative reward.
-    \item \textbf{Absence of looped fragments.} Define a fragment as one or more consecutive measures (at a piece level, not at a melodic line level). For every fragment followed by exactly the same fragment, a constant negative reward is added.
-	\item \textbf{Motion.} For every pair of lines every motion between two successive measures adds a reward that depends on a type of motion. Since contrary motion makes lines more distinguishable, reward for it is positive. Reward for oblique motion is zero, reward for similar motion is slightly negative and reward for parallel motion is negative, because parallel motion makes lines sounding like copies of each other.
-	\item \textbf{Correlation between lines.} Consider each line as a sequence of real numbers equal to pitch positions within a range of available pitches. Then average over all pairs of lines correlation between two lines can quantify independence of lines. Actually, reward is rescaled to be from 0 to 1 -- it is half of difference of 1 and the above average correlation.
-    \item \textbf{Explicity of climax.} Music theory suggests that good melodies must have goal-oriented motion and that such goal-orientedness may be achieved by having exactly one climax point. For each line, constant reward is decreased for each duplication of climax point and for not so high climax point.
-    \item \textbf{Number of skips.} Positive reward is associated with every line such that number of skips in it lies within a specified range. The motivation behind this is that lines with almost no skips are not interesting, but lines with too many skips are not coherent.
-    \item \textbf{Absence of downward skips}. Counterpoint theory prescribes to have downward step motion. To encourage its usage, there are negative rewards for every downward skip and the larger a skip is, the higher a penalty its.
+    \item \textbf{Absence of looped fragments.} Define a fragment as content of four or more consecutive columns of a piano roll $P$. For every fragment followed by exactly the same fragment, a constant negative reward is added.
+    \item \textbf{Entropy of pitch distribution.} Let $C$ be a set of all pitches available for usage in a counterpoint line and let $\mu$ be the probability distribution on this set $C$ derived from frequencies of pitches in a counterpoint line. Divide entropy of $\mu$ by entropy of the uniform distribution on $C$. The result is a real number from 0 to 1. This number is returned as a reward for non-degeneracy of pitch usage.
+    \item \textbf{Explicity of climax.} Music theory suggests that good melodies must have goal-oriented motion and that such goal-orientedness may be achieved by having exactly one climax point. For a counterpoint line, a constant reward is decreased for each duplication of climax point and for not so high climax point.
+    \item \textbf{Absence of aimless fluctuations.} If melody fluctuates within a narrow range of pitches for a long time, it sounds boring. So for every 9 or more successive notes from a counterpoint line such that the lowest of them and the highest of them are no more than third apart, constant negative reward is assigned. Also, if an interval between the lowest of 9 or more successive notes and the highest of them is a fourth, half of this negative reward is assigned.
+    \item \textbf{Number of skips.} Depending on number of skips in counterpoint line, non-negative reward is granted. The motivation behind this is that lines with almost no skips are not interesting, but lines with too many skips are not coherent. So the reward is 0 when number of skips is 0, then it increases, reaches maximum at 3 skips and decreases after that becoming 0 again for 7 or more skips. 
 \end{itemize}
 
-It can be seen that the first two properties deal with non-triviality of results, the next two properties deal with interaction of lines and the last three properties deal with melodic quality of each separate line. 
+It can be seen that the first two properties deal with non-triviality of results, while the other three properties deal with melodic quality of a counterpoint line. 
 
 
 \section{Experimental Results}
 \label{sec:results}
 
-A software implementation of the above methodology in Python programming language is available on GitHub\footnote{\url{https://github.com/Nikolay-Lysenko/rl-musician}}. The code has built-in documentation, is covered with unit tests, and is released as a package on PyPI\footnote{\url{https://pypi.org/project/rl-musician/0.3.0/}}. All important settings are placed to a separate configuration file and so it is easy to experiment with them.
+A software implementation of the above methodology in Python programming language is available on GitHub\footnote{\url{https://github.com/Nikolay-Lysenko/rl-musician}}. The code has built-in documentation, is covered with unit tests, and is released as a package on PyPI\footnote{\url{https://pypi.org/project/rl-musician/0.4.1/}}. All important settings are placed to a separate configuration file and so it is easy to experiment with them.
 
 The implementation relies on some open-source tools \cite{brockman2016openai,oliphant2006guide,raffel2014intuitive}.
 
-In this section, results are reported for experiments with 2 melodic lines and 16 measures starting from (G4, C5) and ending with (C4, C5). Properties to be evaluated are weighted so that explicity of climax has 3 times more impact than any other property.
+In this section, results are reported for experiments with a cantus firmus attributed to Johann Joseph Fux, a theorist of species counterpoint. This cantus firmus lasts 12 measures. Counterpoint line starts with G4, ends with C5, and is allowed to have pitches from C4 to B5. Properties to be evaluated have equal weights.
+
+Below figure shows a piece produced given this setup. As Table \ref{table:scores} shows, the piece is close to theoretical optimum.
+
+\begin{figure}[h!]
+	\label{image:sheet}
+	\caption{An example of a generated piece.}
+	\centering
+	\includegraphics[width=0.9\textwidth]{sheet_music.png}
+\end{figure}
 
 \begin{table}[h!]
-	\caption{Scores of sample pieces}
+	\caption{Scores of the above piece.}
 	\label{table:scores}
 	\begin{center}
-		\begin{tabular}{|l|c|c|c|c|}
+		\begin{tabular}{|l|c|c|}
 			\hline
-			& Human & MCS & MCBS & Maximum\\
+			& Score & Maximum\\
 			\hline
-			Absence of looped pitches & 0 & 0 & 0 & 0\\
+			Absence of looped fragments & 0 & 0\\
 			\hline
-			Absence of looped fragments & -1 & 0 & 0 & 0\\
+			Entropy of pitch distribution & 0.868 & 1\\
 			\hline
-			Motion & -0.267 & -0.1 & -0.033 & 1\\
+			Explicity of climax & 1 & 1\\
 			\hline
-			Correlation between lines & 0.269 & 0.321 & 0.321 & 1\\
+			Absence of aimless fluctuations & 0 & 0\\
 			\hline
-			Explicity of climax & 3 & 3 & 3 & 3\\
+			Number of skips & 1 & 1\\
 			\hline
-			Number of skips & 1 & 1 & 1 & 1\\
-			\hline
-			Absence of downward skips & 0 & -0.6 & 0 & 0\\
-			\hline
-			Total reward & 3.003 & 3.621 & 4.288 & 6\\
+			\textbf{Total reward} & 2.868 & 3\\
 			\hline
 		\end{tabular}
 	\end{center}
 \end{table}
 
-In Table \ref{table:scores}, scores of a piece found with Monte Carlo Beam Search are compared with benchmarks. The piece was found with beam width set to 5 and number of trials schedule set to ($10000 \times 3$, $5000 \times 3$, $1000 \times 8$) -- this means that the second measure of the piece was chosen after 10000 random continuations and, for example, the eighth measure of the piece was chosen after 1000 random continuations. One of the benchmarks is achieved by Monte Carlo Search with 53000 random trials (i.e., total number of random trials is the same). The other benchmark relates to a piece manually created by the author in about 10 minutes. Ideally, scores should be collected during multiple independent experiments and then statistical significance of difference should be tested, but it is not done yet.
 
-The results look like scores for climax explicity, absence of looped pitches, absence of looped fragments, and absence of downward skips impose hard constraints. If so, the goal is to maximize sum of scores for lines independence subject to counterpoint rules and above new constraints.
+The piece was found with beam width set to 5 and number of trials schedule set to ($30000$, $10000 \times 5$, $5000 \times 3$, $1000 \times 5$, $100 \times \dots$) -- this means that the second note of the counterpoint line was chosen after 30000 random continuations and, for example, the eighth note of the counterpoint line was chosen after 5000 random continuations.
 
-Table \ref{table:piece} demonstrates found by Monte Carlo Beam Search piece for which the scores are reported.
-
-\begin{table}[h!]
-	\caption{The piece found with Monte Carlo Beam Search}
-	\label{table:piece}
-	\begin{center}
-		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
-			\hline
-			& & & C6 & & & & & & & & & & & & \\
-			\hline
-			& & & & B5 & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & A5 & & & &  & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & G5 & & & & G5 & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & F5 & & & & & & & & \\
-			\hline
-			& E5 & & & & & & & E5 & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & D5 & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			C5 & C5 & & & & & & & & & C5 & & C5 & C5 & & C5 \\
-			\hline
-			& & B4 & & & & & & & & & B4 & & & B4 & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & A4 & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			G4 & & & & G4 & & & & G4 & & G4 & G4 & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & F4 & & & & F4 & & & F4 & & & \\
-			\hline
-			& & & & & & E4 & & & & & & & E4 & & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & D4 & & & & & & & D4 & \\
-			\hline
-			& & & & & & & & & & & & & & & \\
-			\hline
-			& & & & & & & & & & & & & & & C4 \\
-			\hline
-		\end{tabular}
-	\end{center}
-\end{table}
-
-Subjective evaluation of music quality can be used for revising setup of the problem. Probably, 16 measures are too much, because long step motions are resembling descending scales.
+Multiple runs of Monte Carlo Beam Search were held and almost all of them led to scores similar to the reported above scores. Pieces found by different runs are not variations of each other, but they may share something in common. Taking into account that cantus firmus is the same for all of them, this is expected. Moreover, for the chosen cantus firmus and the chosen settings, climax pitch of a counterpoint line can be B5 (the highest allowed pitch) only in the eighth measure and this limitation obviously reduces variability. 
 
 
 \section{Conclusion}
 \label{sec:conclusion}
 
-This paper introduces a new approach to composition of music without usage of existing pieces. For a problem of first species counterpoint writing, the approach finds pieces that maximize weighted sum of associated with particular musical properties scores subject to boundary constraints. These boundary constraints (the first measure and the last measure) are user-defined and weights for the sum of scores are user-defined too.
+This paper introduces a new approach to composition of music without usage of existing pieces. For a problem of fifth species counterpoint writing, the approach finds pieces that maximize weighted sum of associated with particular musical properties scores subject to boundary constraints. These boundary constraints (the first note and the last note) are user-defined and weights for the sum of scores are user-defined too.
 
-Results are good from formal metrics point of view -- the method outperforms random search and manual trials. However, created pieces are too simple to be enjoyable music. This is an inevitable consequence of too strict limitations of first species counterpoint. To eliminate them, higher species can be chosen or frameworks other than species counterpoint can be explored.
+Because the problem is a reduced version of general music composition problem, results can be virtually perfect from formal metrics point of view. However, several aspects of real music are ignored here:
+\begin{itemize}
+	\item \textbf{Long-term structure.} The developed method produces short phrases (up to a pair of dozens of measures). When creating a longer piece, new concepts arise: say, motifs.
+	\item \textbf{Higher number of voices.} In most Western pieces, four voices are used. Usually, one of them forms main melody and the others form accompaniment.
+	\item \textbf{Freer textures and rhythmical patterns.} Presence of a melody entirely consisting of whole notes is not a mandatory requirement. Further, pauses can be used within lines. Finally, the higher number of voices is, the more rhythmical patterns become available.
+\end{itemize}
 
-If the problem becomes computationally complex after introducing more musical freedom, concepts from reinforcement learning such as value function can be involved. State-free search can be replaced with a search where decision are made based on observations and estimated values of states and actions. 
+It is impossible to take these aspects into account while staying within species counterpoint. A framework going beyond it should be involved.
 
 
 \bibliographystyle{unsrt}  
