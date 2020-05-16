@@ -109,5 +109,10 @@ agent:  # Parameters of optimization algorithm (currently, it is Monte Carlo Bea
     - 5000
     - 5000
     - 1000
+    - 1000
+    - 1000
+    - 1000
+    - 1000
+    - 100
   paralleling_params:  # Parameters of `mp.Pool` (like `n_processes` or `max_tasks_per_child`).
     n_processes:  # Blank value is `None` and so all cores are used.
