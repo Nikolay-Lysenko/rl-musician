@@ -42,7 +42,7 @@ class TestCounterpointEnv:
                     ),
                     scoring_coefs={'number_of_skips': 1},
                     scoring_fn_params={
-                        'number_of_skips': {'min_n_skips': 1, 'max_n_skips': 1}
+                        'number_of_skips': {'rewards': {1: 1}}
                     },
                     reward_for_dead_end=-100,
                 ),
@@ -108,7 +108,7 @@ class TestCounterpointEnv:
                     ),
                     scoring_coefs={'number_of_skips': 1},
                     scoring_fn_params={
-                        'number_of_skips': {'min_n_skips': 1, 'max_n_skips': 1}
+                        'number_of_skips': {'rewards': {1: 1}}
                     },
                     reward_for_dead_end=-100,
                 ),
@@ -155,7 +155,7 @@ class TestCounterpointEnv:
                     ),
                     scoring_coefs={'number_of_skips': 1},
                     scoring_fn_params={
-                        'number_of_skips': {'min_n_skips': 1, 'max_n_skips': 1}
+                        'number_of_skips': {'rewards': {1: 1}}
                     },
                     reward_for_dead_end=-100,
                 ),
@@ -187,7 +187,7 @@ class TestCounterpointEnv:
                     ),
                     scoring_coefs={'number_of_skips': 1},
                     scoring_fn_params={
-                        'number_of_skips': {'min_n_skips': 4, 'max_n_skips': 4}
+                        'number_of_skips': {'rewards': {4: 1}}
                     },
                     reward_for_dead_end=-100,
                 ),
@@ -223,7 +223,7 @@ class TestCounterpointEnv:
                     ),
                     scoring_coefs={'number_of_skips': 1},
                     scoring_fn_params={
-                        'number_of_skips': {'min_n_skips': 1, 'max_n_skips': 1}
+                        'number_of_skips': {'rewards': {1: 1}}
                     },
                     reward_for_dead_end=-100,
                 ),
@@ -269,7 +269,7 @@ class TestCounterpointEnv:
                     ),
                     scoring_coefs={'number_of_skips': 1},
                     scoring_fn_params={
-                        'number_of_skips': {'min_n_skips': 1, 'max_n_skips': 1}
+                        'number_of_skips': {'rewards': {1: 1}}
                     },
                     reward_for_dead_end=-100,
                 ),
