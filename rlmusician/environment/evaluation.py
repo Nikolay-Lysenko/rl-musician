@@ -139,25 +139,25 @@ def evaluate_climax_explicity(
 
 
 def evaluate_number_of_skips(
-        piece: Piece, min_n_skips: int = 1, max_n_skips: int = 3
+        piece: Piece, rewards: Optional[Dict[int, float]] = None
 ) -> float:
     """
-    Evaluate interestingness of counterpoint line based on number of skips.
+    Evaluate interestingness/coherency of counterpoint based on skips number.
 
     :param piece:
         `Piece` instance
-    :param min_n_skips:
-        minimum number of skips for a line to be interesting
-    :param max_n_skips:
-        maximum number of skips for a line to be still coherent
+    :param rewards:
+        mapping from number of skips to reward
     :return:
-        indicator whether number of skips lies within a specified range
+        reward assigned to balancing between interestingess and coherency
+        of counterpoint line
     """
+    rewards = rewards or {1: 0.8, 2: 0.9, 3: 1, 4: 0.9, 5: 0.5, 6: 0.25}
     n_skips = 0
     for movement in piece.past_movements:
         if abs(movement) > 1:
             n_skips += 1
-    score = 1 if min_n_skips <= n_skips <= max_n_skips else 0
+    score = rewards.get(n_skips, 0)
     return score
 
 

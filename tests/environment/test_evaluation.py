@@ -338,7 +338,7 @@ def test_evaluate_entropy(
 
 
 @pytest.mark.parametrize(
-    "piece, steps, min_n_skips, max_n_skips, expected",
+    "piece, steps, rewards, expected",
     [
         (
             # `piece`
@@ -362,21 +362,19 @@ def test_evaluate_entropy(
             ),
             # `steps`,
             [(1, 4), (1, 4), (-3, 4), (-1, 4), (-1, 4), (-1, 4)],
-            # `min_n_skips`
-            1,
-            # `max_n_skips`
-            2,
+            # `rewards`
+            {1: 0.5, 2: 1, 3: 0.5},
             # `expected`
             1
         ),
     ]
 )
 def test_evaluate_number_of_skips(
-        piece: Piece, steps: List[Tuple[int, int]],
-        min_n_skips: int, max_n_skips: int, expected: float
+        piece: Piece, steps: List[Tuple[int, int]], rewards: Dict[int, float],
+        expected: float
 ) -> None:
     """Test `evaluate_number_of_skips` function."""
     for movement, duration in steps:
         piece.add_line_element(movement, duration)
-    result = evaluate_number_of_skips(piece, min_n_skips, max_n_skips)
+    result = evaluate_number_of_skips(piece, rewards)
     assert result == expected

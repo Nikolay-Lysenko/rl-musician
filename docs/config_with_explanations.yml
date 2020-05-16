@@ -87,8 +87,13 @@ environment:  # Parameters of environment that provides rewards and observations
         2: 1
         3: 0.5
     number_of_skips:
-      min_n_skips: 1
-      max_n_skips: 3
+      rewards:
+        1: 0.8
+        2: 0.9
+        3: 1.0
+        4: 0.9
+        5: 0.5
+        6: 0.25
   reward_for_dead_end: -3
 agent:  # Parameters of optimization algorithm (currently, it is Monte Carlo Beam Search).
   beam_width: 5  # Number of best subsequences of actions to explore further.
