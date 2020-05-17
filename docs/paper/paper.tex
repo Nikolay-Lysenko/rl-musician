@@ -54,7 +54,7 @@ The approach relates to a well-known framework for simplified music composition 
 	\item There are clear hints of what is better to avoid and what should be added. So formal rules for automatic evaluation of resulting piece can be introduced.
 \end{itemize}
 
-The word "species" in the name of the framework indicates that there are some types -- each of them has its own rhythmic pattern. Here, fifth species counterpoint is covered. This type is the highest one and the less restrictive one. Like in other species, there is a given melodic line consisting entirely of whole (semibreve) notes. This line is called cantus firmus. Again, like in other species, a new melodic line of the same duration is going to be created (so called counterpoint line) and these two lines should sound aesthetically pleasant when played simultaneously. The difference between fifth species and other species is that a counterpoint line may change its rhythmic pattern: half notes, quarter notes, eights notes, and suspended whole notes can be used. 
+The word "species" in the name of the framework indicates that there are some types -- each of them has its own rhythmic pattern. Here, fifth species counterpoint is covered. This type is the highest one and the less restrictive one. Like in other species, there is a given melodic line consisting entirely of whole (semibreve) notes. This line is called cantus firmus. Again, like in other species, a new melodic line of the same duration is going to be created (so called counterpoint line) and these two lines should sound aesthetically pleasant when played simultaneously. The difference between fifth species and other species is that a counterpoint line may change its rhythmic pattern: half notes, quarter notes, eighths notes, and suspended whole notes can be used. 
 
 Brief outline of the setup is as follows. There is an environment that keeps a piece in progress. Initially, the piece consists of a user-defined cantus firmus, the first note of counterpoint line, and the last note of counterpoint line. An action is extension of the counterpoint left part by one new note. Not every action is valid, there are rules prohibiting some of them. Invalid actions can not be done by design. When the last note is reached, episode is ended and a reward based on evaluation of the created composition is assigned to the sequence of passed actions.
 
@@ -113,15 +113,16 @@ Probably, the term Monte Carlo Beam Search was coined in \cite{cazenave2012beam}
 
 Nevertheless, here, beam search is based on Monte Carlo Search. The reason for it is quite mundane -- parallel implementation of DFS looks like overcomplication that may yield too few. The second difference with \cite{cazenave2012beam} is that dependence of trials number on stub length is introduced. The longer the stub is, the smaller a subtree to be explored is. Therefore, it is better to reallocate computational resources in order to explore more when a stub is short and to explore less when a stub is long.
 
+
 \section{Methodology}
 \label{sec:methodology}
 
 \subsection{Setup}
 \label{subsec:setup}
 
-To start with, define representation of a musical piece. Suppose that a diatonic scale (like C-major or A-minor) is chosen. Let a line be a list of $(\mathrm{pitch}, \mathrm{duration})$ pairs where $\mathrm{pitch}$ must be from the scale (i.e., only 7 out of 12 notes per octave can be used and so chromaticism is prohibited) and $\mathrm{duration} \in \{1, 2, 4, 8\}$ (i.e., it is measured in eights of measure). In this study, pieces are written exactly in 2 melodic lines (parts, voices) where one of them is cantus firmus and the other one is counterpoint. Definition of cantus firmus implies that every its element has duration equal to 8 and duration of a piece in measures is equal to length of cantus firmus. Denote this length by $m$, where $m$ is usually between 8 and 24. From music point of view, this means that a piece to be created is rather a phrase that can be inserted into a longer composition. Such limitation goes back to species counterpoint, because it is designed exactly for writing short phrases.
+To start with, define representation of a musical piece. Suppose that a diatonic scale (like C-major or A-minor) is chosen. Let a line be a list of $(\mathrm{pitch}, \mathrm{duration})$ pairs where $\mathrm{pitch}$ must be from the scale (i.e., only 7 out of 12 notes per octave can be used and so chromaticism is prohibited) and $\mathrm{duration} \in \{1, 2, 4, 8\}$ (i.e., it is measured in eighths of measure). In this study, pieces are written exactly in 2 melodic lines (parts, voices) where one of them is cantus firmus and the other one is counterpoint. Definition of cantus firmus implies that every its element has duration equal to 8 and duration of a piece in measures is equal to length of cantus firmus. Denote this length by $m$, where $m$ is usually between 8 and 24. From music point of view, this means that a piece to be created is rather a phrase that can be inserted into a longer composition. Such limitation goes back to species counterpoint, because it is designed exactly for writing short phrases.
 
-Alternatively, a piece can be represented by a piano roll which is a matrix $P$ of size $n \times 8m$ where $n$ is size of available pitches range (hence, $n \le 88$, since there are 88 piano keys) and $8m$ is number of eights of measure in a piece lasting $m$ measures. Matrix element $P_{ij}$ is 1 if $i$-th pitch is sounding at $j$-th eight and 0 otherwise.
+Alternatively, a piece can be represented by a piano roll which is a matrix $P$ of size $n \times 8m$ where $n$ is size of available pitches range (hence, $n \le 88$, since there are 88 piano keys) and $8m$ is number of eighths of measure in a piece lasting $m$ measures. Matrix element $P_{ij}$ is 1 if $i$-th pitch is sounding at $j$-th eighth and 0 otherwise.
 
 Every line must have only small intervals between its successive elements in order to be perceived as a single line and not as a heterogeneous collection of sounds. Suppose that maximum allowed melodic interval is $s$ scale degrees (here, $s = 7$). If so, there are no more than $(2s + 1)$ options to select the next pitch given the current pitch and there are no more than $4(2s + 1)$ options to add the next note given the current note (where $4 = \#\{1, 2, 4, 8\}$). Actually, the number is smaller, because some options are filtered out by counterpoint rules. The rules enforced in this study can be rules of rhythm, rules of voice leading, and rules of harmony.
 
@@ -154,7 +155,7 @@ Above rules are absolute and it is not possible to break any of them, because li
 
 It worths to be mentioned that the listed rules are based on counterpoint theory, but they do not reproduce it exactly. For example, there is a pattern named Double Neighbor and it is allowed in counterpoint music, but it is prohibited by the rule about step motion to a dissonating element.
 
-Initially, cantus firmus, start note of counterpoint line (occupying the whole first measure except opening pause), end note of counterpoint line (occupying the whole last measure), and range of pitches available for usage in counterpoint line, are set externally. These values are the same for all episodes of Monte Carlo Beam Search. During each episode, a gap between the first note and the last note is reduced by one new note added to the left. This is done until the counterpoint line is finished.
+Initially, cantus firmus, start note of counterpoint line (occupying the whole first measure except opening pause), end note of counterpoint line (occupying the whole last measure), and range of pitches available for usage in counterpoint line, are set externally. These values are the same for all episodes of Monte Carlo Beam Search. During each episode, a gap between the first note and the last note is reduced by one new note added to the left and this continues until the counterpoint line is finished.
 
 
 \subsection{Evaluational Rules}
@@ -182,7 +183,7 @@ The implementation relies on some open-source tools \cite{brockman2016openai,oli
 
 In this section, results are reported for experiments with a cantus firmus attributed to Johann Joseph Fux, a theorist of species counterpoint. This cantus firmus lasts 12 measures. Counterpoint line starts with G4, ends with C5, and is allowed to have pitches from C4 to B5. Properties to be evaluated have equal weights.
 
-Below figure shows a piece produced given this setup. As Table \ref{table:scores} shows, the piece is close to theoretical optimum.
+Below figure demonstrates a piece produced with this setup. As Table \ref{table:scores} shows, the piece is close to theoretical optimum.
 
 \begin{figure}[h!]
 	\label{image:sheet}
@@ -214,7 +215,6 @@ Below figure shows a piece produced given this setup. As Table \ref{table:scores
 		\end{tabular}
 	\end{center}
 \end{table}
-
 
 The piece was found with beam width set to 5 and number of trials schedule set to ($30000$, $10000 \times 5$, $5000 \times 3$, $1000 \times 5$, $100 \times \dots$) -- this means that the second note of the counterpoint line was chosen after 30000 random continuations and, for example, the eighth note of the counterpoint line was chosen after 5000 random continuations.
 

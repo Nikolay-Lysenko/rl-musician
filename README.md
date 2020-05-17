@@ -7,11 +7,11 @@
 
 ## Overview
 
-As of now, this is a proof-of-concept for music composition with reinforcement learning solely. Here, creation of [fifth species counterpoint](https://en.wikipedia.org/wiki/Counterpoint#Species_counterpoint) is considered and environment is based on a special data structure that represents musical piece with pre-defined cantus firmus. An action is filling of current [measure](https://en.wikipedia.org/wiki/Bar_\(music\)) for a counterpoint line, an episode is finished when all measures are filled one by one, and reward is determined by applying evaluational rules to the resulting piece.
+As of now, this is a proof-of-concept for music composition with reinforcement learning solely. Here, creation of [fifth species counterpoint](https://en.wikipedia.org/wiki/Counterpoint#Species_counterpoint) is considered and environment is based on a special data structure that represents musical piece with pre-defined cantus firmus. An action is adding a new note to a counterpoint line, an episode is finished when counterpoint duration becomes equal to that of cantus firmus, and reward is determined by applying evaluational rules to the resulting piece.
 
-Some pieces generated with this package are uploaded to a publicly available [cloud storage](https://www.dropbox.com/sh/8nzetrn9hej2w0x/AAC-4uDIbE7gnRQnRrMEPMMNa?dl=0). There, a cantus firmus attributed to [Fux](https://en.wikipedia.org/wiki/Johann_Joseph_Fux) is used.
+Some pieces generated with this package are uploaded to a publicly available [cloud storage](https://www.dropbox.com/sh/ouv8tcpio8z5flp/AABIx8D-QlIM_FtuQ9LqFntNa?dl=0). A cantus firmus attributed to [Fux](https://en.wikipedia.org/wiki/Johann_Joseph_Fux) is used in all of them.
 
-To find more details, look at [a draft of a paper](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/docs/paper/paper.pdf). However, it relates to version 0.3.0 and so first species counterpoint is discussed there. Of course, the draft will be updated in the future.
+To find more details, look at [a draft of a paper](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/docs/paper/paper.pdf).
 
 ## Installation
 
@@ -27,9 +27,9 @@ To create a reward-maximizing musical piece and some its variations, run:
 python -m rlmusician [-c path_to_your_config]
 ```
 
-[Default config](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/rlmusician/configs/default_config.yml) is used if `-c` argument is not passed. Search of optimal piece with these default settings takes about 20 minutes on a CPU of a regular laptop. If you are on Mac OS, please check that [parallelism is enabled](https://stackoverflow.com/questions/50168647/multiprocessing-causes-python-to-crash-and-gives-an-error-may-have-been-in-progr).
+[Default config](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/rlmusician/configs/default_config.yml) is used if `-c` argument is not passed. Search of optimal piece with these default settings takes about 30 minutes on a CPU of a regular laptop. Before creating a new config, it might be useful to look at [an example with explanations](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/docs/config_with_explanations.yml).
 
-To create a new config, it might be useful to look at [an example with explanations](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/docs/config_with_explanations.yml).
+If you are on Mac OS, please check that [parallelism is enabled](https://stackoverflow.com/questions/50168647/multiprocessing-causes-python-to-crash-and-gives-an-error-may-have-been-in-progr).
 
 Generated pieces are stored in a directory specified in the config. For each piece, there is a nested directory that contains:
 * Piano roll in TSV format;
