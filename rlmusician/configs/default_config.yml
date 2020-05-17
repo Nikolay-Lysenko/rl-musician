@@ -19,7 +19,7 @@ piece:
     end_note: C5
     lowest_note: C4
     highest_note: B5
-    start_pause_in_eights: 4
+    start_pause_in_eighths: 4
     max_skip_in_degrees: 7
   rules:
     names:

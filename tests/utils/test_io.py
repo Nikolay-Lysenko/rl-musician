@@ -30,7 +30,7 @@ from rlmusician.utils import (
                     'end_note': 'C5',
                     'lowest_note': 'C4',
                     'highest_note': 'C6',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2
                 },
                 rules={
@@ -90,7 +90,7 @@ def test_create_midi_from_piece(
                     'end_note': 'C5',
                     'lowest_note': 'C4',
                     'highest_note': 'C6',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2
                 },
                 rules={
@@ -121,7 +121,7 @@ def test_create_midi_from_piece(
                     'end_note': 'C5',
                     'lowest_note': 'C4',
                     'highest_note': 'C6',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2
                 },
                 rules={

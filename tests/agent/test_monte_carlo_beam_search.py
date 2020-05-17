@@ -103,7 +103,7 @@ def test_create_stubs(
                         'end_note': 'E4',
                         'lowest_note': 'G3',
                         'highest_note': 'G4',
-                        'start_pause_in_eights': 4,
+                        'start_pause_in_eighths': 4,
                         'max_skip_in_degrees': 2,
                     },
                     rules={

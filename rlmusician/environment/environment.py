@@ -109,8 +109,8 @@ class CounterpointEnv(gym.Env):
         observation = self.piece.piano_roll
         info = {'next_actions': self.valid_actions}
 
-        past_duration = self.piece.current_time_in_eights
-        piece_duration = self.piece.total_duration_in_eights
+        past_duration = self.piece.current_time_in_eighths
+        piece_duration = self.piece.total_duration_in_eighths
         finished = past_duration == piece_duration
         no_more_actions = len(info['next_actions']) == 0
         done = finished or no_more_actions

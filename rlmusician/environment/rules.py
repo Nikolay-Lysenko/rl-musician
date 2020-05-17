@@ -11,7 +11,7 @@ from typing import Callable, Dict, List
 from rlmusician.utils.music_theory import ScaleElement, check_consonance
 
 
-N_EIGHTS_PER_MEASURE = 8
+N_EIGHTHS_PER_MEASURE = 8
 
 
 # Rhythm rules.
@@ -21,7 +21,7 @@ def check_validity_of_rhythmic_pattern(durations: List[int], **kwargs) -> bool:
     Check that current measure is properly divided by notes.
 
     :param durations:
-        durations (in eights) of all notes from a current measure
+        durations (in eighths) of all notes from a current measure
         (including a new note); if a new note prolongs to the next measure,
         its full duration is included; however, if the first note starts
         in the previous measure, only its duration within the current measure
@@ -216,7 +216,7 @@ def check_step_motion_to_final_pitch(
     :param counterpoint_end:
         element that ends counterpoint line
     :param piece_duration:
-        total duration of piece (in eights)
+        total duration of piece (in eighths)
     :param prohibit_rearticulation:
         if it is set to `True`, the last but one pitch can not be the same as
         the final pitch
@@ -227,11 +227,11 @@ def check_step_motion_to_final_pitch(
         counterpoint_continuation.scale_element.position_in_degrees
         - counterpoint_end.position_in_degrees
     )
-    eights_left = (
-        (piece_duration - N_EIGHTS_PER_MEASURE)
-        - counterpoint_continuation.end_time_in_eights
+    eighths_left = (
+        (piece_duration - N_EIGHTHS_PER_MEASURE)
+        - counterpoint_continuation.end_time_in_eighths
     )
-    quarters_left = ceil(eights_left / 2)
+    quarters_left = ceil(eighths_left / 2)
     if quarters_left == 0 and degrees_to_end_note == 0:
         return not prohibit_rearticulation
     return degrees_to_end_note <= quarters_left + 1
@@ -255,7 +255,7 @@ def check_consonance_on_strong_beat(
     :return:
         indicator whether a continuation is in accordance with the rule
     """
-    if counterpoint_continuation.start_time_in_eights % 4 != 0:
+    if counterpoint_continuation.start_time_in_eighths % 4 != 0:
         return True
     return check_consonance(
         counterpoint_continuation.scale_element,
@@ -340,8 +340,10 @@ def check_resolution_of_suspended_dissonance(
     :return:
         indicator whether a continuation is in accordance with the rule
     """
-    last_duration = line[-1].end_time_in_eights - line[-1].start_time_in_eights
-    if last_duration != N_EIGHTS_PER_MEASURE:
+    last_note_start = line[-1].start_time_in_eighths
+    last_note_end = line[-1].end_time_in_eighths
+    last_note_duration = last_note_end - last_note_start
+    if last_note_duration != N_EIGHTHS_PER_MEASURE:
         return True
     if is_last_element_consonant:
         return True

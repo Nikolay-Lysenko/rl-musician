@@ -24,18 +24,18 @@ def evaluate_absence_of_looped_fragments(
     :param piece:
         `Piece` instance
     :param min_size:
-        minimum duration of a fragment (in eights)
+        minimum duration of a fragment (in eighths)
     :param max_size:
-        maximum duration of a fragment (in eights)
+        maximum duration of a fragment (in eighths)
     :return:
         multiplied by -1 number of looped fragments
     """
     score = 0
-    max_size = max_size or piece.total_duration_in_eights // 2
+    max_size = max_size or piece.total_duration_in_eighths // 2
     for size in range(min_size, max_size + 1):
-        max_position = piece.total_duration_in_eights - 2 * size
-        penultimate_measure_end = piece.total_duration_in_eights - 8 - 1
-        max_position = min(max_position, penultimate_measure_end)
+        max_position = piece.total_duration_in_eighths - 2 * size
+        penultimate_measure_end = piece.total_duration_in_eighths - 8
+        max_position = min(max_position, penultimate_measure_end - 1)
         for position in range(0, max_position + 1):
             fragment = piece.piano_roll[:, position:position+size]
             next_fragment = piece.piano_roll[:, position+size:position+2*size]

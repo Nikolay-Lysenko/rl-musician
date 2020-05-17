@@ -14,7 +14,7 @@ from sinethesizer.io import (
 from sinethesizer.io.utils import get_list_of_notes
 
 
-N_EIGHTS_PER_MEASURE = 8
+N_EIGHTHS_PER_MEASURE = 8
 
 
 def create_midi_from_piece(
@@ -64,13 +64,13 @@ def create_midi_from_piece(
                 + numeration_shift
             )
             start_time = (
-                element.start_time_in_eights
-                / N_EIGHTS_PER_MEASURE
+                element.start_time_in_eighths
+                / N_EIGHTHS_PER_MEASURE
                 * measure_in_seconds
             )
             end_time = (
-                element.end_time_in_eights
-                / N_EIGHTS_PER_MEASURE
+                element.end_time_in_eighths
+                / N_EIGHTHS_PER_MEASURE
                 * measure_in_seconds
             )
             note = pretty_midi.Note(
@@ -137,13 +137,13 @@ def create_events_from_piece(
     for line, timbre in zip(lines, timbres):
         for element in line:
             start_time = (
-                element.start_time_in_eights
-                / N_EIGHTS_PER_MEASURE
+                element.start_time_in_eighths
+                / N_EIGHTHS_PER_MEASURE
                 * measure_in_seconds
             )
             duration = (
-                (element.end_time_in_eights - element.start_time_in_eights)
-                / N_EIGHTS_PER_MEASURE
+                (element.end_time_in_eighths - element.start_time_in_eighths)
+                / N_EIGHTHS_PER_MEASURE
                 * measure_in_seconds
             )
             pitch_id = element.scale_element.position_in_semitones

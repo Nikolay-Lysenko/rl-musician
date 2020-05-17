@@ -33,7 +33,7 @@ from rlmusician.environment.piece import Piece
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 rules={
@@ -62,7 +62,7 @@ from rlmusician.environment.piece import Piece
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 rules={
@@ -107,7 +107,7 @@ def test_evaluate_absence_of_looped_fragments(
                     'end_note': 'G3',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 3,
                 },
                 rules={
@@ -136,7 +136,7 @@ def test_evaluate_absence_of_looped_fragments(
                     'end_note': 'G3',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 3,
                 },
                 rules={
@@ -165,7 +165,7 @@ def test_evaluate_absence_of_looped_fragments(
                     'end_note': 'G3',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 3,
                 },
                 rules={
@@ -210,7 +210,7 @@ def test_evaluate_absence_of_narrow_ranges(
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'E4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 rules={
@@ -239,7 +239,7 @@ def test_evaluate_absence_of_narrow_ranges(
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 rules={
@@ -286,7 +286,7 @@ def test_evaluate_climax_explicity(
                     'end_note': 'G3',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 3,
                 },
                 rules={
@@ -311,7 +311,7 @@ def test_evaluate_climax_explicity(
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 3,
                 },
                 rules={
@@ -351,7 +351,7 @@ def test_evaluate_entropy(
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 3,
                 },
                 rules={

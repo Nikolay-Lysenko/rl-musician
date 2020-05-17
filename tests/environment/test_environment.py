@@ -31,7 +31,7 @@ class TestCounterpointEnv:
                             'end_note': 'E4',
                             'lowest_note': 'G3',
                             'highest_note': 'G4',
-                            'start_pause_in_eights': 4,
+                            'start_pause_in_eighths': 4,
                             'max_skip_in_degrees': 2,
                         },
                         rules={
@@ -92,7 +92,7 @@ class TestCounterpointEnv:
                             'end_note': 'E4',
                             'lowest_note': 'G3',
                             'highest_note': 'G4',
-                            'start_pause_in_eights': 4,
+                            'start_pause_in_eighths': 4,
                             'max_skip_in_degrees': 2,
                         },
                         rules={
@@ -144,7 +144,7 @@ class TestCounterpointEnv:
                             'end_note': 'E4',
                             'lowest_note': 'G3',
                             'highest_note': 'G4',
-                            'start_pause_in_eights': 4,
+                            'start_pause_in_eighths': 4,
                             'max_skip_in_degrees': 2,
                         },
                         rules={
@@ -176,7 +176,7 @@ class TestCounterpointEnv:
                             'end_note': 'E4',
                             'lowest_note': 'G3',
                             'highest_note': 'G4',
-                            'start_pause_in_eights': 4,
+                            'start_pause_in_eighths': 4,
                             'max_skip_in_degrees': 2,
                         },
                         rules={
@@ -208,7 +208,7 @@ class TestCounterpointEnv:
                             'end_note': 'E4',
                             'lowest_note': 'G3',
                             'highest_note': 'G4',
-                            'start_pause_in_eights': 4,
+                            'start_pause_in_eighths': 4,
                             'max_skip_in_degrees': 2,
                         },
                         rules={
@@ -258,7 +258,7 @@ class TestCounterpointEnv:
                             'end_note': 'E4',
                             'lowest_note': 'G3',
                             'highest_note': 'G4',
-                            'start_pause_in_eights': 4,
+                            'start_pause_in_eighths': 4,
                             'max_skip_in_degrees': 2,
                         },
                         rules={
@@ -303,4 +303,4 @@ class TestCounterpointEnv:
             env.step(action)
         observation = env.reset()
         np.testing.assert_equal(observation, expected)
-        assert env.piece.current_time_in_eights == 8
+        assert env.piece.current_time_in_eighths == 8

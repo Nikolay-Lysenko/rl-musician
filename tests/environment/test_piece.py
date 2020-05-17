@@ -35,7 +35,7 @@ class TestPiece:
                     'end_note': 'E4',
                     'lowest_note': 'G4',
                     'highest_note': 'G3',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 # `rules`
@@ -59,7 +59,7 @@ class TestPiece:
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 # `rules`
@@ -83,7 +83,7 @@ class TestPiece:
                     'end_note': 'D4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 # `rules`
@@ -107,7 +107,7 @@ class TestPiece:
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 # `rules`
@@ -131,7 +131,7 @@ class TestPiece:
                     'end_note': 'E#4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 # `rules`
@@ -173,7 +173,7 @@ class TestPiece:
                     'highest_note': 'G4',
                     'start_note': 'F#4',
                     'end_note': 'D4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 # `rules`
@@ -234,7 +234,7 @@ class TestPiece:
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 # `rules`
@@ -262,7 +262,7 @@ class TestPiece:
                     'end_note': 'E4',
                     'lowest_note': 'D4',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 # `rules`
@@ -318,7 +318,7 @@ class TestPiece:
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 # `rules`
@@ -366,7 +366,7 @@ class TestPiece:
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 # `rules`
@@ -414,7 +414,7 @@ class TestPiece:
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 # `rules`
@@ -462,7 +462,7 @@ class TestPiece:
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 # `rules`
@@ -540,7 +540,7 @@ class TestPiece:
                     'end_note': 'E4',
                     'lowest_note': 'G3',
                     'highest_note': 'G4',
-                    'start_pause_in_eights': 4,
+                    'start_pause_in_eighths': 4,
                     'max_skip_in_degrees': 2,
                 },
                 # `rules`
@@ -583,5 +583,5 @@ class TestPiece:
             piece.add_line_element(movement, duration)
         piece.reset()
         assert piece.past_movements == []
-        assert piece.current_time_in_eights == 8
+        assert piece.current_time_in_eighths == 8
         np.testing.assert_equal(piece.piano_roll, expected_roll)

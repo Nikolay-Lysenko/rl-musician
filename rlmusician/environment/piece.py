@@ -33,15 +33,15 @@ from rlmusician.utils import (
 
 
 NOTE_TO_POSITION = get_note_to_position_mapping()
-N_EIGHTS_PER_MEASURE = 8
+N_EIGHTHS_PER_MEASURE = 8
 
 
 class LineElement(NamedTuple):
     """An element of a melodic line."""
 
     scale_element: ScaleElement
-    start_time_in_eights: int
-    end_time_in_eights: int
+    start_time_in_eighths: int
+    end_time_in_eighths: int
 
 
 class Piece:
@@ -86,7 +86,9 @@ class Piece:
         self.max_skip = counterpoint_specifications['max_skip_in_degrees']
         self.all_movements = list(range(-self.max_skip, self.max_skip + 1))
         self.n_measures = len(cantus_firmus)
-        self.total_duration_in_eights = N_EIGHTS_PER_MEASURE * self.n_measures
+        self.total_duration_in_eighths = (
+            N_EIGHTHS_PER_MEASURE * self.n_measures
+        )
 
         # Melodic lines.
         self.cantus_firmus = self.__create_cantus_firmus(cantus_firmus)
@@ -115,7 +117,7 @@ class Piece:
         self.__set_range_to_show()
 
         # Runtime variables.
-        self.current_time_in_eights = None
+        self.current_time_in_eighths = None
         self.current_measure_durations = None
         self.past_movements = None
         self.current_motion_start_element = None
@@ -129,8 +131,8 @@ class Piece:
         cantus_firmus = [
             LineElement(
                 scale_element=self.scale.get_element_by_note(note),
-                start_time_in_eights=N_EIGHTS_PER_MEASURE * i,
-                end_time_in_eights=N_EIGHTS_PER_MEASURE * (i+1)
+                start_time_in_eighths=N_EIGHTHS_PER_MEASURE * i,
+                end_time_in_eighths=N_EIGHTHS_PER_MEASURE * (i+1)
             )
             for i, note in enumerate(cantus_firmus_as_notes)
         ]
@@ -141,8 +143,8 @@ class Piece:
         start_note = self.counterpoint_specifications['start_note']
         start_element = LineElement(
             self.scale.get_element_by_note(start_note),
-            self.counterpoint_specifications['start_pause_in_eights'],
-            N_EIGHTS_PER_MEASURE
+            self.counterpoint_specifications['start_pause_in_eighths'],
+            N_EIGHTHS_PER_MEASURE
         )
         counterpoint = [start_element]
         return counterpoint
@@ -185,7 +187,7 @@ class Piece:
 
     def __initialize_piano_roll(self) -> None:
         """Create piano roll and place all pre-defined notes to it."""
-        shape = (len(NOTE_TO_POSITION), self.total_duration_in_eights)
+        shape = (len(NOTE_TO_POSITION), self.total_duration_in_eighths)
         self._piano_roll = np.zeros(shape, dtype=np.int32)
 
         for line_element in self.cantus_firmus:
@@ -196,7 +198,7 @@ class Piece:
         """Add a line element to the piano roll."""
         self._piano_roll[
             line_element.scale_element.position_in_semitones,
-            line_element.start_time_in_eights:line_element.end_time_in_eights
+            line_element.start_time_in_eighths:line_element.end_time_in_eighths
         ] = 1
 
     def __set_range_to_show(self) -> None:
@@ -222,7 +224,7 @@ class Piece:
 
     def __set_defaults_to_runtime_variables(self) -> None:
         """Set default values to variables that change at runtime."""
-        self.current_time_in_eights = N_EIGHTS_PER_MEASURE
+        self.current_time_in_eighths = N_EIGHTHS_PER_MEASURE
         self.current_measure_durations = []
         self.past_movements = []
         self.current_motion_start_element = self.counterpoint[0]
@@ -241,22 +243,22 @@ class Piece:
         next_position = self.__find_next_position_in_degrees(movement)
         next_line_element = LineElement(
             self.scale.get_element_by_position_in_degrees(next_position),
-            self.current_time_in_eights,
-            self.current_time_in_eights + duration
+            self.current_time_in_eighths,
+            self.current_time_in_eighths + duration
         )
         return next_line_element
 
     def __find_cf_elements(self, duration: int) -> List[LineElement]:
         """Find what in cantus firmus sounds simultaneously with a new note."""
-        start_index = self.current_time_in_eights // N_EIGHTS_PER_MEASURE
-        end_time = self.current_time_in_eights + duration
-        end_index = (end_time - 1) // N_EIGHTS_PER_MEASURE + 1
+        start_index = self.current_time_in_eighths // N_EIGHTHS_PER_MEASURE
+        end_time = self.current_time_in_eighths + duration
+        end_index = (end_time - 1) // N_EIGHTHS_PER_MEASURE + 1
         results = self.cantus_firmus[start_index:end_index]
         return results
 
     def __find_previous_cf_element(self) -> LineElement:
         """Find what in cantus firmus sounds before a new note."""
-        index = (self.current_time_in_eights - 1) // N_EIGHTS_PER_MEASURE
+        index = (self.current_time_in_eighths - 1) // N_EIGHTHS_PER_MEASURE
         result = self.cantus_firmus[index]
         return result
 
@@ -271,8 +273,8 @@ class Piece:
 
     def __check_total_duration(self, duration: int) -> bool:
         """Check that nothing is suspended to the last measure."""
-        available_duration = N_EIGHTS_PER_MEASURE * (self.n_measures - 1)
-        return self.current_time_in_eights + duration <= available_duration
+        available_duration = N_EIGHTHS_PER_MEASURE * (self.n_measures - 1)
+        return self.current_time_in_eighths + duration <= available_duration
 
     def __check_rules(self, movement: int, duration: int) -> bool:
         """Check compliance with the rules."""
@@ -286,7 +288,7 @@ class Piece:
             'counterpoint_continuation': continuation,
             'movement': movement,
             'past_movements': self.past_movements,
-            'piece_duration': self.total_duration_in_eights,
+            'piece_duration': self.total_duration_in_eighths,
             'current_measure_durations': self.current_measure_durations,
             'durations': durations,
             'cantus_firmus_elements': cantus_firmus_elements,
@@ -311,7 +313,7 @@ class Piece:
         :param movement:
             shift (in scale degrees) from previous element to a new one
         :param duration:
-            duration (in eights) of a new element
+            duration (in eighths) of a new element
         :return:
             `True` if the continuation is valid, `False` else
         """
@@ -328,12 +330,12 @@ class Piece:
     def __update_current_measure_durations(self, duration: int) -> None:
         """Update division of current measure by played notes."""
         total_duration = sum(self.current_measure_durations) + duration
-        if total_duration < N_EIGHTS_PER_MEASURE:
+        if total_duration < N_EIGHTHS_PER_MEASURE:
             self.current_measure_durations.append(duration)
-        elif total_duration == N_EIGHTS_PER_MEASURE:
+        elif total_duration == N_EIGHTHS_PER_MEASURE:
             self.current_measure_durations = []
         else:
-            syncopated_duration = total_duration - N_EIGHTS_PER_MEASURE
+            syncopated_duration = total_duration - N_EIGHTHS_PER_MEASURE
             self.current_measure_durations = [syncopated_duration]
 
     def __update_current_motion_start(self) -> None:
@@ -355,20 +357,20 @@ class Piece:
     def __update_runtime_variables(self, movement: int, duration: int) -> None:
         """Update runtime variables representing current state."""
         self.__update_indicator_of_consonance(duration)
-        self.current_time_in_eights += duration
+        self.current_time_in_eighths += duration
         self.past_movements.append(movement)
         self.__update_current_measure_durations(duration)
         self.__update_current_motion_start()
 
     def __finalize_if_needed(self) -> None:
         """Add final measure of counterpoint line if the piece is finished."""
-        penultimate_measure_end = N_EIGHTS_PER_MEASURE * (self.n_measures - 1)
-        if self.current_time_in_eights < penultimate_measure_end:
+        penultimate_measure_end = N_EIGHTHS_PER_MEASURE * (self.n_measures - 1)
+        if self.current_time_in_eighths < penultimate_measure_end:
             return
         end_line_element = LineElement(
             self.end_scale_element,
             penultimate_measure_end,
-            self.total_duration_in_eights
+            self.total_duration_in_eighths
         )
         self.counterpoint.append(end_line_element)
         self.__add_to_piano_roll(end_line_element)
@@ -377,7 +379,7 @@ class Piece:
             - self.counterpoint[-2].scale_element.position_in_degrees
         )
         self.past_movements.append(last_movement)
-        self.current_time_in_eights = self.total_duration_in_eights
+        self.current_time_in_eighths = self.total_duration_in_eighths
 
     def add_line_element(self, movement: int, duration: int) -> None:
         """
@@ -386,11 +388,11 @@ class Piece:
         :param movement:
             shift (in scale degrees) from previous element to a new one
         :param duration:
-            duration (in eights) of a new element
+            duration (in eighths) of a new element
         :return:
             None
         """
-        if self.current_time_in_eights == self.total_duration_in_eights:
+        if self.current_time_in_eighths == self.total_duration_in_eighths:
             raise RuntimeError("Attempt to add notes to a finished piece.")
         if not self.check_validity(movement, duration):
             raise ValueError(

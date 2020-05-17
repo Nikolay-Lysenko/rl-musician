@@ -22,7 +22,7 @@ piece:  # Parameters of a piece to be composed automatically.
     end_note: C5
     lowest_note: C4  # This means that notes below it can not be used, but there is no guarantee that this note occurs.
     highest_note: B5  # This means that notes above it can not be used, but there is no guarantee that this note occurs.
-    start_pause_in_eights: 4  # Delay in eights of measure between cantus firmus start and counterpoint line start.
+    start_pause_in_eighths: 4  # Delay in eighths of measure between cantus firmus start and counterpoint line start.
     max_skip_in_degrees: 7  # Maximum skip (leap) that can occur in counterpoint line (in scale degrees).
   rules:  # Rules of counterpoint composition that can not be violated.
     names:  # See implementations from `rlmusician.environment.rules.py` to find more details.
