@@ -61,8 +61,8 @@ piece:
       counterpoint_instrument: 0
       velocity: 100
     sinethesizer:
-      cantus_firmus_timbre: default_timbre
-      counterpoint_timbre: default_timbre
+      cantus_firmus_timbre: digital_piano_1
+      counterpoint_timbre: digital_piano_1
       volume: 0.3
 environment:
   scoring_coefs:

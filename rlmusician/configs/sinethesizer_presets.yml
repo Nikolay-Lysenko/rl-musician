@@ -1,12 +1,309 @@
 ---
-- name: default_timbre
+
+- name: digital_piano_1
   fundamental_waveform: sine
   fundamental_volume_envelope:
-    name: relative_adsr
-    attack_share: 0.1
-    decay_share: 0.8
+    name: generic_adsr
+    attack_to_adsr_max_ratio: 0.05
+    max_attack_duration: 0.025
+    attack_degree: 2.0
+    decay_to_dsr_max_ratio: 0.0
+    max_decay_duration: 0.0
+    sustain_level: 1.0
+    max_sustain_duration: 0.0
+    release_to_sr_approx_ratio: 1.0
+    max_release_duration: null
+    release_degree: 0.8
+  fundamental_effects:
+    - name: reverb
+      random_seed: 1
+  overtones_specs:
+    - waveform: sine
+      frequency_ratio: 1.5
+      volume_ratio: 0.09
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.04
+        max_attack_duration: 0.02
+        attack_degree: 3.0
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.5
+      effects:
+      - name: reverb
+        random_seed: 1
+    - waveform: sine
+      frequency_ratio: 2
+      volume_ratio: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.05
+        max_attack_duration: 0.025
+        attack_degree: 1.0
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.7
+      effects:
+      - name: vibrato
+        frequency: 3
+        width: 0.05
+      - name: reverb
+        random_seed: 1
+    - waveform: sine
+      frequency_ratio: 3
+      volume_ratio: 0.3
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.05
+        max_attack_duration: 0.025
+        attack_degree: 1.8
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.65
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.05
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 4
+      volume_ratio: 0.55
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.05
+        max_attack_duration: 0.025
+        attack_degree: 1.7
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.6
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.05
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 5
+      volume_ratio: 0.1
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.05
+        max_attack_duration: 0.025
+        attack_degree: 1.6
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.55
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.05
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 6
+      volume_ratio: 0.65
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.05
+        max_attack_duration: 0.025
+        attack_degree: 1.5
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.5
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.05
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 7
+      volume_ratio: 0.065
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.05
+        max_attack_duration: 0.025
+        attack_degree: 1.4
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.4
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.05
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 8
+      volume_ratio: 0.005
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.05
+        max_attack_duration: 0.025
+        attack_degree: 1.3
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.3
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.05
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 9
+      volume_ratio: 0.035
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.05
+        max_attack_duration: 0.025
+        attack_degree: 1.2
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.25
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.05
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 10
+      volume_ratio: 0.155
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.05
+        max_attack_duration: 0.025
+        attack_degree: 1.2
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.25
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.05
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 11
+      volume_ratio: 0.025
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.05
+        max_attack_duration: 0.025
+        attack_degree: 1.1
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.2
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.05
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 12
+      volume_ratio: 0.105
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.05
+        max_attack_duration: 0.025
+        attack_degree: 1.2
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.25
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.05
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 13
+      volume_ratio: 0.0155
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.05
+        max_attack_duration: 0.025
+        attack_degree: 1.1
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.1
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.05
+        - name: reverb
+          random_seed: 1
+
+- name: clarinet_1
+  fundamental_waveform: sine
+  fundamental_volume_envelope:
+    name: generic_adsr
+    attack_to_adsr_max_ratio: 0.2
+    max_attack_duration: 1.0
+    attack_degree: 1.5
+    decay_to_dsr_max_ratio: 0.85
+    max_decay_duration: 3.0
+    decay_degree: 1.0
     sustain_level: 0.9
-    release_share: 0.1
+    max_sustain_duration: 0.0
+    release_to_sr_approx_ratio: 1.0
+    max_release_duration: null
+    release_degree: 1.2
   fundamental_effects:
     - name: vibrato
       frequency: 4
@@ -17,13 +314,20 @@
   overtones_specs:
   - waveform: sine
     frequency_ratio: 3
-    volume_share: 0.236
+    volume_ratio: 0.75
     volume_envelope:
-      name: relative_adsr
-      attack_share: 0.11
-      decay_share: 0.78
-      sustain_level: 0.89
-      release_share: 0.11
+      name: generic_adsr
+      attack_to_adsr_max_ratio: 0.21
+      max_attack_duration: 1.0
+      attack_degree: 1.4
+      decay_to_dsr_max_ratio: 0.8
+      max_decay_duration: 3.0
+      decay_degree: 1.0
+      sustain_level: 0.9
+      max_sustain_duration: 0.0
+      release_to_sr_approx_ratio: 1.0
+      max_release_duration: null
+      release_degree: 1.2
     effects:
       - name: vibrato
         frequency: 4
@@ -33,13 +337,20 @@
         amplitude: 0.05
   - waveform: sine
     frequency_ratio: 5
-    volume_share: 0.157
+    volume_ratio: 0.5
     volume_envelope:
-      name: relative_adsr
-      attack_share: 0.12
-      decay_share: 0.76
-      sustain_level: 0.88
-      release_share: 0.12
+      name: generic_adsr
+      attack_to_adsr_max_ratio: 0.22
+      max_attack_duration: 1.0
+      attack_degree: 1.3
+      decay_to_dsr_max_ratio: 0.75
+      max_decay_duration: 3.0
+      decay_degree: 1.0
+      sustain_level: 0.9
+      max_sustain_duration: 0.0
+      release_to_sr_approx_ratio: 1.0
+      max_release_duration: null
+      release_degree: 1.2
     effects:
       - name: vibrato
         frequency: 4
@@ -49,13 +360,20 @@
         amplitude: 0.05
   - waveform: sine
     frequency_ratio: 7
-    volume_share: 0.044
+    volume_ratio: 0.14
     volume_envelope:
-      name: relative_adsr
-      attack_share: 0.13
-      decay_share: 0.74
-      sustain_level: 0.87
-      release_share: 0.13
+      name: generic_adsr
+      attack_to_adsr_max_ratio: 0.23
+      max_attack_duration: 1.0
+      attack_degree: 1.2
+      decay_to_dsr_max_ratio: 0.7
+      max_decay_duration: 3.0
+      decay_degree: 1.0
+      sustain_level: 0.9
+      max_sustain_duration: 0.0
+      release_to_sr_approx_ratio: 1.0
+      max_release_duration: null
+      release_degree: 1.2
     effects:
       - name: vibrato
         frequency: 4
@@ -65,13 +383,20 @@
         amplitude: 0.05
   - waveform: sine
     frequency_ratio: 9
-    volume_share: 0.157
+    volume_ratio: 0.5
     volume_envelope:
-      name: relative_adsr
-      attack_share: 0.14
-      decay_share: 0.72
-      sustain_level: 0.76
-      release_share: 0.14
+      name: generic_adsr
+      attack_to_adsr_max_ratio: 0.235
+      max_attack_duration: 1.0
+      attack_degree: 1.15
+      decay_to_dsr_max_ratio: 0.65
+      max_decay_duration: 3.0
+      decay_degree: 1.0
+      sustain_level: 0.9
+      max_sustain_duration: 0.0
+      release_to_sr_approx_ratio: 1.0
+      max_release_duration: null
+      release_degree: 1.2
     effects:
       - name: vibrato
         frequency: 4
@@ -81,13 +406,20 @@
         amplitude: 0.05
   - waveform: sine
     frequency_ratio: 11
-    volume_share: 0.038
+    volume_ratio: 0.12
     volume_envelope:
-      name: relative_adsr
-      attack_share: 0.15
-      decay_share: 0.7
-      sustain_level: 0.75
-      release_share: 0.15
+      name: generic_adsr
+      attack_to_adsr_max_ratio: 0.24
+      max_attack_duration: 1.0
+      attack_degree: 1.1
+      decay_to_dsr_max_ratio: 0.6
+      max_decay_duration: 3.0
+      decay_degree: 1.0
+      sustain_level: 0.9
+      max_sustain_duration: 0.0
+      release_to_sr_approx_ratio: 1.0
+      max_release_duration: null
+      release_degree: 1.2
     effects:
       - name: vibrato
         frequency: 4
@@ -97,13 +429,20 @@
         amplitude: 0.05
   - waveform: sine
     frequency_ratio: 13
-    volume_share: 0.053
+    volume_ratio: 0.17
     volume_envelope:
-      name: relative_adsr
-      attack_share: 0.16
-      decay_share: 0.68
-      sustain_level: 0.74
-      release_share: 0.16
+      name: generic_adsr
+      attack_to_adsr_max_ratio: 0.245
+      max_attack_duration: 1.0
+      attack_degree: 1.05
+      decay_to_dsr_max_ratio: 0.55
+      max_decay_duration: 3.0
+      decay_degree: 1.0
+      sustain_level: 0.9
+      max_sustain_duration: 0.0
+      release_to_sr_approx_ratio: 1.0
+      max_release_duration: null
+      release_degree: 1.2
     effects:
       - name: vibrato
         frequency: 4
@@ -111,3 +450,2907 @@
       - name: tremolo
         frequency: 3
         amplitude: 0.05
+
+- name: winds_1
+  fundamental_waveform: square
+  fundamental_volume_envelope:
+    name: generic_adsr
+    attack_to_adsr_max_ratio: 0.3
+    max_attack_duration: 1.0
+    attack_degree: 2.5
+    decay_to_dsr_max_ratio: 0.5
+    max_decay_duration: 1.0
+    sustain_level: 0.5
+    max_sustain_duration: 0.0
+    release_to_sr_approx_ratio: 1.0
+    max_release_duration: null
+    release_degree: 0.8
+  fundamental_effects:
+    - name: filter
+      kind: relative
+      max_frequency_ratio: 8
+      order: 5
+    - name: reverb
+      random_seed: 1
+  overtones_specs:
+    - waveform: square
+      frequency_ratio: 2
+      volume_ratio: 0.2
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.2
+        max_attack_duration: 0.7
+        attack_degree: 2.0
+        decay_to_dsr_max_ratio: 0.25
+        max_decay_duration: 0.7
+        decay_degree: 2.0
+        sustain_level: 0.6
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.75
+      effects:
+        - name: filter
+          kind: relative
+          max_frequency_ratio: 5
+          order: 5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.1
+        - name: reverb
+          random_seed: 2
+    - waveform: square
+      frequency_ratio: 2.5
+      volume_ratio: 0.15
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.15
+        max_attack_duration: 0.5
+        attack_degree: 1.5
+        decay_to_dsr_max_ratio: 0.2
+        max_decay_duration: 0.5
+        decay_degree: 1.5
+        sustain_level: 0.6
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.7
+      effects:
+        - name: filter
+          kind: relative
+          max_frequency_ratio: 6
+          order: 5
+        - name: vibrato
+          frequency: 3
+          width: 0.15
+        - name: reverb
+          random_seed: 3
+    - waveform: square
+      frequency_ratio: 4
+      volume_ratio: 0.2
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.14
+        max_attack_duration: 0.5
+        attack_degree: 1.2
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.5
+      effects:
+        - name: filter
+          kind: relative
+          max_frequency_ratio: 12
+          order: 5
+        - name: reverb
+          random_seed: 4
+    - waveform: square
+      frequency_ratio: 4.5
+      volume_ratio: 0.15
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.14
+        max_attack_duration: 0.5
+        attack_degree: 1.2
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 0.0
+        release_to_sr_approx_ratio: 1.0
+        max_release_duration: null
+        release_degree: 0.5
+      effects:
+        - name: filter
+          kind: relative
+          max_frequency_ratio: 12
+          order: 5
+        - name: reverb
+          random_seed: 5
+
+- name: pad_1
+  fundamental_waveform: sine
+  fundamental_volume_envelope:
+    name: generic_adsr
+    attack_to_adsr_max_ratio: 0.15
+    max_attack_duration: 1.0
+    attack_degree: 2
+    decay_to_dsr_max_ratio: 0.0
+    max_decay_duration: 0.0
+    sustain_level: 1.0
+    max_sustain_duration: 2.0
+    release_to_sr_approx_ratio: 0.5
+    max_release_duration: null
+    release_degree: 0.75
+  fundamental_effects:
+    - name: reverb
+      random_seed: 1
+      first_reflection_delay: 0.02
+      decay_duration: 0.25
+      diffusion_delay_factor: 0.985
+  overtones_specs:
+    - waveform: sine
+      frequency_ratio: 1.95
+      volume_ratio: 0.05
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.16
+        max_attack_duration: 1.0
+        attack_degree: 1.75
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 2.0
+        release_to_sr_approx_ratio: 0.5
+        max_release_duration: null
+        release_degree: 0.5
+      effects:
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.1
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 2
+      volume_ratio: 0.1
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.16
+        max_attack_duration: 1.0
+        attack_degree: 1.75
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 2.0
+        release_to_sr_approx_ratio: 0.5
+        max_release_duration: null
+        release_degree: 0.5
+      effects:
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.1
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 2.05
+      volume_ratio: 0.05
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.16
+        max_attack_duration: 1.0
+        attack_degree: 1.75
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 2.0
+        release_to_sr_approx_ratio: 0.5
+        max_release_duration: null
+        release_degree: 0.5
+      effects:
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.1
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 2.95
+      volume_ratio: 0.025
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.17
+        max_attack_duration: 1.0
+        attack_degree: 1.5
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 2.0
+        release_to_sr_approx_ratio: 0.5
+        max_release_duration: null
+        release_degree: 0.4
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.15
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 3
+      volume_ratio: 0.05
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.17
+        max_attack_duration: 1.0
+        attack_degree: 1.5
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 2.0
+        release_to_sr_approx_ratio: 0.5
+        max_release_duration: null
+        release_degree: 0.4
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.15
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 3.05
+      volume_ratio: 0.025
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.17
+        max_attack_duration: 1.0
+        attack_degree: 1.5
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 2.0
+        release_to_sr_approx_ratio: 0.5
+        max_release_duration: null
+        release_degree: 0.4
+      effects:
+        - name: vibrato
+          frequency: 3
+          width: 0.15
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 4
+      volume_ratio: 0.1
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.18
+        max_attack_duration: 1.0
+        attack_degree: 1.3
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 2.0
+        release_to_sr_approx_ratio: 0.5
+        max_release_duration: null
+        release_degree: 0.3
+      effects:
+        - name: vibrato
+          frequency: 4
+          width: 0.15
+        - name: reverb
+          random_seed: 1
+    - waveform: sawtooth
+      frequency_ratio: 5
+      volume_ratio: 0.005
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.19
+        max_attack_duration: 1.0
+        attack_degree: 1.2
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        sustain_level: 1.0
+        max_sustain_duration: 2.0
+        release_to_sr_approx_ratio: 0.5
+        max_release_duration: null
+        release_degree: 0.25
+      effects:
+        - name: filter
+          kind: relative
+          max_frequency_ratio: 10.2
+          order: 20
+        - name: reverb
+          random_seed: 1
+
+- name: strings_1
+  fundamental_waveform: sine
+  fundamental_volume_envelope:
+    name: generic_adsr
+    attack_to_adsr_max_ratio: 0.3
+    max_attack_duration: 2.0
+    attack_degree: 2.5
+    decay_to_dsr_max_ratio: 0.0
+    max_decay_duration: 0.0
+    decay_degree: 1.0
+    sustain_level: 1.0
+    max_sustain_duration: null
+    release_to_sr_approx_ratio: 0.4
+    max_release_duration: null
+    release_degree: 0.8
+  fundamental_effects:
+    - name: overdrive
+      fraction_to_clip: 0.1
+      strength: 0.5
+    - name: reverb
+      random_seed: 1
+  overtones_specs:
+    - waveform: sine
+      frequency_ratio: 1.02
+      volume_ratio: 1.0
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.3
+        max_attack_duration: 2.0
+        attack_degree: 2.5
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.4
+        max_release_duration: null
+        release_degree: 0.8
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: reverb
+          random_seed: 1
+    - waveform: sine
+      frequency_ratio: 2
+      volume_ratio: 0.5
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.304
+        max_attack_duration: 2.0
+        attack_degree: 2.47
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.408
+        max_release_duration: null
+        release_degree: 0.788
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 2
+    - waveform: sine
+      frequency_ratio: 2.04
+      volume_ratio: 0.5
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.304
+        max_attack_duration: 2.0
+        attack_degree: 2.47
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.408
+        max_release_duration: null
+        release_degree: 0.788
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 2
+    - waveform: sine
+      frequency_ratio: 3
+      volume_ratio: 0.3333333333333333
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.308
+        max_attack_duration: 2.0
+        attack_degree: 2.44
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.416
+        max_release_duration: null
+        release_degree: 0.776
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 3
+    - waveform: sine
+      frequency_ratio: 3.06
+      volume_ratio: 0.3333333333333333
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.308
+        max_attack_duration: 2.0
+        attack_degree: 2.44
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.416
+        max_release_duration: null
+        release_degree: 0.776
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 3
+    - waveform: sine
+      frequency_ratio: 4
+      volume_ratio: 0.25
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.312
+        max_attack_duration: 2.0
+        attack_degree: 2.41
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.424
+        max_release_duration: null
+        release_degree: 0.764
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 4
+    - waveform: sine
+      frequency_ratio: 4.08
+      volume_ratio: 0.25
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.312
+        max_attack_duration: 2.0
+        attack_degree: 2.41
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.424
+        max_release_duration: null
+        release_degree: 0.764
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 4
+    - waveform: sine
+      frequency_ratio: 5
+      volume_ratio: 0.2
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.316
+        max_attack_duration: 2.0
+        attack_degree: 2.38
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.432
+        max_release_duration: null
+        release_degree: 0.752
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 5
+    - waveform: sine
+      frequency_ratio: 5.1
+      volume_ratio: 0.2
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.316
+        max_attack_duration: 2.0
+        attack_degree: 2.38
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.432
+        max_release_duration: null
+        release_degree: 0.752
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 5
+    - waveform: sine
+      frequency_ratio: 6
+      volume_ratio: 0.16666666666666666
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.32
+        max_attack_duration: 2.0
+        attack_degree: 2.35
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.44
+        max_release_duration: null
+        release_degree: 0.74
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 6
+    - waveform: sine
+      frequency_ratio: 6.12
+      volume_ratio: 0.16666666666666666
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.32
+        max_attack_duration: 2.0
+        attack_degree: 2.35
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.44
+        max_release_duration: null
+        release_degree: 0.74
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 6
+    - waveform: sine
+      frequency_ratio: 7
+      volume_ratio: 0.14285714285714285
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.324
+        max_attack_duration: 2.0
+        attack_degree: 2.32
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.448
+        max_release_duration: null
+        release_degree: 0.728
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 7
+    - waveform: sine
+      frequency_ratio: 7.140000000000001
+      volume_ratio: 0.14285714285714285
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.324
+        max_attack_duration: 2.0
+        attack_degree: 2.32
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.448
+        max_release_duration: null
+        release_degree: 0.728
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 7
+    - waveform: sine
+      frequency_ratio: 8
+      volume_ratio: 0.125
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.328
+        max_attack_duration: 2.0
+        attack_degree: 2.29
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.456
+        max_release_duration: null
+        release_degree: 0.716
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 8
+    - waveform: sine
+      frequency_ratio: 8.16
+      volume_ratio: 0.125
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.328
+        max_attack_duration: 2.0
+        attack_degree: 2.29
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.456
+        max_release_duration: null
+        release_degree: 0.716
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 8
+    - waveform: sine
+      frequency_ratio: 9
+      volume_ratio: 0.1111111111111111
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.332
+        max_attack_duration: 2.0
+        attack_degree: 2.26
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.464
+        max_release_duration: null
+        release_degree: 0.704
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 9
+    - waveform: sine
+      frequency_ratio: 9.18
+      volume_ratio: 0.1111111111111111
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.332
+        max_attack_duration: 2.0
+        attack_degree: 2.26
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.464
+        max_release_duration: null
+        release_degree: 0.704
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 9
+    - waveform: sine
+      frequency_ratio: 10
+      volume_ratio: 0.1
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.336
+        max_attack_duration: 2.0
+        attack_degree: 2.23
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.472
+        max_release_duration: null
+        release_degree: 0.692
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 10
+    - waveform: sine
+      frequency_ratio: 10.2
+      volume_ratio: 0.1
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.336
+        max_attack_duration: 2.0
+        attack_degree: 2.23
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.472
+        max_release_duration: null
+        release_degree: 0.692
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 10
+    - waveform: sine
+      frequency_ratio: 11
+      volume_ratio: 0.09090909090909091
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.34
+        max_attack_duration: 2.0
+        attack_degree: 2.2
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.48
+        max_release_duration: null
+        release_degree: 0.68
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 11
+    - waveform: sine
+      frequency_ratio: 11.22
+      volume_ratio: 0.09090909090909091
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.34
+        max_attack_duration: 2.0
+        attack_degree: 2.2
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.48
+        max_release_duration: null
+        release_degree: 0.68
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 11
+    - waveform: sine
+      frequency_ratio: 12
+      volume_ratio: 0.08333333333333333
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.344
+        max_attack_duration: 2.0
+        attack_degree: 2.17
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.488
+        max_release_duration: null
+        release_degree: 0.668
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 12
+    - waveform: sine
+      frequency_ratio: 12.24
+      volume_ratio: 0.08333333333333333
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.344
+        max_attack_duration: 2.0
+        attack_degree: 2.17
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.488
+        max_release_duration: null
+        release_degree: 0.668
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 12
+    - waveform: sine
+      frequency_ratio: 13
+      volume_ratio: 0.07692307692307693
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.348
+        max_attack_duration: 2.0
+        attack_degree: 2.14
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.496
+        max_release_duration: null
+        release_degree: 0.656
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 13
+    - waveform: sine
+      frequency_ratio: 13.26
+      volume_ratio: 0.07692307692307693
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.348
+        max_attack_duration: 2.0
+        attack_degree: 2.14
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.496
+        max_release_duration: null
+        release_degree: 0.656
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 13
+    - waveform: sine
+      frequency_ratio: 14
+      volume_ratio: 0.07142857142857142
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.352
+        max_attack_duration: 2.0
+        attack_degree: 2.11
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.504
+        max_release_duration: null
+        release_degree: 0.644
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 14
+    - waveform: sine
+      frequency_ratio: 14.280000000000001
+      volume_ratio: 0.07142857142857142
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.352
+        max_attack_duration: 2.0
+        attack_degree: 2.11
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.504
+        max_release_duration: null
+        release_degree: 0.644
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 14
+    - waveform: sine
+      frequency_ratio: 15
+      volume_ratio: 0.06666666666666667
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.356
+        max_attack_duration: 2.0
+        attack_degree: 2.08
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.512
+        max_release_duration: null
+        release_degree: 0.632
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 15
+    - waveform: sine
+      frequency_ratio: 15.3
+      volume_ratio: 0.06666666666666667
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.356
+        max_attack_duration: 2.0
+        attack_degree: 2.08
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.512
+        max_release_duration: null
+        release_degree: 0.632
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 15
+    - waveform: sine
+      frequency_ratio: 16
+      volume_ratio: 0.0625
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.36
+        max_attack_duration: 2.0
+        attack_degree: 2.05
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.52
+        max_release_duration: null
+        release_degree: 0.62
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 16
+    - waveform: sine
+      frequency_ratio: 16.32
+      volume_ratio: 0.0625
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.36
+        max_attack_duration: 2.0
+        attack_degree: 2.05
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.52
+        max_release_duration: null
+        release_degree: 0.62
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 16
+    - waveform: sine
+      frequency_ratio: 17
+      volume_ratio: 0.058823529411764705
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.364
+        max_attack_duration: 2.0
+        attack_degree: 2.02
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.528
+        max_release_duration: null
+        release_degree: 0.608
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 17
+    - waveform: sine
+      frequency_ratio: 17.34
+      volume_ratio: 0.058823529411764705
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.364
+        max_attack_duration: 2.0
+        attack_degree: 2.02
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.528
+        max_release_duration: null
+        release_degree: 0.608
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 17
+    - waveform: sine
+      frequency_ratio: 18
+      volume_ratio: 0.05555555555555555
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.368
+        max_attack_duration: 2.0
+        attack_degree: 1.99
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.536
+        max_release_duration: null
+        release_degree: 0.596
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 18
+    - waveform: sine
+      frequency_ratio: 18.36
+      volume_ratio: 0.05555555555555555
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.368
+        max_attack_duration: 2.0
+        attack_degree: 1.99
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.536
+        max_release_duration: null
+        release_degree: 0.596
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 18
+    - waveform: sine
+      frequency_ratio: 19
+      volume_ratio: 0.05263157894736842
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.372
+        max_attack_duration: 2.0
+        attack_degree: 1.96
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.544
+        max_release_duration: null
+        release_degree: 0.584
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 19
+    - waveform: sine
+      frequency_ratio: 19.38
+      volume_ratio: 0.05263157894736842
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.372
+        max_attack_duration: 2.0
+        attack_degree: 1.96
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.544
+        max_release_duration: null
+        release_degree: 0.584
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 19
+    - waveform: sine
+      frequency_ratio: 20
+      volume_ratio: 0.05
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.376
+        max_attack_duration: 2.0
+        attack_degree: 1.93
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.552
+        max_release_duration: null
+        release_degree: 0.572
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 20
+    - waveform: sine
+      frequency_ratio: 20.4
+      volume_ratio: 0.05
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.376
+        max_attack_duration: 2.0
+        attack_degree: 1.93
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.552
+        max_release_duration: null
+        release_degree: 0.572
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 20
+    - waveform: sine
+      frequency_ratio: 21
+      volume_ratio: 0.047619047619047616
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.38
+        max_attack_duration: 2.0
+        attack_degree: 1.9
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.56
+        max_release_duration: null
+        release_degree: 0.56
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 21
+    - waveform: sine
+      frequency_ratio: 21.42
+      volume_ratio: 0.047619047619047616
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.38
+        max_attack_duration: 2.0
+        attack_degree: 1.9
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.56
+        max_release_duration: null
+        release_degree: 0.56
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 21
+    - waveform: sine
+      frequency_ratio: 22
+      volume_ratio: 0.045454545454545456
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.384
+        max_attack_duration: 2.0
+        attack_degree: 1.87
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.568
+        max_release_duration: null
+        release_degree: 0.548
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 22
+    - waveform: sine
+      frequency_ratio: 22.44
+      volume_ratio: 0.045454545454545456
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.384
+        max_attack_duration: 2.0
+        attack_degree: 1.87
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.568
+        max_release_duration: null
+        release_degree: 0.548
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 22
+    - waveform: sine
+      frequency_ratio: 23
+      volume_ratio: 0.043478260869565216
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.388
+        max_attack_duration: 2.0
+        attack_degree: 1.84
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.576
+        max_release_duration: null
+        release_degree: 0.536
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 23
+    - waveform: sine
+      frequency_ratio: 23.46
+      volume_ratio: 0.043478260869565216
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.388
+        max_attack_duration: 2.0
+        attack_degree: 1.84
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.576
+        max_release_duration: null
+        release_degree: 0.536
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 23
+    - waveform: sine
+      frequency_ratio: 24
+      volume_ratio: 0.041666666666666664
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.392
+        max_attack_duration: 2.0
+        attack_degree: 1.81
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.584
+        max_release_duration: null
+        release_degree: 0.524
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 24
+    - waveform: sine
+      frequency_ratio: 24.48
+      volume_ratio: 0.041666666666666664
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.392
+        max_attack_duration: 2.0
+        attack_degree: 1.81
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.584
+        max_release_duration: null
+        release_degree: 0.524
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 24
+    - waveform: sine
+      frequency_ratio: 25
+      volume_ratio: 0.04
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.396
+        max_attack_duration: 2.0
+        attack_degree: 1.78
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.592
+        max_release_duration: null
+        release_degree: 0.512
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 25
+    - waveform: sine
+      frequency_ratio: 25.5
+      volume_ratio: 0.04
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.396
+        max_attack_duration: 2.0
+        attack_degree: 1.78
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.592
+        max_release_duration: null
+        release_degree: 0.512
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 25
+    - waveform: sine
+      frequency_ratio: 26
+      volume_ratio: 0.038461538461538464
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.4
+        max_attack_duration: 2.0
+        attack_degree: 1.75
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.6
+        max_release_duration: null
+        release_degree: 0.5
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 26
+    - waveform: sine
+      frequency_ratio: 26.52
+      volume_ratio: 0.038461538461538464
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.4
+        max_attack_duration: 2.0
+        attack_degree: 1.75
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.6
+        max_release_duration: null
+        release_degree: 0.5
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 26
+    - waveform: sine
+      frequency_ratio: 27
+      volume_ratio: 0.037037037037037035
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.404
+        max_attack_duration: 2.0
+        attack_degree: 1.72
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.608
+        max_release_duration: null
+        release_degree: 0.488
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 27
+    - waveform: sine
+      frequency_ratio: 27.54
+      volume_ratio: 0.037037037037037035
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.404
+        max_attack_duration: 2.0
+        attack_degree: 1.72
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.608
+        max_release_duration: null
+        release_degree: 0.488
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 27
+    - waveform: sine
+      frequency_ratio: 28
+      volume_ratio: 0.03571428571428571
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.408
+        max_attack_duration: 2.0
+        attack_degree: 1.69
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.616
+        max_release_duration: null
+        release_degree: 0.476
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 28
+    - waveform: sine
+      frequency_ratio: 28.560000000000002
+      volume_ratio: 0.03571428571428571
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.408
+        max_attack_duration: 2.0
+        attack_degree: 1.69
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.616
+        max_release_duration: null
+        release_degree: 0.476
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 28
+    - waveform: sine
+      frequency_ratio: 29
+      volume_ratio: 0.034482758620689655
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.412
+        max_attack_duration: 2.0
+        attack_degree: 1.66
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.624
+        max_release_duration: null
+        release_degree: 0.464
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 29
+    - waveform: sine
+      frequency_ratio: 29.580000000000002
+      volume_ratio: 0.034482758620689655
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.412
+        max_attack_duration: 2.0
+        attack_degree: 1.66
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.624
+        max_release_duration: null
+        release_degree: 0.464
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 29
+    - waveform: sine
+      frequency_ratio: 30
+      volume_ratio: 0.03333333333333333
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.416
+        max_attack_duration: 2.0
+        attack_degree: 1.63
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.632
+        max_release_duration: null
+        release_degree: 0.452
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 30
+    - waveform: sine
+      frequency_ratio: 30.6
+      volume_ratio: 0.03333333333333333
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.416
+        max_attack_duration: 2.0
+        attack_degree: 1.63
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.632
+        max_release_duration: null
+        release_degree: 0.452
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 30
+    - waveform: sine
+      frequency_ratio: 31
+      volume_ratio: 0.03225806451612903
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.42
+        max_attack_duration: 2.0
+        attack_degree: 1.6
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.64
+        max_release_duration: null
+        release_degree: 0.44
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 31
+    - waveform: sine
+      frequency_ratio: 31.62
+      volume_ratio: 0.03225806451612903
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.42
+        max_attack_duration: 2.0
+        attack_degree: 1.6
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.64
+        max_release_duration: null
+        release_degree: 0.44
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 31
+    - waveform: sine
+      frequency_ratio: 32
+      volume_ratio: 0.03125
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.424
+        max_attack_duration: 2.0
+        attack_degree: 1.57
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.648
+        max_release_duration: null
+        release_degree: 0.428
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 32
+    - waveform: sine
+      frequency_ratio: 32.64
+      volume_ratio: 0.03125
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.424
+        max_attack_duration: 2.0
+        attack_degree: 1.57
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.648
+        max_release_duration: null
+        release_degree: 0.428
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 32
+    - waveform: sine
+      frequency_ratio: 33
+      volume_ratio: 0.030303030303030304
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.428
+        max_attack_duration: 2.0
+        attack_degree: 1.54
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.656
+        max_release_duration: null
+        release_degree: 0.416
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 33
+    - waveform: sine
+      frequency_ratio: 33.660000000000004
+      volume_ratio: 0.030303030303030304
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.428
+        max_attack_duration: 2.0
+        attack_degree: 1.54
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.656
+        max_release_duration: null
+        release_degree: 0.416
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 33
+    - waveform: sine
+      frequency_ratio: 34
+      volume_ratio: 0.029411764705882353
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.432
+        max_attack_duration: 2.0
+        attack_degree: 1.51
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.664
+        max_release_duration: null
+        release_degree: 0.404
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 34
+    - waveform: sine
+      frequency_ratio: 34.68
+      volume_ratio: 0.029411764705882353
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.432
+        max_attack_duration: 2.0
+        attack_degree: 1.51
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.664
+        max_release_duration: null
+        release_degree: 0.404
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 34
+    - waveform: sine
+      frequency_ratio: 35
+      volume_ratio: 0.02857142857142857
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.436
+        max_attack_duration: 2.0
+        attack_degree: 1.48
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.672
+        max_release_duration: null
+        release_degree: 0.392
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 35
+    - waveform: sine
+      frequency_ratio: 35.7
+      volume_ratio: 0.02857142857142857
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.436
+        max_attack_duration: 2.0
+        attack_degree: 1.48
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.672
+        max_release_duration: null
+        release_degree: 0.392
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 35
+    - waveform: sine
+      frequency_ratio: 36
+      volume_ratio: 0.027777777777777776
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.44
+        max_attack_duration: 2.0
+        attack_degree: 1.45
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.68
+        max_release_duration: null
+        release_degree: 0.38
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 36
+    - waveform: sine
+      frequency_ratio: 36.72
+      volume_ratio: 0.027777777777777776
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.44
+        max_attack_duration: 2.0
+        attack_degree: 1.45
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.68
+        max_release_duration: null
+        release_degree: 0.38
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 36
+    - waveform: sine
+      frequency_ratio: 37
+      volume_ratio: 0.02702702702702703
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.444
+        max_attack_duration: 2.0
+        attack_degree: 1.42
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.688
+        max_release_duration: null
+        release_degree: 0.368
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 37
+    - waveform: sine
+      frequency_ratio: 37.74
+      volume_ratio: 0.02702702702702703
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.444
+        max_attack_duration: 2.0
+        attack_degree: 1.42
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.688
+        max_release_duration: null
+        release_degree: 0.368
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 37
+    - waveform: sine
+      frequency_ratio: 38
+      volume_ratio: 0.02631578947368421
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.448
+        max_attack_duration: 2.0
+        attack_degree: 1.39
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.696
+        max_release_duration: null
+        release_degree: 0.356
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 38
+    - waveform: sine
+      frequency_ratio: 38.76
+      volume_ratio: 0.02631578947368421
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.448
+        max_attack_duration: 2.0
+        attack_degree: 1.39
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.696
+        max_release_duration: null
+        release_degree: 0.356
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 38
+    - waveform: sine
+      frequency_ratio: 39
+      volume_ratio: 0.02564102564102564
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.452
+        max_attack_duration: 2.0
+        attack_degree: 1.36
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.704
+        max_release_duration: null
+        release_degree: 0.344
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 39
+    - waveform: sine
+      frequency_ratio: 39.78
+      volume_ratio: 0.02564102564102564
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.452
+        max_attack_duration: 2.0
+        attack_degree: 1.36
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.704
+        max_release_duration: null
+        release_degree: 0.344
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 39
+    - waveform: sine
+      frequency_ratio: 40
+      volume_ratio: 0.025
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.456
+        max_attack_duration: 2.0
+        attack_degree: 1.33
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.712
+        max_release_duration: null
+        release_degree: 0.332
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 40
+    - waveform: sine
+      frequency_ratio: 40.8
+      volume_ratio: 0.025
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.456
+        max_attack_duration: 2.0
+        attack_degree: 1.33
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.712
+        max_release_duration: null
+        release_degree: 0.332
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 40
+    - waveform: sine
+      frequency_ratio: 41
+      volume_ratio: 0.024390243902439025
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.46
+        max_attack_duration: 2.0
+        attack_degree: 1.3
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.72
+        max_release_duration: null
+        release_degree: 0.32
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 41
+    - waveform: sine
+      frequency_ratio: 41.82
+      volume_ratio: 0.024390243902439025
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.46
+        max_attack_duration: 2.0
+        attack_degree: 1.3
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.72
+        max_release_duration: null
+        release_degree: 0.32
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 41
+    - waveform: sine
+      frequency_ratio: 42
+      volume_ratio: 0.023809523809523808
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.464
+        max_attack_duration: 2.0
+        attack_degree: 1.27
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.728
+        max_release_duration: null
+        release_degree: 0.308
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 42
+    - waveform: sine
+      frequency_ratio: 42.84
+      volume_ratio: 0.023809523809523808
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.464
+        max_attack_duration: 2.0
+        attack_degree: 1.27
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.728
+        max_release_duration: null
+        release_degree: 0.308
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 42
+    - waveform: sine
+      frequency_ratio: 43
+      volume_ratio: 0.023255813953488372
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.468
+        max_attack_duration: 2.0
+        attack_degree: 1.24
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.736
+        max_release_duration: null
+        release_degree: 0.296
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 43
+    - waveform: sine
+      frequency_ratio: 43.86
+      volume_ratio: 0.023255813953488372
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.468
+        max_attack_duration: 2.0
+        attack_degree: 1.24
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.736
+        max_release_duration: null
+        release_degree: 0.296
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 43
+    - waveform: sine
+      frequency_ratio: 44
+      volume_ratio: 0.022727272727272728
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.472
+        max_attack_duration: 2.0
+        attack_degree: 1.21
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.744
+        max_release_duration: null
+        release_degree: 0.284
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 44
+    - waveform: sine
+      frequency_ratio: 44.88
+      volume_ratio: 0.022727272727272728
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.472
+        max_attack_duration: 2.0
+        attack_degree: 1.21
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.744
+        max_release_duration: null
+        release_degree: 0.284
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 44
+    - waveform: sine
+      frequency_ratio: 45
+      volume_ratio: 0.022222222222222223
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.476
+        max_attack_duration: 2.0
+        attack_degree: 1.18
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.752
+        max_release_duration: null
+        release_degree: 0.272
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 45
+    - waveform: sine
+      frequency_ratio: 45.9
+      volume_ratio: 0.022222222222222223
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.476
+        max_attack_duration: 2.0
+        attack_degree: 1.18
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.752
+        max_release_duration: null
+        release_degree: 0.272
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 45
+    - waveform: sine
+      frequency_ratio: 46
+      volume_ratio: 0.021739130434782608
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.48
+        max_attack_duration: 2.0
+        attack_degree: 1.15
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.76
+        max_release_duration: null
+        release_degree: 0.26
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 46
+    - waveform: sine
+      frequency_ratio: 46.92
+      volume_ratio: 0.021739130434782608
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.48
+        max_attack_duration: 2.0
+        attack_degree: 1.15
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.76
+        max_release_duration: null
+        release_degree: 0.26
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 46
+    - waveform: sine
+      frequency_ratio: 47
+      volume_ratio: 0.02127659574468085
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.484
+        max_attack_duration: 2.0
+        attack_degree: 1.12
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.768
+        max_release_duration: null
+        release_degree: 0.248
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 47
+    - waveform: sine
+      frequency_ratio: 47.94
+      volume_ratio: 0.02127659574468085
+      phase: 1.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.484
+        max_attack_duration: 2.0
+        attack_degree: 1.12
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.768
+        max_release_duration: null
+        release_degree: 0.248
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 47
+    - waveform: sine
+      frequency_ratio: 48
+      volume_ratio: 0.020833333333333332
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.488
+        max_attack_duration: 2.0
+        attack_degree: 1.09
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.776
+        max_release_duration: null
+        release_degree: 0.236
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 48
+    - waveform: sine
+      frequency_ratio: 48.96
+      volume_ratio: 0.020833333333333332
+      phase: 1.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.488
+        max_attack_duration: 2.0
+        attack_degree: 1.09
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.776
+        max_release_duration: null
+        release_degree: 0.236
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 48
+    - waveform: sine
+      frequency_ratio: 49
+      volume_ratio: 0.02040816326530612
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.492
+        max_attack_duration: 2.0
+        attack_degree: 1.06
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.784
+        max_release_duration: null
+        release_degree: 0.224
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 49
+    - waveform: sine
+      frequency_ratio: 49.980000000000004
+      volume_ratio: 0.02040816326530612
+      phase: 0.0
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.492
+        max_attack_duration: 2.0
+        attack_degree: 1.06
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.784
+        max_release_duration: null
+        release_degree: 0.224
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 49
+    - waveform: sine
+      frequency_ratio: 50
+      volume_ratio: 0.02
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.496
+        max_attack_duration: 2.0
+        attack_degree: 1.03
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.792
+        max_release_duration: null
+        release_degree: 0.212
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 50
+    - waveform: sine
+      frequency_ratio: 51.0
+      volume_ratio: 0.02
+      phase: 0.5
+      volume_envelope:
+        name: generic_adsr
+        attack_to_adsr_max_ratio: 0.496
+        max_attack_duration: 2.0
+        attack_degree: 1.03
+        decay_to_dsr_max_ratio: 0.0
+        max_decay_duration: 0.0
+        decay_degree: 1.0
+        sustain_level: 1.0
+        max_sustain_duration: null
+        release_to_sr_approx_ratio: 0.792
+        max_release_duration: null
+        release_degree: 0.212
+      effects:
+        - name: overdrive
+          fraction_to_clip: 0.1
+          strength: 0.5
+        - name: tremolo
+          frequency: 2
+          amplitude: 0.05
+        - name: reverb
+          random_seed: 50

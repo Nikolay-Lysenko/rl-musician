@@ -19,7 +19,7 @@ import os
 from typing import Any, Dict, List, NamedTuple
 
 import numpy as np
-from sinethesizer.io.utils import get_note_to_position_mapping
+from sinethesizer.utils.music_theory import get_note_to_position_mapping
 
 from rlmusician.environment.rules import get_rules_registry
 from rlmusician.utils import (

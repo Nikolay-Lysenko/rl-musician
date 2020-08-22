@@ -11,7 +11,7 @@ import pretty_midi
 from sinethesizer.io import (
     convert_tsv_to_timeline, create_timbres_registry, write_timeline_to_wav
 )
-from sinethesizer.io.utils import get_list_of_notes
+from sinethesizer.utils.music_theory import get_list_of_notes
 
 
 N_EIGHTHS_PER_MEASURE = 8
