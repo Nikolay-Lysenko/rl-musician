@@ -9,7 +9,10 @@ from pkg_resources import resource_filename
 
 import pretty_midi
 from sinethesizer.io import (
-    convert_tsv_to_timeline, create_timbres_registry, write_timeline_to_wav
+    convert_events_to_timeline,
+    convert_tsv_to_events,
+    create_instruments_registry,
+    write_timeline_to_wav
 )
 from sinethesizer.utils.music_theory import get_list_of_notes
 
@@ -102,10 +105,9 @@ def create_events_from_piece(
         piece: 'rlmusician.environment.Piece',
         events_path: str,
         measure_in_seconds: float,
-        cantus_firmus_timbre: str,
-        counterpoint_timbre: str,
-        volume: float,
-        location: int = 0,
+        cantus_firmus_instrument: str,
+        counterpoint_instrument: str,
+        velocity: float,
         effects: str = ''
 ) -> None:
     """
@@ -117,14 +119,12 @@ def create_events_from_piece(
         path to a file where result is going to be saved
     :param measure_in_seconds:
         duration of one measure in seconds
-    :param cantus_firmus_timbre:
-        timbre to be used to play cantus firmus
-    :param counterpoint_timbre:
-        timbre to be used to play counterpoint line
-    :param volume:
-        relative volume of sound to be played
-    :param location:
-        position of imaginary sound source
+    :param cantus_firmus_instrument:
+        instrument to be used to play cantus firmus
+    :param counterpoint_instrument:
+        instrument to be used to play counterpoint line
+    :param velocity:
+        one common velocity for all notes
     :param effects:
         sound effects to be applied to the resulting event
     :return:
@@ -133,8 +133,8 @@ def create_events_from_piece(
     all_notes = get_list_of_notes()
     events = []
     lines = [piece.cantus_firmus, piece.counterpoint]
-    timbres = [cantus_firmus_timbre, counterpoint_timbre]
-    for line, timbre in zip(lines, timbres):
+    instruments = [cantus_firmus_instrument, counterpoint_instrument]
+    for line, instrument in zip(lines, instruments):
         for element in line:
             start_time = (
                 element.start_time_in_eighths
@@ -148,17 +148,17 @@ def create_events_from_piece(
             )
             pitch_id = element.scale_element.position_in_semitones
             note = all_notes[pitch_id]
-            event = (timbre, start_time, duration, note, pitch_id)
+            event = (instrument, start_time, duration, note, pitch_id)
             events.append(event)
     events = sorted(events, key=lambda x: (x[1], x[4], x[2]))
     events = [
-        f"{x[0]}\t{x[1]}\t{x[2]}\t{x[3]}\t{volume}\t{location}\t{effects}"
+        f"{x[0]}\t{x[1]}\t{x[2]}\t{x[3]}\t{velocity}\t{effects}"
         for x in events
     ]
 
     columns = [
-        'timbre', 'start_time', 'duration', 'frequency',
-        'volume', 'location', 'effects'
+        'instrument', 'start_time', 'duration', 'frequency',
+        'velocity', 'effects'
     ]
     header = '\t'.join(columns)
     results = [header] + events
@@ -185,8 +185,8 @@ def create_wav_from_events(events_path: str, output_path: str) -> None:
     settings = {
         'frame_rate': 44100,
         'trailing_silence': 2,
-        'max_channel_delay': 0.02,
-        'timbres_registry': create_timbres_registry(presets_path)
+        'instruments_registry': create_instruments_registry(presets_path)
     }
-    timeline = convert_tsv_to_timeline(events_path, settings)
+    events = convert_tsv_to_events(events_path, settings)
+    timeline = convert_events_to_timeline(events, settings)
     write_timeline_to_wav(output_path, timeline, settings['frame_rate'])

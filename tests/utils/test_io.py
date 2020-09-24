@@ -77,7 +77,7 @@ def test_create_midi_from_piece(
 
 
 @pytest.mark.parametrize(
-    "piece, all_steps, measure_in_seconds, volume, row_number, expected",
+    "piece, all_steps, measure_in_seconds, velocity, row_number, expected",
     [
         (
             # `piece`
@@ -103,12 +103,12 @@ def test_create_midi_from_piece(
             [(2, 4), [-2, 8], [0, 1]],
             # `measure_in_seconds`
             1,
-            # `volume`
+            # `velocity`
             0.2,
             # `row_number`
             2,
             # `expected`
-            'default_timbre\t0.5\t0.5\tG4\t0.2\t0\t\n'
+            'default_instrument\t0.5\t0.5\tG4\t0.2\t\n'
         ),
         (
             # `piece`
@@ -134,18 +134,19 @@ def test_create_midi_from_piece(
             [(2, 4), [2, 8], [-1, 1]],
             # `measure_in_seconds`
             1,
-            # `volume`
+            # `velocity`
             0.2,
             # `row_number`
             5,
             # `expected`
-            'default_timbre\t1.5\t1.0\tD5\t0.2\t0\t\n'
+            'default_instrument\t1.5\t1.0\tD5\t0.2\t\n'
         ),
     ]
 )
 def test_create_events_from_piece(
         path_to_tmp_file: str, piece: Piece, all_steps: List[Tuple[int, int]],
-        measure_in_seconds: int, volume: float, row_number: int, expected: str
+        measure_in_seconds: int, velocity: float, row_number: int,
+        expected: str
 ) -> None:
     """Test `create_events_from_piece` function."""
     for movement, duration in all_steps:
@@ -154,9 +155,9 @@ def test_create_events_from_piece(
         piece,
         path_to_tmp_file,
         measure_in_seconds=measure_in_seconds,
-        cantus_firmus_timbre='default_timbre',
-        counterpoint_timbre='default_timbre',
-        volume=volume
+        cantus_firmus_instrument='default_instrument',
+        counterpoint_instrument='default_instrument',
+        velocity=velocity
     )
     with open(path_to_tmp_file) as in_file:
         for i in range(row_number):
@@ -170,9 +171,9 @@ def test_create_events_from_piece(
     [
         (
             [
-                "timbre\tstart_time\tduration\tfrequency\tvolume\tlocation\teffects",
-                "digital_piano_1\t1\t1\tA0\t1\t0\t",
-                'digital_piano_1\t2\t1\t1\t1\t0\t[{"name": "tremolo", "frequency": 1}]'
+                'instrument\tstart_time\tduration\tfrequency\tvelocity\teffects',
+                'lead\t1\t1\tA0\t1\t',
+                'lead\t2\t1\t1\t1\t[{"name": "tremolo", "frequency": 1}]'
             ]
         )
     ]

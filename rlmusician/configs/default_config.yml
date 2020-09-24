@@ -61,9 +61,9 @@ piece:
       counterpoint_instrument: 0
       velocity: 100
     sinethesizer:
-      cantus_firmus_timbre: digital_piano_1
-      counterpoint_timbre: digital_piano_1
-      volume: 0.3
+      cantus_firmus_instrument: bell_like_bass
+      counterpoint_instrument: lead
+      velocity: 0.6
 environment:
   scoring_coefs:
     climax_explicity: 1
