@@ -183,7 +183,7 @@ def create_wav_from_events(events_path: str, output_path: str) -> None:
         'configs/sinethesizer_presets.yml'
     )
     settings = {
-        'frame_rate': 44100,
+        'frame_rate': 48000,
         'trailing_silence': 2,
         'instruments_registry': create_instruments_registry(presets_path)
     }

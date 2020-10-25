@@ -61,8 +61,8 @@ piece:
       counterpoint_instrument: 0
       velocity: 100
     sinethesizer:
-      cantus_firmus_instrument: bell_like_bass
-      counterpoint_instrument: lead
+      cantus_firmus_instrument: additive_mellow_pipe
+      counterpoint_instrument: sawtooth_with_filter_envelope
       velocity: 0.6
 environment:
   scoring_coefs:
