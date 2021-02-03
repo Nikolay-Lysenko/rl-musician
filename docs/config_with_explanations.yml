@@ -1,5 +1,5 @@
 # This is an elucidated copy of `default_config.yml`.
-# The file is updated for v0.4.1.
+# The file is updated for v0.4.5.
 
 piece:  # Parameters of a piece to be composed automatically.
   tonic: C  # Main pitch class (also known as key). You can use octothorp/hash if needed (like D#).
@@ -62,11 +62,11 @@ piece:  # Parameters of a piece to be composed automatically.
     midi:
       cantus_firmus_instrument: 0  # ID (according to General MIDI specification) of instrument that plays cantus firmus.
       counterpoint_instrument: 0  # ID (according to General MIDI specification) of instrument that plays counterpoint line.
-      velocity: 100  # MIDI velocity (loosely speaking, loudness).
+      velocity: 100  # MIDI velocity (i.e., force of sound extraction, it may affect loudness and timbre), an integer between 0 and 128.
     sinethesizer:  # Settings of a tool that creates WAV files.
-      cantus_firmus_timbre: default_timbre  # Name of timbre (from `rlmusician.configs.sinethesizer_presets.yml`) for cantus firmus.
-      counterpoint_timbre: default_timbre  # Name of timbre (from `rlmusician.configs.sinethesizer_presets.yml`) for counterpoint line.
-      volume: 0.3
+      cantus_firmus_instrument: additive_mellow_pipe  # Name of instrument (from `rlmusician.configs.sinethesizer_presets.yml`) for cantus firmus.
+      counterpoint_timbre: sawtooth_with_filter_envelope  # Name of instrument (from `rlmusician.configs.sinethesizer_presets.yml`) for counterpoint line.
+      velocity: 0.6  # Velocity (i.e., force of sound extraction, it may affect loudness and timbre), a float between 0 and 1.
 environment:  # Parameters of environment that provides rewards and observations.
   scoring_coefs:  # See implementations from `rlmusician.environment.evaluation.py` to find more details.
     climax_explicity: 1
@@ -94,25 +94,12 @@ environment:  # Parameters of environment that provides rewards and observations
         4: 0.9
         5: 0.5
         6: 0.25
-  reward_for_dead_end: -3
-agent:  # Parameters of optimization algorithm (currently, it is Monte Carlo Beam Search).
+  reward_for_dead_end: -3  # Reward for any unfinished counterpoint line.
+agent:  # Parameters of optimization algorithm (currently, it is a modified version of Monte Carlo Beam Search).
   beam_width: 5  # Number of best subsequences of actions to explore further.
   n_records_to_keep: 10  # Number of best previously played episodes to keep.
-  n_trials_schedule:  # Numbers of random continuations of each subsequence at corresponding iteration. The last element is propagated further.
-    - 30000
-    - 10000
-    - 10000
-    - 10000
-    - 10000
-    - 10000
-    - 5000
-    - 5000
-    - 5000
-    - 1000
-    - 1000
-    - 1000
-    - 1000
-    - 1000
-    - 100
+  n_trials_estimation_depth: 3  # Number of steps ahead to explore in order to estimate number of random trials for the current iteration.
+  n_trials_estimation_width: 10  # Number of exploratory random trials that collect statistics for number of random trials estimation.
+  n_trials_factor: 3  # Factor such that estimated number of trials is multiplied by it.
   paralleling_params:  # Parameters of `mp.Pool` (like `n_processes` or `max_tasks_per_child`).
     n_processes:  # Blank value is `None` and so all cores are used.

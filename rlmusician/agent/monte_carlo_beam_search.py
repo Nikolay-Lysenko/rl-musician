@@ -5,7 +5,9 @@ Author: Nikolay Lysenko
 """
 
 
+import functools
 import random
+from copy import deepcopy
 from typing import Any, Dict, List, Optional, NamedTuple
 
 from rlmusician.environment import CounterpointEnv
@@ -67,11 +69,62 @@ def roll_out_randomly(env_with_actions: EnvWithActions) -> Record:
     return record
 
 
+def estimate_number_of_trials(
+        env: CounterpointEnv,
+        n_trials_estimation_depth: int,
+        n_trials_estimation_width: int,
+        n_trials_factor: float
+) -> int:
+    """
+    Estimate number of trials.
+
+    This procedure is an alternative to DFS in Monte Carlo Beam Search.
+    Its advantages over DFS:
+    * It is easy to run trials in parallel, no parallel DFS is needed;
+    * It works even if next steps given current node are stochastic.
+    Its disadvantages compared to DFS:
+    * Trials are distributed less even.
+
+    :param env:
+        environment
+    :param n_trials_estimation_depth:
+        number of steps ahead to explore in order to collect statistics
+        for inferring number of random trials to continue each stub
+    :param n_trials_estimation_width:
+        number of exploratory random trials that collect statistics
+        for inferring number of random trials to continue each stub
+    :param n_trials_factor:
+        factor such that estimated number of trials is multiplied by it
+    :return:
+        number of trials to continue a stub at random
+    """
+    estimations = []
+    for _ in range(n_trials_estimation_width):
+        current_env = deepcopy(env)
+        done = False
+        valid_actions = current_env.valid_actions
+        n_steps_passed = 0
+        n_options = []
+        while not done and n_steps_passed < n_trials_estimation_depth:
+            n_options.append(len(valid_actions))
+            action = random.choice(valid_actions)
+            observation, reward, done, info = current_env.step(action)
+            valid_actions = info['next_actions']
+            n_steps_passed += 1
+        estimation = functools.reduce(lambda x, y: x * y, n_options, 1)
+        estimations.append(estimation)
+    n_trials = n_trials_factor * sum(estimations) / n_trials_estimation_width
+    n_trials = int(round(n_trials))
+    return n_trials
+
+
 def add_records(
         env: CounterpointEnv,
         stubs: List[List[int]],
         records: List[Record],
-        n_trials: int,
+        n_trials_estimation_depth: int,
+        n_trials_estimation_width: int,
+        n_trials_factor: float,
         paralleling_params: Dict[str, Any]
 ) -> List[Record]:
     """
@@ -84,8 +137,14 @@ def add_records(
     :param records:
         previously collected statistics of finished episodes as sequences
         of actions and corresponding to them rewards
-    :param n_trials:
-        number of episodes to play per stub
+    :param n_trials_estimation_depth:
+        number of steps ahead to explore in order to collect statistics
+        for inferring number of random trials to continue each stub
+    :param n_trials_estimation_width:
+        number of exploratory random trials that collect statistics
+        for inferring number of random trials to continue each stub
+    :param n_trials_factor:
+        factor such that estimated number of trials is multiplied by it
     :param paralleling_params:
         settings of parallel playing of episodes
     :return:
@@ -94,6 +153,12 @@ def add_records(
     """
     for stub in stubs:
         env_with_actions = roll_in(env, stub)
+        n_trials = estimate_number_of_trials(
+            env_with_actions.env,
+            n_trials_estimation_depth,
+            n_trials_estimation_width,
+            n_trials_factor
+        )
         records_for_stub = imap_in_parallel(
             roll_out_randomly,
             generate_deep_copies(env_with_actions, n_trials),
@@ -171,7 +236,9 @@ def optimize_with_monte_carlo_beam_search(
         env: CounterpointEnv,
         beam_width: int,
         n_records_to_keep: int,
-        n_trials_schedule: List[int],
+        n_trials_estimation_depth: int,
+        n_trials_estimation_width: int,
+        n_trials_factor: float,
         paralleling_params: Optional[Dict[str, Any]] = None
 ) -> List[List[int]]:
     """
@@ -183,10 +250,14 @@ def optimize_with_monte_carlo_beam_search(
         number of best subsequences to be kept after each iteration
     :param n_records_to_keep:
         number of best played episodes to be kept after each iteration
-    :param n_trials_schedule:
-        numbers of random continuations of each stub at
-        corresponding iteration; the last element is used for all further
-        iterations if there are any
+    :param n_trials_estimation_depth:
+        number of steps ahead to explore in order to collect statistics
+        for inferring number of random trials to continue each stub
+    :param n_trials_estimation_width:
+        number of exploratory random trials that collect statistics
+        for inferring number of random trials to continue each stub
+    :param n_trials_factor:
+        factor such that estimated number of trials is multiplied by it
     :param paralleling_params:
         settings of parallel playing of episodes;
         by default, number of processes is set to number of cores
@@ -200,10 +271,14 @@ def optimize_with_monte_carlo_beam_search(
     paralleling_params = paralleling_params or {}
     stub_length = 0
     while len(stubs) > 0:
-        n_trials_index = min(stub_length, len(n_trials_schedule) - 1)
-        n_trials = n_trials_schedule[n_trials_index]
         records = add_records(
-            env, stubs, records, n_trials, paralleling_params
+            env,
+            stubs,
+            records,
+            n_trials_estimation_depth,
+            n_trials_estimation_width,
+            n_trials_factor,
+            paralleling_params
         )
         records = sorted(records, key=lambda x: x.reward, reverse=True)
         print(

@@ -95,21 +95,8 @@ environment:
 agent:
   beam_width: 5
   n_records_to_keep: 10
-  n_trials_schedule:
-    - 30000
-    - 10000
-    - 10000
-    - 10000
-    - 10000
-    - 10000
-    - 5000
-    - 5000
-    - 5000
-    - 1000
-    - 1000
-    - 1000
-    - 1000
-    - 1000
-    - 100
+  n_trials_estimation_depth: 3
+  n_trials_estimation_width: 10
+  n_trials_factor: 3
   paralleling_params:
     n_processes:
