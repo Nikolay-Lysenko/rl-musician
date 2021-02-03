@@ -131,34 +131,31 @@ def create_events_from_piece(
         None
     """
     all_notes = get_list_of_notes()
+    eight_in_seconds = measure_in_seconds / N_EIGHTHS_PER_MEASURE
     events = []
     lines = [piece.cantus_firmus, piece.counterpoint]
+    line_ids = ['cantus_firmus', 'counterpoint']
     instruments = [cantus_firmus_instrument, counterpoint_instrument]
-    for line, instrument in zip(lines, instruments):
+    for line, line_id, instrument in zip(lines, line_ids, instruments):
         for element in line:
-            start_time = (
-                element.start_time_in_eighths
-                / N_EIGHTHS_PER_MEASURE
-                * measure_in_seconds
-            )
+            start_time = element.start_time_in_eighths * eight_in_seconds
             duration = (
                 (element.end_time_in_eighths - element.start_time_in_eighths)
-                / N_EIGHTHS_PER_MEASURE
-                * measure_in_seconds
+                * eight_in_seconds
             )
             pitch_id = element.scale_element.position_in_semitones
             note = all_notes[pitch_id]
-            event = (instrument, start_time, duration, note, pitch_id)
+            event = (instrument, start_time, duration, note, pitch_id, line_id)
             events.append(event)
     events = sorted(events, key=lambda x: (x[1], x[4], x[2]))
     events = [
-        f"{x[0]}\t{x[1]}\t{x[2]}\t{x[3]}\t{velocity}\t{effects}"
+        f"{x[0]}\t{x[1]}\t{x[2]}\t{x[3]}\t{velocity}\t{effects}\t{x[5]}"
         for x in events
     ]
 
     columns = [
         'instrument', 'start_time', 'duration', 'frequency',
-        'velocity', 'effects'
+        'velocity', 'effects', 'line_id'
     ]
     header = '\t'.join(columns)
     results = [header] + events

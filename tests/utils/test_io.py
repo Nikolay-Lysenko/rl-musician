@@ -108,7 +108,7 @@ def test_create_midi_from_piece(
             # `row_number`
             2,
             # `expected`
-            'default_instrument\t0.5\t0.5\tG4\t0.2\t\n'
+            'default_instrument\t0.5\t0.5\tG4\t0.2\t\tcounterpoint\n'
         ),
         (
             # `piece`
@@ -139,7 +139,7 @@ def test_create_midi_from_piece(
             # `row_number`
             5,
             # `expected`
-            'default_instrument\t1.5\t1.0\tD5\t0.2\t\n'
+            'default_instrument\t1.5\t1.0\tD5\t0.2\t\tcounterpoint\n'
         ),
     ]
 )
