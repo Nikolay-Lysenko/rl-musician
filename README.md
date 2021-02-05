@@ -32,7 +32,7 @@ python -m rlmusician [-c path_to_your_config]
 If you are on Mac OS, please check that [parallelism is enabled](https://stackoverflow.com/questions/50168647/multiprocessing-causes-python-to-crash-and-gives-an-error-may-have-been-in-progr).
 
 Generated pieces are stored in a directory specified in the config. For each piece, there is a nested directory that contains:
-* Piano roll in TSV format;
 * MIDI file;
+* WAV file;
 * Events file in [sinethesizer](https://github.com/Nikolay-Lysenko/sinethesizer) TSV format;
-* WAV file.
+* PDF file with sheet music and its Lilypond source.

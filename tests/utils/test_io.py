@@ -12,7 +12,10 @@ import pytest
 
 from rlmusician.environment import Piece
 from rlmusician.utils import (
-    create_events_from_piece, create_midi_from_piece, create_wav_from_events
+    create_events_from_piece,
+    create_lilypond_file_from_piece,
+    create_midi_from_piece,
+    create_wav_from_events
 )
 
 
@@ -187,3 +190,101 @@ def test_create_wav_from_events(
         for line in tsv_content:
             tmp_tsv_file.write(line + '\n')
     create_wav_from_events(path_to_tmp_file, path_to_another_tmp_file)
+
+
+@pytest.mark.parametrize(
+    "piece, all_steps, expected",
+    [
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale_type='major',
+                cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
+                counterpoint_specifications={
+                    'start_note': 'G4',
+                    'end_note': 'C5',
+                    'lowest_note': 'C4',
+                    'highest_note': 'C6',
+                    'start_pause_in_eighths': 4,
+                    'max_skip_in_degrees': 2
+                },
+                rules={
+                    'names': ['rearticulation_stability'],
+                    'params': {}
+                },
+                rendering_params={}
+            ),
+            # `all_steps`,
+            [(2, 4), [2, 8], [-1, 1]],
+            # `expected`
+            (
+                "\\version \"2.18.2\"\n"
+                "\\layout {\n"
+                "    indent = #0\n"
+                "}\n"
+                "\\new StaffGroup <<\n"
+                "    \\new Staff <<\n"
+                "        \\clef treble\n"
+                "        \\time 4/4\n"
+                "        \\key c \\major\n"
+                "        {r2 g'2 b'2 d''2~ d''2 c''8}\n"
+                "        \\\\\n"
+                "        {c'1 d'1 e'1 d'1 c'1}\n"
+                "    >>\n"
+                ">>"
+            )
+        ),
+        (
+            # `piece`
+            Piece(
+                tonic='C',
+                scale_type='major',
+                cantus_firmus=['C4', 'D4', 'E4', 'D4', 'C4'],
+                counterpoint_specifications={
+                    'start_note': 'G3',
+                    'end_note': 'G3',
+                    'lowest_note': 'C3',
+                    'highest_note': 'C6',
+                    'start_pause_in_eighths': 0,
+                    'max_skip_in_degrees': 2
+                },
+                rules={
+                    'names': ['rearticulation_stability'],
+                    'params': {}
+                },
+                rendering_params={}
+            ),
+            # `all_steps`,
+            [(2, 4), [2, 8], [-1, 1]],
+            # `expected`
+            (
+                "\\version \"2.18.2\"\n"
+                "\\layout {\n"
+                "    indent = #0\n"
+                "}\n"
+                "\\new StaffGroup <<\n"
+                "    \\new Staff <<\n"
+                "        \\clef treble\n"
+                "        \\time 4/4\n"
+                "        \\key c \\major\n"
+                "        {c'1 d'1 e'1 d'1 c'1}\n"
+                "        \\\\\n"
+                "        {g1 b2 d'2~ d'2 c'8}\n"
+                "    >>\n"
+                ">>"
+            )
+        ),
+    ]
+)
+def test_create_lilypond_file_from_piece(
+        path_to_tmp_file: str, piece: Piece, all_steps: List[Tuple[int, int]],
+        expected: str
+) -> None:
+    """Test `create_lilypond_file_from_piece` function."""
+    for movement, duration in all_steps:
+        piece.add_line_element(movement, duration)
+    create_lilypond_file_from_piece(piece, path_to_tmp_file)
+    with open(path_to_tmp_file) as in_file:
+        result = in_file.read()
+        assert result == expected

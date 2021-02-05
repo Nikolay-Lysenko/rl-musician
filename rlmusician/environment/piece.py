@@ -27,8 +27,10 @@ from rlmusician.utils import (
     ScaleElement,
     check_consonance,
     create_events_from_piece,
+    create_lilypond_file_from_piece,
     create_midi_from_piece,
     create_wav_from_events,
+    create_pdf_sheet_music_with_lilypond
 )
 
 
@@ -437,9 +439,6 @@ class Piece:
         nested_dir = os.path.join(top_level_dir, f"result_{now}")
         os.mkdir(nested_dir)
 
-        roll_path = os.path.join(nested_dir, 'piano_roll.tsv')
-        np.savetxt(roll_path, self.piano_roll, fmt='%i', delimiter='\t')
-
         midi_path = os.path.join(nested_dir, 'music.mid')
         midi_params = self.rendering_params['midi']
         measure = self.rendering_params['measure_in_seconds']
@@ -451,3 +450,7 @@ class Piece:
 
         wav_path = os.path.join(nested_dir, 'music.wav')
         create_wav_from_events(events_path, wav_path)
+
+        lilypond_path = os.path.join(nested_dir, 'sheet_music.ly')
+        create_lilypond_file_from_piece(self, lilypond_path)
+        create_pdf_sheet_music_with_lilypond(lilypond_path)

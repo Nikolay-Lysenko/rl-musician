@@ -5,7 +5,11 @@ Author: Nikolay Lysenko
 """
 
 
+import os
+import subprocess
+import traceback
 from pkg_resources import resource_filename
+from typing import List
 
 import pretty_midi
 from sinethesizer.io import (
@@ -187,3 +191,169 @@ def create_wav_from_events(events_path: str, output_path: str) -> None:
     events = convert_tsv_to_events(events_path, settings)
     timeline = convert_events_to_timeline(events, settings)
     write_timeline_to_wav(output_path, timeline, settings['frame_rate'])
+
+
+def make_lilypond_template(tonic: str, scale_type: str) -> str:
+    """
+    Make template of Lilypond text file.
+
+    :param tonic:
+        tonic pitch class represented by letter (like C or A#)
+    :param scale_type:
+        type of scale (e.g., 'major', 'natural_minor', or 'harmonic_minor')
+    :return:
+        template
+    """
+    raw_template = (
+        "\\version \"2.18.2\"\n"
+        "\\layout {{{{\n"
+        "    indent = #0\n"
+        "}}}}\n"
+        "\\new StaffGroup <<\n"
+        "    \\new Staff <<\n"
+        "        \\clef treble\n"
+        "        \\time 4/4\n"
+        "        \\key {} \\{}\n"
+        "        {{{{{{}}}}}}\n"
+        "        \\\\\n"
+        "        {{{{{{}}}}}}\n"
+        "    >>\n"
+        ">>"
+    )
+    tonic = tonic.replace('#', 'is').replace('b', 'es').lower()
+    scale_type = scale_type.split('_')[-1]
+    template = raw_template.format(tonic, scale_type)
+    return template
+
+
+def convert_to_lilypond_note(
+        line_element: 'rlmusician.environment.piece.LineElement'
+) -> str:
+    """
+    Convert `LineElement` instance to note in Lilypond absolute notation.
+
+    :param line_element:
+        element of a melodic line
+    :return:
+        note in Lilypond absolute notation
+    """
+    pitch_class = line_element.scale_element.note[:-1]
+    pitch_class = pitch_class.replace('#', 'is').replace('b', 'es')
+    pitch_class = pitch_class.lower()
+
+    octave_id = int(line_element.scale_element.note[-1])
+    lilypond_default_octave_id = 3
+    octave_diff = octave_id - lilypond_default_octave_id
+    octave_sign = "'" if octave_diff >= 0 else ','
+    octave_info = "".join(octave_sign for _ in range(abs(octave_diff)))
+
+    start_time = line_element.start_time_in_eighths
+    end_time = line_element.end_time_in_eighths
+    time_from_measure_start = start_time % N_EIGHTHS_PER_MEASURE
+    duration_in_measures = (end_time - start_time) / N_EIGHTHS_PER_MEASURE
+    if duration_in_measures == 1.0 and time_from_measure_start > 0:
+        filled_measure_share = time_from_measure_start / N_EIGHTHS_PER_MEASURE
+        remaining_duration = int(round(1 / (1 - filled_measure_share)))
+        remaining_note = f"{pitch_class}{octave_info}{remaining_duration}~"
+        left_over_bar_duration = int(round(1 / filled_measure_share))
+        left_over_note = f"{pitch_class}{octave_info}{left_over_bar_duration}"
+        return f"{remaining_note} {left_over_note}"
+    else:
+        duration = int(round((1 / duration_in_measures)))
+        note = f"{pitch_class}{octave_info}{duration}"
+        return note
+
+
+def combine_lilypond_voices(
+        counterpoint_voice: str,
+        cantus_firmus_voice: str,
+        is_counterpoint_above: bool,
+        counterpoint_start_pause_in_eighths: int
+) -> List[str]:
+    """
+    Sort Lilypond voices and add delay to counterpoint voice if needed.
+
+    :param counterpoint_voice:
+        Lilypond representation of counterpoint line (without pauses)
+    :param cantus_firmus_voice:
+        Lilypond representation of cantus firmus line
+    :param is_counterpoint_above:
+        indicator whether counterpoint is written above cantus firmus
+    :param counterpoint_start_pause_in_eighths:
+        duration of pause that opens counterpoint line (in eighths of measure)
+    :return:
+        combined Lilypond representations
+    """
+    if counterpoint_start_pause_in_eighths > 0:
+        pause_duration = int(round(
+            N_EIGHTHS_PER_MEASURE / counterpoint_start_pause_in_eighths
+        ))
+        pause = f'r{pause_duration}'
+        counterpoint_voice = pause + ' ' + counterpoint_voice
+    if is_counterpoint_above:
+        return [counterpoint_voice, cantus_firmus_voice]
+    else:
+        return [cantus_firmus_voice, counterpoint_voice]
+
+
+def create_lilypond_file_from_piece(
+        piece: 'rlmusician.environment.Piece',
+        output_path: str
+) -> None:
+    """
+    Create text file in format of Lilypond sheet music editor.
+
+    :param piece:
+        musical piece
+    :param output_path:
+        path where resulting file is going to be saved
+    :return:
+        None
+    """
+    template = make_lilypond_template(piece.tonic, piece.scale_type)
+    lilypond_voices = {}
+    melodic_lines = {
+        'counterpoint': piece.counterpoint,
+        'cantus_firmus': piece.cantus_firmus
+    }
+    for line_id, melodic_line in melodic_lines.items():
+        lilypond_voice = []
+        for line_element in melodic_line:
+            note = convert_to_lilypond_note(line_element)
+            lilypond_voice.append(note)
+        lilypond_voice = " ".join(lilypond_voice)
+        lilypond_voices[line_id] = lilypond_voice
+    lilypond_voices = combine_lilypond_voices(
+        lilypond_voices['counterpoint'],
+        lilypond_voices['cantus_firmus'],
+        piece.is_counterpoint_above,
+        piece.counterpoint_specifications['start_pause_in_eighths']
+    )
+    result = template.format(*lilypond_voices)
+    with open(output_path, 'w') as out_file:
+        out_file.write(result)
+
+
+def create_pdf_sheet_music_with_lilypond(
+        lilypond_path: str
+) -> None:  # pragma: no cover
+    """
+    Create PDF file with sheet music.
+
+    :param lilypond_path:
+        path to a text file in Lilypond format
+    :return:
+        None:
+    """
+    dir_path, filename = os.path.split(lilypond_path)
+    bash_command = f"lilypond {filename}"
+    try:
+        process = subprocess.Popen(
+            bash_command.split(),
+            cwd=dir_path,
+            stdout=subprocess.PIPE
+        )
+        process.communicate()
+    except Exception:
+        print("Rendering sheet music to PDF failed. Do you have Lilypond?")
+        print(traceback.format_exc())
