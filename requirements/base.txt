@@ -2,5 +2,5 @@
 gym==0.17.1
 numpy==1.18.2
 pretty-midi==0.2.8
-PyYAML==5.3.1
+PyYAML==5.4
 sinethesizer==0.5.1
