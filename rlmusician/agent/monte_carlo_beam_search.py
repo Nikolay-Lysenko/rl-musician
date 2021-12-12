@@ -11,7 +11,7 @@ from copy import deepcopy
 from typing import Any, Dict, List, Optional, NamedTuple
 
 from rlmusician.environment import CounterpointEnv
-from rlmusician.utils import generate_deep_copies, imap_in_parallel
+from rlmusician.utils import generate_copies, imap_in_parallel
 
 
 class EnvWithActions(NamedTuple):
@@ -161,7 +161,7 @@ def add_records(
         )
         records_for_stub = imap_in_parallel(
             roll_out_randomly,
-            generate_deep_copies(env_with_actions, n_trials),
+            generate_copies(env_with_actions, n_trials),
             paralleling_params
         )
         records.extend(records_for_stub)

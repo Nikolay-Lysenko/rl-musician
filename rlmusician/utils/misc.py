@@ -5,8 +5,8 @@ Author: Nikolay Lysenko
 """
 
 
+import copy
 import multiprocessing as mp
-from copy import deepcopy
 from typing import Any, Callable, Dict, Iterator, List, Optional
 
 
@@ -79,19 +79,19 @@ def imap_in_parallel(
     return results
 
 
-def generate_deep_copies(something: Any, n_copies: int) -> Iterator[Any]:
+def generate_copies(something: Any, n_copies: int) -> Iterator[Any]:
     """
-    Generate deep copies of an object.
+    Generate shallow copies of an object.
 
     :param something:
         object to be copied
     :param n_copies:
         number of copies to be generated
     :return:
-        deep copies
+        shallow copies
     """
     for _ in range(n_copies):
-        yield deepcopy(something)
+        yield copy.copy(something)
 
 
 def rolling_aggregate(

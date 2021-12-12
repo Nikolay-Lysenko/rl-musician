@@ -15,7 +15,7 @@ from .io import (
 from .misc import (
     convert_to_base,
     imap_in_parallel,
-    generate_deep_copies,
+    generate_copies,
     rolling_aggregate,
 )
 from .music_theory import Scale, ScaleElement, check_consonance
@@ -32,6 +32,6 @@ __all__ = [
     'create_pdf_sheet_music_with_lilypond',
     'create_wav_from_events',
     'imap_in_parallel',
-    'generate_deep_copies',
+    'generate_copies',
     'rolling_aggregate',
 ]
