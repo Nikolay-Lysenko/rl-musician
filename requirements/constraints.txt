@@ -23,7 +23,7 @@ pytest==6.2.5
 pytest-cov==3.0.0
 PyYAML==6.0
 requests==2.26.0
-scipy==1.4.1
+scipy==1.5.4
 sinethesizer==0.6.0
 six==1.14.0
 toml==0.10.2
