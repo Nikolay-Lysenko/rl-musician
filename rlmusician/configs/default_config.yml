@@ -54,16 +54,16 @@ piece:
       absence_of_lines_crossing:
         prohibit_unisons: true
   rendering_params:
-    dir: rlmusician_data
+    dir: outputs
     measure_in_seconds: 1.0
     midi:
       cantus_firmus_instrument: 0
       counterpoint_instrument: 0
       velocity: 100
     sinethesizer:
-      cantus_firmus_instrument: additive_mellow_pipe
-      counterpoint_instrument: sawtooth_with_filter_envelope
-      velocity: 0.6
+      cantus_firmus_instrument: brass
+      counterpoint_instrument: bowed_string
+      velocity: 0.8
 environment:
   scoring_coefs:
     climax_explicity: 1

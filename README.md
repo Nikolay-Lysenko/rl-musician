@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Nikolay-Lysenko/rl-musician.svg?branch=master)](https://travis-ci.org/Nikolay-Lysenko/rl-musician)
+[![Build Status](https://github.com/Nikolay-Lysenko/rlmusician/actions/workflows/main.yml/badge.svg)](https://github.com/Nikolay-Lysenko/rlmusician/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/Nikolay-Lysenko/rl-musician/branch/master/graph/badge.svg)](https://codecov.io/gh/Nikolay-Lysenko/rl-musician)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a43618b5f9454d01186c/maintainability)](https://codeclimate.com/github/Nikolay-Lysenko/rl-musician/maintainability)
 [![PyPI version](https://badge.fury.io/py/rl-musician.svg)](https://badge.fury.io/py/rl-musician)
@@ -11,7 +11,7 @@ As of now, this is a proof-of-concept for music composition with reinforcement l
 
 Some pieces generated with this package are uploaded to a publicly available [cloud storage](https://www.dropbox.com/sh/ouv8tcpio8z5flp/AABIx8D-QlIM_FtuQ9LqFntNa?dl=0). A cantus firmus attributed to [Fux](https://en.wikipedia.org/wiki/Johann_Joseph_Fux) is used in all of them.
 
-To find more details, look at [a draft of a paper](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/docs/paper/paper.pdf). Also, if you are interested in algorithmic composition without too strict limitations of species counterpoint, look at the [Geniartor](https://github.com/Nikolay-Lysenko/geniartor) tool.
+To find more details, look at [a draft of a paper](https://github.com/Nikolay-Lysenko/rl-musician/blob/master/docs/paper/paper.pdf). Also, if you are interested in algorithmic composition without too strict limitations of species counterpoint, look at the tools named [Geniartor](https://github.com/Nikolay-Lysenko/geniartor) and [Dodecaphony](https://github.com/Nikolay-Lysenko/dodecaphony).
 
 ## Installation
 

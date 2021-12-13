@@ -125,4 +125,5 @@ nohup.out
 *.gz
 
 # Project data
+outputs/
 rlmusician_data/

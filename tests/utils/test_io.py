@@ -175,8 +175,8 @@ def test_create_events_from_piece(
         (
             [
                 'instrument\tstart_time\tduration\tfrequency\tvelocity\teffects',
-                'sawtooth_with_filter_envelope\t1\t1\tA0\t1\t',
-                'sawtooth_with_filter_envelope\t2\t1\t1\t1\t[{"name": "tremolo", "frequency": 1}]'
+                'woodwind\t1\t1\tA0\t1\t',
+                'woodwind\t2\t1\t27.5\t1\t[{"name": "tremolo", "frequency": 1}]'
             ]
         )
     ]

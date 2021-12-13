@@ -17,7 +17,7 @@ with open(os.path.join(current_dir, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='rl-musician',
-    version='0.4.5',
+    version='0.4.6',
     description=description,
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -44,7 +44,7 @@ setup(
         'numpy',
         'pretty-midi',
         'PyYAML',
-        'sinethesizer>=0.5.1',
+        'sinethesizer>=0.6,<0.7',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',

@@ -186,6 +186,7 @@ def create_wav_from_events(events_path: str, output_path: str) -> None:
     settings = {
         'frame_rate': 48000,
         'trailing_silence': 2,
+        'peak_amplitude': 1,
         'instruments_registry': create_instruments_registry(presets_path)
     }
     events = convert_tsv_to_events(events_path, settings)
