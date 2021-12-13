@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/Nikolay-Lysenko/rlmusician/actions/workflows/main.yml/badge.svg)](https://github.com/Nikolay-Lysenko/rlmusician/actions/workflows/main.yml)
+[![Build Status](https://github.com/Nikolay-Lysenko/rl-musician/actions/workflows/main.yml/badge.svg)](https://github.com/Nikolay-Lysenko/rl-musician/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/Nikolay-Lysenko/rl-musician/branch/master/graph/badge.svg)](https://codecov.io/gh/Nikolay-Lysenko/rl-musician)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a43618b5f9454d01186c/maintainability)](https://codeclimate.com/github/Nikolay-Lysenko/rl-musician/maintainability)
 [![PyPI version](https://badge.fury.io/py/rl-musician.svg)](https://badge.fury.io/py/rl-musician)
