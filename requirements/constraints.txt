@@ -12,7 +12,7 @@ importlib-metadata==4.8.2
 iniconfig==1.1.1
 mido==1.2.9
 more-itertools==8.2.0
-numpy==1.19.5
+numpy==1.22.0
 packaging==20.3
 pluggy==0.13.1
 pretty-midi==0.2.9
