@@ -46,7 +46,7 @@ def roll_in(env: CounterpointEnv, actions: List[int]) -> EnvWithActions:
     return env_with_actions
 
 
-def roll_out_randomly(env_with_actions: EnvWithActions) -> Record:
+def roll_out_randomly(env_with_actions: EnvWithActions) -> Record:  # pragma: no cover
     """
     Continue an episode in progress with random actions until it is finished.
 

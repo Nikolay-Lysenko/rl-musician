@@ -1,6 +1,6 @@
 -c constraints.txt
-gym==0.21.0
-numpy==1.19.5
-pretty-midi==0.2.9
-PyYAML==6.0
-sinethesizer==0.6.0
+gym==0.26.2
+numpy==1.25.2
+pretty-midi==0.2.10
+PyYAML==6.0.1
+sinethesizer==0.6.1
